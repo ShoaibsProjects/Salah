@@ -10,6 +10,7 @@ This repository is the canonical workspace for Salah. Read these files before ch
 6. `specification/accuracy-budget.md` — current comparison protocol, bounded implementation properties, and unmeasured limits.
 7. `specification/reference-cases.md` — independently sourced comparison data and limits.
 8. `data/reference/README.md` and `specification/usno-matrix-v1-report.md` — versioned solar source provenance, raw UTC comparison, and known disagreement.
+9. `data/reference/prayer-library-v1.tsv` and `specification/prayer-library-v1-report.md` — pinned prayer-library comparison and unresolved Asr/high-latitude differences.
 
 ## Project intent
 
@@ -39,4 +40,4 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 
 ## Current state
 
-The repository now contains `salah-core` and `salah-cli` as a research preview. They implement fixed-offset, sea-level, angle-based daily calculations with no high-latitude substitution. Available profiles are `research-15` and `mwl-angles-18-17`, the latter sourced to the PrayTimes parameter table without claiming institutional endorsement. Solar events are checked against USNO; selected prayer outputs are compared with Adhan JS and PrayTimes v2. No time-zone lookup, institutional certification, or consumer notification behavior exists. The 19-case USNO source matrix and report include an unresolved near-grazing event-existence disagreement. Continue Phase 1 prayer-rule validation and method-source work in `docs/phase-1-validation.md` before making consumer accuracy claims.
+The repository now contains `salah-core` and `salah-cli` as a research preview. They implement fixed-offset, sea-level, angle-based daily calculations with no high-latitude substitution. Available profiles are `research-15` and `mwl-angles-18-17`, the latter sourced to the PrayTimes parameter table without claiming institutional endorsement. Solar events are checked against USNO; selected prayer outputs are compared with Adhan JS and PrayTimes v2. No time-zone lookup, institutional certification, or consumer notification behavior exists. The 19-case USNO source matrix and report include an unresolved near-grazing event-existence disagreement. The 28-row prayer-rule matrix exposes the Minneapolis Asr gap, Adhan high-latitude fallback, and polar-night Asr source disagreement. Continue P1.4 method provenance and later Phase 1 work in `docs/phase-1-validation.md` before making consumer accuracy claims.

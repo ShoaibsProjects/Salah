@@ -36,3 +36,13 @@ cargo test --locked --offline -p salah-core --test usno_solar_matrix -- --nocapt
 It reports the signed difference `Salah raw UTC seconds − USNO UTC minute value` for each reported event. It checks event existence, stable IDs, source metadata shape, the development/holdout split, and the current case-specific allowances. The known 65.735° N event-existence disagreement is printed explicitly and does not silently become an allowed time error.
 
 The seven holdouts were selected after the earlier hard-coded regression cases. Passing them is additional evidence for those conditions only; the sample is neither random nor representative of all dates, atmospheres, coordinates, or Islamic methods.
+
+## Prayer-library matrix v1
+
+[`prayer-library-v1.tsv`](prayer-library-v1.tsv) records 28 source rows across seven dates/locations, two angle sets, and two Asr criteria. The [report](../../specification/prayer-library-v1-report.md) lists source versions, options, signed differences, and incomparable fallback/status cases. Reproduce its offline Rust audit with:
+
+```bash
+cargo test --locked --offline -p salah-core --test prayer_library_matrix -- --nocapture
+```
+
+The optional [`generate_prayer_matrix.cjs`](../../tools/generate_prayer_matrix.cjs) regenerates source values from separately obtained and hash-checked Adhan JS and PrayTimes files; Node and those packages are not needed by Salah at runtime or for the checked-in offline audit. Source retrieval and calculation occurred 2026-09-27 UTC. `no_event` means the source returned a nonfinite/missing time; Adhan's `fallback` marker means its published time was substituted for a nonfinite solar-angle event. Source outputs are UTC ISO timestamps with source-supported precision, not physical uncertainty bounds. The last two columns state PrayTimes' signed 24-hour cycle normalization and Adhan's UTC input date; Kiritimati uses −1 day in both so its 2026-09-27 UTC+14 local solar cycle is compared, not the following UTC day.
