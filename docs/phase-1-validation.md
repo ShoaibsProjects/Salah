@@ -40,6 +40,7 @@ Compare Fajr, Isha, Dhuhr, Maghrib, and Standard/Hanafi Asr against at least two
 **Acceptance:** each prayer event has ordinary and edge cases; parameter or model differences are distinguished from bugs; unexplained discrepancies remain visible in the ledger and block claims for the affected regime.
 
 ## P1.4 — Method provenance and religious review
+See the [method register](../specification/method-register-v1.md) and [method-source manifest](../data/reference/method-sources-v1.tsv).
 
 Create a versioned method-source register. For every named profile, record its parameter values, source edition/URL, retrieval or publication date, applicable region/community, adjustment and Ramadan behavior, high-latitude behavior, and review state. Prefer a primary institution document when available. A secondary implementation table may support a parameter set but cannot by itself justify institutional endorsement or a universal default. Ask qualified reviewers to check user-facing descriptions and disputed practices. Do not generate a fatwa.
 
