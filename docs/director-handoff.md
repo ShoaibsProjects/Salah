@@ -104,6 +104,26 @@ VERIFY: cargo fmt --all -- --check; cargo clippy --locked --offline --workspace 
 RETURN: files changed + diff stat; per-parameter source table (source, edition/URL, date, hash where applicable); primary-source gaps; assumptions; any discrepancies found (do not fix beyond scope); test logs; a limitations paragraph stating reviewer vacancies and unsupported claims. Stop after the register is reviewable; do not implement P1.5 or Phase 2.
 ```
 
+### Next packet prompt — P1.5-E1 (rounding options survey; give verbatim to Muse 1.3)
+
+```text
+You are preparing P1.5-E1, a rounding-options SURVEY, in /Users/shoaibakthar/Documents/Salah. This is evidence gathering for an architect decision, not an implementation or a decision about which rounding rule is correct.
+
+READ FIRST: AGENTS.md; docs/roadmap.md; docs/phase-1-validation.md P1.5; docs/director-handoff.md §3 P1.5-E1 and §5; docs/decisions.md; specification/calculation-contract-v0.3.md; specification/accuracy-budget.md; specification/reference-cases.md; specification/prayer-library-v1-report.md; specification/usno-matrix-v1-report.md; data/reference/prayer-library-v1.tsv; data/reference/solar-usno-v1.tsv; specification/method-register-v1.md. Read current EventRule/result types for schema description only; do not edit Rust.
+
+TASK: create specification/rounding-survey-v1.md. Survey sourced options for converting raw UTC event instants into adjusted prayer beginnings, displayed timetable minutes, and later notification instants. Explicitly investigate whether Dhuhr/Maghrib adjustments are applied before or after minute rounding, whether sources specify this per method, and any other relevant orderings. Distinguish a sourced practice from a hypothetical comparison option. Present tradeoffs and a non-binding observation; do not select a final rule.
+
+For EACH option, state its exact operation order, source URL/edition/retrieval or publication date, what the source actually establishes, and gaps. Include worked examples from cited existing vectors: Minneapolis 2026-09-27, Makkah 2026-03-20, London 2026-06-21 Isha crossing midnight, and Tromsø no-event. Show the underlying UTC instant with seconds, any method adjustment, resulting prayer beginning, and candidate displayed minute. Identify the source row/case ID for every observed value. Because current profiles have zero adjustments, include at least one explicitly hypothetical nonzero-second adjustment applied to a cited raw instant to expose any ordering difference; do not present it as an implemented method or reference observation. If an exact raw instant is unavailable in existing evidence, state the gap rather than inventing one. Show Maghrib separately from sunset, preserve an unavailable event as unavailable, and preserve the correct date when Isha crosses midnight. Describe what EventRule/result schema currently exposes and what a future minute-display rule would need; notification instants remain a separate unscheduled concept.
+
+IN SCOPE: new specification/rounding-survey-v1.md only, plus exactly one link-only line immediately below the P1.5 heading in docs/phase-1-validation.md pointing to it. Preserve the existing P1.4 link line.
+
+DO NOT: modify crates/**, existing contracts (especially historical v0.3), methods, formulas, outputs, tolerances, reference TSVs, roadmap gates, AGENTS.md, or decisions.md. Do not implement rounding or notifications, choose a normative order, make a scholarly ruling, make a consumer accuracy claim, start P1.6 or Phase 2, commit, or push. Preserve unrelated files including .idea/.
+
+VERIFY: check every cited vector against its source file; check relative links and the exact file diff; run cargo fmt --all -- --check, cargo clippy --locked --offline --workspace --all-targets -- -D warnings, and cargo test --locked --offline --workspace.
+
+RETURN: files changed and diff stat; source/options table; worked UTC examples with citations; what remains unknown by method; EventRule/schema gap; non-binding observation; verification results; limitations. Stop for architect review.
+```
+
 ### Reusable packet template
 
 ```text
@@ -134,7 +154,7 @@ RETURN: diff stat, evidence tables, gaps, assumptions, discrepancies, logs, limi
 
 ## 6. Handoff summary
 
-* **Exact next packet:** P1.4-M1 using the verbatim prompt in §4. Give it to one smaller agent; nothing else is delegated yet.
-* **Architect/reviewer checks on return:** two profiles versioned + sourced with dates and separated PrayTimes artifacts (webpage retrieval date; JS file hash scoped to the file); primary gap explicit; `not_applicable` vs `unknown` correctly distinguished; research label intact; no default/endorsement/fatwa language; wording marked Pending; only the permitted link line was added to an existing file and it resolves; CI green; `git status` shows the new files and only the permitted link addition to an existing file.
+* **Completed technical evidence:** P1.4-M1 method-source manifest and register were reviewed and committed as `7145b2d`. The secondary-source provenance is explicit. Qualified Islamic-methodology review remains vacant, so P1.4 religious review is open and no consumer method endorsement follows.
+* **Exact next packet:** P1.5-E1 using the verbatim prompt in §4. Give it to one smaller agent; stop for architect review before selecting or implementing a minute rule.
 * **Open questions for human owner/expert:** acceptability of PrayTimes-secondary-only provenance for an MWL-associated label; who fills astronomy + Islamic-methodology + civil-data + product/a11y roles; license/funding path; TZ response-archival rights and mirror; Qibla reference coordinate; rounding-policy authority per method.
-* **Ready to delegate:** P1.4-M1, then P1.5-E1. **Ready to review:** none (awaiting P1.4-M1). **Blocked pending external review:** P1.6-G1 gate, any regional default or endorsement, polar/high-latitude policy, global accuracy claim, consumer release.
+* **Ready to delegate:** P1.5-E1 survey. **Ready to review:** P1.5-E1 after its evidence arrives. **Blocked pending external review:** P1.6-G1 gate, any regional default or endorsement, polar/high-latitude policy, global accuracy claim, consumer release.
