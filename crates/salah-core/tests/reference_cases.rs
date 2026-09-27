@@ -90,6 +90,67 @@ fn usno_solar_events_across_seasons_and_hemispheres() {
     near(sydney.sunrise, utc(2026, 12, 20, 18, 41, 0), 90);
     near(sydney.dhuhr, utc(2026, 12, 21, 1, 53, 0), 90);
     near(sydney.sunset, utc(2026, 12, 21, 9, 5, 0), 90);
+
+    let quito_2050 = calculate_prayer_times(input(
+        2050,
+        9,
+        27,
+        0.1807,
+        -78.4678,
+        -300,
+        AsrCriterion::Standard,
+    ))
+    .unwrap();
+    near(quito_2050.sunrise, utc(2050, 9, 27, 11, 2, 0), 90);
+    near(quito_2050.dhuhr, utc(2050, 9, 27, 17, 5, 0), 90);
+    near(quito_2050.sunset, utc(2050, 9, 27, 23, 8, 0), 90);
+
+    let leap_day = calculate_prayer_times(input(
+        2028,
+        2,
+        29,
+        21.4225,
+        39.8262,
+        180,
+        AsrCriterion::Standard,
+    ))
+    .unwrap();
+    near(leap_day.sunrise, utc(2028, 2, 29, 3, 42, 0), 90);
+    near(leap_day.dhuhr, utc(2028, 2, 29, 9, 33, 0), 90);
+    near(leap_day.sunset, utc(2028, 2, 29, 15, 25, 0), 90);
+}
+
+#[test]
+fn mwl_angle_profile_matches_independent_praytimes_parameters() {
+    let mut minneapolis_input = input(2026, 9, 27, 44.9778, -93.2650, -300, AsrCriterion::Standard);
+    minneapolis_input.method = MethodProfile::mwl_angles_18_17();
+    let minneapolis = calculate_prayer_times(minneapolis_input).unwrap();
+    // PrayTimes v2 Float output, converted from UTC−05:00 to UTC.
+    near(minneapolis.fajr, utc(2026, 9, 27, 10, 28, 2), 60);
+    near(minneapolis.dhuhr, utc(2026, 9, 27, 18, 3, 57), 60);
+    near(minneapolis.asr, utc(2026, 9, 27, 21, 22, 11), 60);
+    near(minneapolis.isha, utc(2026, 9, 28, 1, 33, 6), 60);
+
+    let mut makkah_input = input(2026, 3, 20, 21.4225, 39.8262, 180, AsrCriterion::Standard);
+    makkah_input.method = MethodProfile::mwl_angles_18_17();
+    let makkah = calculate_prayer_times(makkah_input).unwrap();
+    near(makkah.fajr, utc(2026, 3, 20, 2, 11, 4), 60);
+    near(makkah.isha, utc(2026, 3, 20, 16, 41, 21), 60);
+}
+
+#[test]
+fn near_midnight_sunrise_is_distinct_from_continuous_daylight() {
+    let rising =
+        calculate_prayer_times(input(2026, 6, 21, 65.72, 0.0, 0, AsrCriterion::Standard)).unwrap();
+    // USNO reports 00:10 sunrise and 23:53 sunset; mean-refraction models
+    // are especially sensitive here, so this case allows ±3 minutes.
+    near(rising.sunrise, utc(2026, 6, 21, 0, 10, 0), 180);
+    near(rising.sunset, utc(2026, 6, 21, 23, 53, 0), 180);
+
+    let continuous =
+        calculate_prayer_times(input(2026, 6, 21, 65.74, 0.0, 0, AsrCriterion::Standard)).unwrap();
+    assert!(matches!(continuous.sunrise, Event::Unavailable { .. }));
+    assert!(matches!(continuous.sunset, Event::Unavailable { .. }));
 }
 
 #[test]

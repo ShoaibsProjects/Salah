@@ -5,7 +5,7 @@
 
 ## Current progress
 
-The repository now has a dependency-free `salah-core` crate and an offline `salah-cli`. The first slice calculates a solar cycle with one explicit fixed UTC offset and a research-only 15°/15° profile. It preserves UTC results and typed unavailable events. Solar outputs have selected independent USNO comparisons; Fajr, Isha, and Asr have selected Adhan JS comparisons. See [reference cases](../specification/reference-cases.md). This is an F1 research prototype, not a released global prayer timetable. Institutional method review, broader validation, IANA time zones, Qibla, and high-latitude fallback remain open.
+The repository now has a dependency-free `salah-core` crate and an offline `salah-cli`. It calculates a solar cycle with an explicit fixed UTC offset and two angle profiles: `research-15` and the PrayTimes-documented `mwl-angles-18-17`. It preserves UTC results and typed unavailable events. Selected solar outputs are compared with USNO; selected prayer outputs are compared with Adhan JS and PrayTimes v2. See [reference cases](../specification/reference-cases.md). This remains a research prototype, not a released global prayer timetable. Institutional method endorsement, broader validation, IANA time zones, Qibla, and high-latitude fallback remain open.
 
 ## Decision on the proposed seven-milestone plan
 
@@ -60,6 +60,7 @@ Salah/
 │   └── foundation-plan.md
 ├── specification/
 │   ├── calculation-contract-v0.1.md
+│   ├── calculation-contract-v0.2.md
 │   └── reference-cases.md
 └── crates/
     ├── salah-core/

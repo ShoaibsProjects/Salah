@@ -22,6 +22,7 @@ impl AsrCriterion {
 pub struct MethodProfile {
     pub id: &'static str,
     pub revision: &'static str,
+    pub source: &'static str,
     pub fajr_depression_degrees: f64,
     pub isha_depression_degrees: f64,
     pub dhuhr_adjustment_seconds: i32,
@@ -33,8 +34,24 @@ impl MethodProfile {
         Self {
             id: "research-15",
             revision: "0.1",
+            source: "Salah calculation contract v0.1; research parameter set",
             fajr_depression_degrees: 15.0,
             isha_depression_degrees: 15.0,
+            dhuhr_adjustment_seconds: 0,
+            maghrib_adjustment_seconds: 0,
+        }
+    }
+
+    /// The 18° Fajr / 17° Isha MWL angle set documented by PrayTimes.
+    /// This profile does not imply MWL endorsement, local adjustments, or
+    /// PrayTimes' high-latitude fallback behavior.
+    pub const fn mwl_angles_18_17() -> Self {
+        Self {
+            id: "mwl-angles-18-17",
+            revision: "0.1",
+            source: "https://praytimes.org/docs/methods",
+            fajr_depression_degrees: 18.0,
+            isha_depression_degrees: 17.0,
             dhuhr_adjustment_seconds: 0,
             maghrib_adjustment_seconds: 0,
         }
@@ -43,6 +60,7 @@ impl MethodProfile {
     pub fn validate(self) -> Result<Self, CalculationError> {
         if self.id.is_empty()
             || self.revision.is_empty()
+            || self.source.is_empty()
             || !self.fajr_depression_degrees.is_finite()
             || !self.isha_depression_degrees.is_finite()
             || !(0.0..=30.0).contains(&self.fajr_depression_degrees)

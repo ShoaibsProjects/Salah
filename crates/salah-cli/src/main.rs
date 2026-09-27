@@ -7,9 +7,10 @@ use salah_core::{
 };
 
 const USAGE: &str = "Usage: salah-cli --lat DEGREES --lon DEGREES --date YYYY-MM-DD \
---utc-offset <+HH:MM|-HH:MM> --method research-15 --asr <standard|hanafi>\n\n\
+--utc-offset <+HH:MM|-HH:MM> --method <research-15|mwl-angles-18-17> \
+--asr <standard|hanafi>\n\n\
 This is an offline research calculation. The fixed UTC offset is not a time zone.\n\
-The research-15 profile is not a named institutional prayer method.";
+The MWL angle profile reproduces published parameters, not an endorsed timetable.";
 
 fn main() -> ExitCode {
     match run() {
@@ -49,6 +50,9 @@ fn run() -> Result<(), String> {
             "--utc-offset" => offset = Some(parse_offset(&value)?),
             "--method" if value == "research-15" => {
                 method = Some(MethodProfile::research_15());
+            }
+            "--method" if value == "mwl-angles-18-17" => {
+                method = Some(MethodProfile::mwl_angles_18_17());
             }
             "--method" => return Err(format!("unsupported method: {value}")),
             "--asr" if value == "standard" => asr = Some(AsrCriterion::Standard),
@@ -91,7 +95,8 @@ fn run() -> Result<(), String> {
         input.method.isha_depression_degrees,
         input.asr_criterion
     );
-    println!("Research profile; not an institutional timetable. No high-latitude fallback.\n");
+    println!("Source: {}", input.method.source);
+    println!("Parameter profile; not an endorsed timetable. No high-latitude fallback.\n");
 
     for (name, event) in [
         ("Fajr", result.fajr),

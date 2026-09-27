@@ -92,28 +92,66 @@ pub(crate) fn upper_transit(
     }
 }
 
-/// A bracketed bisection of an altitude condition. `None` means the selected
-/// condition has no crossing on this side of the solar cycle.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum CrossingDirection {
+    Rising,
+    Falling,
+}
+
+/// Find the requested crossing of a solar condition. A same-sign pair of
+/// endpoints can hide two crossings near a midnight extremum, so inspect the
+/// interior extremum before declaring an event unavailable.
 pub(crate) fn crossing(
     start: f64,
     end: f64,
+    direction: CrossingDirection,
     condition: impl Fn(f64) -> f64,
 ) -> Result<Option<f64>, CalculationError> {
-    let mut low = start;
-    let mut high = end;
-    let mut low_value = condition(low);
-    let high_value = condition(high);
-    if !low_value.is_finite() || !high_value.is_finite() {
+    let start_value = condition(start);
+    let end_value = condition(end);
+    if !start_value.is_finite() || !end_value.is_finite() || start >= end {
         return Err(CalculationError::NumericalFailure);
     }
-    if low_value == 0.0 {
-        return Ok(Some(low));
+    if start_value == 0.0 {
+        return Ok(Some(start));
     }
-    if high_value == 0.0 {
-        return Ok(Some(high));
+    if end_value == 0.0 {
+        return Ok(Some(end));
     }
-    if low_value.signum() == high_value.signum() {
+
+    let bracket = match direction {
+        CrossingDirection::Rising if start_value < 0.0 && end_value > 0.0 => Some((start, end)),
+        CrossingDirection::Falling if start_value > 0.0 && end_value < 0.0 => Some((start, end)),
+        _ if start_value > 0.0 && end_value > 0.0 => {
+            let minimum = interior_extremum(start, end, &condition, false)?;
+            if condition(minimum) >= 0.0 {
+                None
+            } else {
+                match direction {
+                    CrossingDirection::Rising => Some((minimum, end)),
+                    CrossingDirection::Falling => Some((start, minimum)),
+                }
+            }
+        }
+        _ if start_value < 0.0 && end_value < 0.0 => {
+            let maximum = interior_extremum(start, end, &condition, true)?;
+            if condition(maximum) <= 0.0 {
+                None
+            } else {
+                match direction {
+                    CrossingDirection::Rising => Some((start, maximum)),
+                    CrossingDirection::Falling => Some((maximum, end)),
+                }
+            }
+        }
+        _ => None,
+    };
+    let Some((mut low, mut high)) = bracket else {
         return Ok(None);
+    };
+    let mut low_value = condition(low);
+    if !low_value.is_finite() {
+        return Err(CalculationError::NumericalFailure);
     }
     for _ in 0..50 {
         let middle = (low + high) / 2.0;
@@ -129,4 +167,51 @@ pub(crate) fn crossing(
         }
     }
     Ok(Some((low + high) / 2.0))
+}
+
+/// Golden-section search on a half solar cycle. Altitude is unimodal in the
+/// interval in the supported model; the test suite covers the midnight-grazing
+/// case that motivates this extra search.
+fn interior_extremum(
+    start: f64,
+    end: f64,
+    condition: &impl Fn(f64) -> f64,
+    maximum: bool,
+) -> Result<f64, CalculationError> {
+    let mut low = start;
+    let mut high = end;
+    let golden = (5.0_f64.sqrt() - 1.0) / 2.0;
+    for _ in 0..80 {
+        let left = high - golden * (high - low);
+        let right = low + golden * (high - low);
+        let left_value = condition(left);
+        let right_value = condition(right);
+        if !left_value.is_finite() || !right_value.is_finite() {
+            return Err(CalculationError::NumericalFailure);
+        }
+        if (left_value < right_value) == maximum {
+            low = left;
+        } else {
+            high = right;
+        }
+    }
+    Ok((low + high) / 2.0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn crossing_finds_direction_when_endpoints_hide_two_roots() {
+        let parabola = |t: f64| (t - 0.2) * (t - 0.4);
+        let falling = crossing(0.0, 1.0, CrossingDirection::Falling, parabola)
+            .unwrap()
+            .unwrap();
+        let rising = crossing(0.0, 1.0, CrossingDirection::Rising, parabola)
+            .unwrap()
+            .unwrap();
+        assert!((falling - 0.2).abs() < 1e-8);
+        assert!((rising - 0.4).abs() < 1e-8);
+    }
 }
