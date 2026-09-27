@@ -46,7 +46,7 @@ These values come from the current tests. They are **case-specific investigation
 | PrayTimes v2 MWL parameter comparison | ±60 seconds on selected UTC values | The angle profile is matched, while ephemeris and iteration details differ. The default high-latitude behavior is not being compared. |
 | Polar day/night statuses | Event-existence assertions, with selected Dhuhr ±90 seconds | No invented sunrise/sunset or twilight clock value is accepted when the selected solar condition has no crossing. |
 
-The cited sources, case inputs, and current outputs are in [reference-cases.md](reference-cases.md). Tolerances must not be widened simply to make a failing change pass. A change outside an allowance requires a discrepancy record even if the source is later found to use a different definition.
+The [19-case USNO matrix report](usno-matrix-v1-report.md) records the signed raw-UTC differences and two known near-grazing event-existence disagreements. The cited sources, case inputs, and earlier selected outputs are in [reference-cases.md](reference-cases.md). Tolerances must not be widened simply to make a failing change pass. A change outside an allowance requires a discrepancy record even if the source is later found to use a different definition.
 
 ## Comparison protocol
 
@@ -67,6 +67,6 @@ A source manifest for Phase 1 must give each vector a stable case ID and all fie
 
 ## Open release thresholds and review
 
-Phase 1 must establish a wider independent matrix before setting a consumer release threshold for solar events. Record signed difference, maximum absolute difference, and distribution **by event and regime**, with source precision shown alongside. Review failures individually; a percentile cannot excuse a materially wrong event or a false event-existence result. Separate numerical convergence evidence from agreement with another approximate implementation.
+Phase 1 now has a wider 19-case USNO matrix, but it still needs independent matched-assumption ephemeris evidence and broader regime coverage before setting a consumer release threshold for solar events. Record signed difference, maximum absolute difference, and distribution **by event and regime**, with source precision shown alongside. Review failures individually; a percentile cannot excuse a materially wrong event or a false event-existence result. Separate numerical convergence evidence from agreement with another approximate implementation.
 
 The current case set cannot determine a defensible global tolerance for 1900–2100, near-polar geometry, terrain/weather, or all prayer methods. The astronomy and Islamic-methodology reviewers are not yet assigned. Those gaps remain open in the [roadmap](../docs/roadmap.md) and block a broad accuracy or religious-endorsement claim.
