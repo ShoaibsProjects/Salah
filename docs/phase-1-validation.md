@@ -1,6 +1,6 @@
 # Phase 1 — validation and method integrity
 
-**Status:** active plan. P1.1 has an initial [accuracy-budget protocol](../specification/accuracy-budget.md); wider evidence and independent review remain open. The [delivery roadmap](roadmap.md) owns the phase gate. This document does not declare the kernel accurate for every Earth location or religious convention.
+**Status:** active plan. P1.1 has an initial [accuracy-budget protocol](../specification/accuracy-budget.md); P1.2 has a [19-case USNO manifest](../data/reference/solar-usno-v1.tsv) and [signed report](../specification/usno-matrix-v1-report.md). The near-grazing disagreement and independent review remain open. The [delivery roadmap](roadmap.md) owns the phase gate. This document does not declare the kernel accurate for every Earth location or religious convention.
 
 ## Starting evidence and known limits
 
@@ -55,10 +55,10 @@ Specify raw event, adjusted prayer beginning, displayed timetable minute, and no
 
 Summarize the matrix and discrepancy ledger by regime and event; state what was verified, what remains excluded, and who reviewed method wording. Record whether the numerical and source criteria are met. If a criterion is not met, keep Phase 1 open or narrow the explicitly supported scope. A consumer UI may be explored, but it must not present the research engine as a globally validated timetable.
 
-## Order and first work item
+## Order and next work item
 
-The initial P1.1 protocol is written. Next create the source manifest (P1.2) and expand the prayer matrix (P1.3). Method-source investigation (P1.4) and rounding definitions (P1.5) can proceed while those references are assembled. P1.6 is a gate review, not a date-driven ceremony.
+P1.1 and the initial P1.2 solar matrix are written. Next expand the prayer-rule matrix (P1.3). Method-source investigation (P1.4) and rounding definitions (P1.5) can proceed while those references are assembled. P1.6 is a gate review, not a date-driven ceremony.
 
-The next bounded task is **P1.2: create a versioned reference-source manifest and expand the solar matrix**. Preserve source precision and assumptions, include holdout cases, and keep source tooling out of the runtime core. The [accuracy budget](../specification/accuracy-budget.md) lists which release thresholds still need that evidence.
+The next bounded task is **P1.3: prayer-rule comparison** under matched explicit settings. Keep Fajr/Isha and both Asr criteria distinct, record source versions and rounding, and investigate the existing Asr discrepancy without averaging clock times. The [accuracy budget](../specification/accuracy-budget.md) and [solar report](../specification/usno-matrix-v1-report.md) show which release claims remain unsupported.
 
 Each later calculation change needs a linked discrepancy, a source or invariant that demonstrates it, a contract/model/profile version decision, and a regression case. Keep historical contracts and reference provenance intact.

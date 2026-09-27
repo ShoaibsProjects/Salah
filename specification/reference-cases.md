@@ -4,7 +4,7 @@ These cases are independent checks of the first offline core. They are not a cer
 
 ## Solar events: U.S. Naval Observatory
 
-The [USNO Complete Sun and Moon Data API](https://aa.usno.navy.mil/data/api#rstt) returned these civil clock times for the listed dates. The API reports to the minute. Tests convert the listed fixed offset to UTC and allow ±90 seconds to account for reporting precision and model/horizon differences.
+The [USNO Complete Sun and Moon Data API](https://aa.usno.navy.mil/data/api#rstt) returned these civil clock times for the listed dates. The API formats times to the minute. The original cases below use explicit fixed offsets and mostly allow ±90 seconds; the 65.72° N grazing case allows ±180 seconds. The [versioned 19-case manifest](../data/reference/solar-usno-v1.tsv), its [schema and source notes](../data/reference/README.md), and the [signed-difference report](usno-matrix-v1-report.md) now provide the fuller comparison, including seven later holdouts.
 
 | Place and date | Coordinates | Fixed offset | Rise | Upper transit | Set | Source |
 | --- | --- | --- | --- | --- | --- | --- |
