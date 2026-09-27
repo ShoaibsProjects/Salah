@@ -1,6 +1,6 @@
 # Phase 1 — validation and method integrity
 
-**Status:** active plan. The [delivery roadmap](roadmap.md) owns the phase gate. This document breaks Phase 1 into reviewable tasks. It does not declare the kernel accurate for every Earth location or religious convention.
+**Status:** active plan. P1.1 has an initial [accuracy-budget protocol](../specification/accuracy-budget.md); wider evidence and independent review remain open. The [delivery roadmap](roadmap.md) owns the phase gate. This document does not declare the kernel accurate for every Earth location or religious convention.
 
 ## Starting evidence and known limits
 
@@ -12,7 +12,7 @@ The current MWL-named profile is only an 18°/17° parameter set sourced to a Pr
 
 **Objective:** define what “accurate” means for each output and prevent a single clock-time difference from mixing unrelated causes.
 
-**Deliverable:** `specification/accuracy-budget.md`, reviewed before using any global accuracy claim. It must define:
+**Deliverable:** the draft [accuracy budget](../specification/accuracy-budget.md), subject to wider source evidence and independent review before any global accuracy claim. It must define:
 
 - Event definitions and units: upper transit, solar-center altitude at the apparent horizon, twilight depression, and Asr shadow target. Specify whether a comparison uses raw UTC seconds, rounded seconds, or displayed minutes.
 - Separate budgets or measured discrepancies for numerical root solving, solar ephemeris, horizon/refraction/elevation assumptions, prayer-method parameters, civil-time conversion, and display rounding. Do not combine them into one unexplained score.
@@ -57,10 +57,8 @@ Summarize the matrix and discrepancy ledger by regime and event; state what was 
 
 ## Order and first work item
 
-Start with **P1.1**, then create the source manifest (P1.2) and expand the prayer matrix (P1.3). Method-source investigation (P1.4) and rounding definitions (P1.5) can proceed while those references are assembled. P1.6 is a gate review, not a date-driven ceremony.
+The initial P1.1 protocol is written. Next create the source manifest (P1.2) and expand the prayer matrix (P1.3). Method-source investigation (P1.4) and rounding definitions (P1.5) can proceed while those references are assembled. P1.6 is a gate review, not a date-driven ceremony.
 
-The first bounded implementation task is:
-
-> Write `specification/accuracy-budget.md` from the current calculation contract and sources. Inventory every current tolerance and its rationale. Define the comparison protocol and discrepancy ledger. Identify which numeric targets still need independent evidence. Do not alter prayer calculations in this task.
+The next bounded task is **P1.2: create a versioned reference-source manifest and expand the solar matrix**. Preserve source precision and assumptions, include holdout cases, and keep source tooling out of the runtime core. The [accuracy budget](../specification/accuracy-budget.md) lists which release thresholds still need that evidence.
 
 Each later calculation change needs a linked discrepancy, a source or invariant that demonstrates it, a contract/model/profile version decision, and a regression case. Keep historical contracts and reference provenance intact.

@@ -7,7 +7,8 @@ This repository is the canonical workspace for Salah. Read these files before ch
 3. `docs/phase-1-validation.md` — active validation tasks and first bounded work item.
 4. `docs/decisions.md` — accepted decisions versus options still under evaluation.
 5. `specification/calculation-contract-v0.3.md` — current calculation interface and unresolved definitions. Keep earlier contracts for historical results.
-6. `specification/reference-cases.md` — independently sourced comparison data and limits.
+6. `specification/accuracy-budget.md` — current comparison protocol, bounded implementation properties, and unmeasured limits.
+7. `specification/reference-cases.md` — independently sourced comparison data and limits.
 
 ## Project intent
 

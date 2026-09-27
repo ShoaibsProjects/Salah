@@ -66,6 +66,6 @@ Do not change a formula just to make one reference clock time match. Reproduce t
 
 ## Immediate execution
 
-Phase 1 is the active work. Its first bounded task is **P1.1: define the numerical accuracy budget and reference-case protocol** in [phase-1-validation.md](phase-1-validation.md). Next, build a source manifest and wider solar/prayer comparison matrix. Calculation behavior should remain unchanged unless that evidence demonstrates a defect and the change is versioned and explained.
+Phase 1 is the active work. The first bounded task, **P1.1**, produced the draft [accuracy budget](../specification/accuracy-budget.md). Next, build a versioned source manifest and wider solar/prayer comparison matrix under **P1.2** in [phase-1-validation.md](phase-1-validation.md). Calculation behavior should remain unchanged unless that evidence demonstrates a defect and the change is versioned and explained.
 
 The next gate review will answer: which regimes are supported, what comparison tolerance is defensible under matched assumptions, which cases remain unresolved, and which method labels are suitable for user-facing use. Only then should Phase 2's local-time outputs be treated as candidate consumer behavior.
