@@ -46,7 +46,7 @@ These values come from the current tests. They are **case-specific investigation
 | PrayTimes v2 MWL parameter comparison | ±60 seconds on selected UTC values | The angle profile is matched, while ephemeris and iteration details differ. The default high-latitude behavior is not being compared. |
 | Polar day/night statuses | Event-existence assertions, with selected Dhuhr ±90 seconds | No invented sunrise/sunset or twilight clock value is accepted when the selected solar condition has no crossing. |
 
-The [19-case USNO matrix report](usno-matrix-v1-report.md) records the signed raw-UTC differences and two known near-grazing event-existence disagreements. The cited sources, case inputs, and earlier selected outputs are in [reference-cases.md](reference-cases.md). Tolerances must not be widened simply to make a failing change pass. A change outside an allowance requires a discrepancy record even if the source is later found to use a different definition.
+The [19-case USNO matrix report](usno-matrix-v1-report.md) records the signed raw-UTC differences and two known near-grazing event-existence disagreements. The [28-row prayer-library report](prayer-library-v1-report.md) records signed prayer-event differences and explicit high-latitude and polar-status disagreements. Minneapolis Standard Asr exceeds the earlier selected ±60-second Adhan comparison allowance by 3.817 seconds; that allowance has **not** been widened. The cited sources, case inputs, and earlier selected outputs are in [reference-cases.md](reference-cases.md). A difference outside an allowance requires a discrepancy record even if the source is later found to use a different definition.
 
 ## Comparison protocol
 
@@ -63,7 +63,7 @@ A source manifest for Phase 1 must give each vector a stable case ID and all fie
 ## Two current discrepancy examples
 
 - At 65.735° N on 2026-06-21, [USNO reports brief rise/set events](https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-21&coords=65.735,0&tz=0), while the kernel's fixed −0.833° model reports no crossing. This is an **event-existence disagreement near the apparent-horizon boundary**. The current evidence does not justify selecting one result as universally observed or loosening an ordinary-event seconds tolerance.
-- In Minneapolis on 2026-09-27, Adhan JS with custom 18°/17° parameters places Standard Asr about one minute earlier than Salah and PrayTimes v2. The documented Asr shadow-angle treatments differ. This is a **method/model-definition comparison**, not a reason to average the three clock times.
+- In Minneapolis on 2026-09-27, Adhan JS with custom 18°/17° parameters places Standard Asr 63.817 seconds before Salah. A controlled change from Adhan's 00:00 UTC declination to transit declination moves its Asr 47.815 seconds later; the residual is not yet apportioned. This is a **method/model-definition comparison**, not a reason to average the source times. The [prayer-library report](prayer-library-v1-report.md) also records a polar-night Asr status disagreement and an Adhan high-latitude substitution that is not a matched angle comparison.
 
 ## Open release thresholds and review
 

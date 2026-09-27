@@ -47,7 +47,7 @@ PrayTimes v2 was called with method `MWL`, explicit coordinates, fixed offset, D
 | Minneapolis, 2026-09-27 | 10:28:02 | 18:03:57 | 21:22:11 | 2026-09-28 01:33:06 |
 | Makkah, 2026-03-20 | 02:11:04 | 09:28:12 | 12:52:57 | 16:41:21 |
 
-Adhan JS v4.4.6 with a custom 18°/17° profile agrees closely on Fajr and Isha. Its standard Asr in Minneapolis is about one minute earlier than this kernel and PrayTimes. Adhan fixes its Asr shadow-angle calculation using the day's solar coordinates; Salah fixes the noon shadow at calculated upper transit. The different Asr model is recorded rather than hidden by rounding.
+Adhan JS v4.4.6 with a custom 18°/17° profile agrees closely on Fajr and Isha. Its standard Asr in Minneapolis is about one minute earlier than this kernel and PrayTimes. The [28-row prayer-library matrix](../data/reference/prayer-library-v1.tsv) and [discrepancy report](prayer-library-v1-report.md) show that Adhan fixes its Asr shadow target using declination at 00:00 UTC, while Salah uses upper-transit declination; a controlled Adhan substitution explains 47.815 seconds of the selected 63.817-second Salah–Adhan difference. The remaining component is under review. This difference is recorded rather than hidden by rounding.
 
 ## Numerical basis and limits
 
