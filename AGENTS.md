@@ -3,10 +3,11 @@
 This repository is the canonical workspace for Salah. Read these files before changing architecture or prayer calculations:
 
 1. `docs/vision-and-architecture.md` — product promise and long-term constraints.
-2. `docs/foundation-plan.md` — current build order and milestone gates.
-3. `docs/decisions.md` — accepted decisions versus options still under evaluation.
-4. `specification/calculation-contract-v0.3.md` — current calculation interface and unresolved definitions. Keep earlier contracts for historical results.
-5. `specification/reference-cases.md` — independently sourced comparison data and limits.
+2. `docs/roadmap.md` — active phases, evidence gates, release scope, and current position.
+3. `docs/phase-1-validation.md` — active validation tasks and first bounded work item.
+4. `docs/decisions.md` — accepted decisions versus options still under evaluation.
+5. `specification/calculation-contract-v0.3.md` — current calculation interface and unresolved definitions. Keep earlier contracts for historical results.
+6. `specification/reference-cases.md` — independently sourced comparison data and limits.
 
 ## Project intent
 
@@ -28,7 +29,7 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 
 ## How to work here
 
-- Make the smallest complete vertical slice. Start with the calculation contract, one documented method profile, an offline CLI, and reference cases. Add global time-zone lookup and more methods after the first slice is validated.
+- Take one bounded task from the active phase in `docs/roadmap.md`. The first contract, core, CLI, and reference slice already exist. Do not treat a phase gate as passed without its recorded evidence.
 - Add a reference case with provenance whenever implementing a calculation rule or fixing a discrepancy. Compare UTC instants before comparing rounded local display times.
 - Record assumptions and open scholarly or astronomical questions in the specification. Do not silently choose defaults that affect religious practice.
 - Keep platform adapters thin. Probe the Rust-to-mobile and Rust-to-WASM boundary early, before committing to a UI framework.
@@ -36,4 +37,4 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 
 ## Current state
 
-The repository now contains `salah-core` and `salah-cli` as a research preview. They implement fixed-offset, sea-level, angle-based daily calculations with no high-latitude substitution. Available profiles are `research-15` and `mwl-angles-18-17`, the latter sourced to the PrayTimes parameter table without claiming institutional endorsement. Solar events are checked against USNO; selected prayer outputs are compared with Adhan JS and PrayTimes v2. No time-zone lookup, institutional certification, or consumer notification behavior exists. Continue the validation and method-source work in `docs/foundation-plan.md` before building a production UI.
+The repository now contains `salah-core` and `salah-cli` as a research preview. They implement fixed-offset, sea-level, angle-based daily calculations with no high-latitude substitution. Available profiles are `research-15` and `mwl-angles-18-17`, the latter sourced to the PrayTimes parameter table without claiming institutional endorsement. Solar events are checked against USNO; selected prayer outputs are compared with Adhan JS and PrayTimes v2. No time-zone lookup, institutional certification, or consumer notification behavior exists. Continue Phase 1 validation and method-source work in `docs/phase-1-validation.md` before making consumer accuracy claims.

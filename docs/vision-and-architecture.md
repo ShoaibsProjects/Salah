@@ -5,6 +5,8 @@
 **Horizon:** useful through 2050 with active maintenance  
 **Initial domain:** prayer times on Earth
 
+**Execution:** the active [delivery roadmap](roadmap.md) governs phases and release gates
+
 ## 1. Executive summary
 
 Salah 2050 should make daily prayer times understandable, available offline, and respectful of established differences in calculation and practice. The first product serves Muslims on iOS, Android, and the web. It shows Fajr, sunrise, Dhuhr, Asr, Maghrib, and Isha; the next prayer; a Qibla bearing; and the settings that produced each time.
@@ -172,19 +174,11 @@ The first implementation should be validated against independent astronomical re
 
 Reference vectors should cover global latitudes and longitudes, seasonal extremes, leap years, date-line crossings, time-zone changes, daylight-saving transitions, elevation assumptions, high-latitude missing events, polar day/night, method variants, Asr variants, and rounding. Reuse the same vectors for native and WebAssembly builds. Document acceptable numerical error separately from differences caused by method choice.
 
-Before launch, a user must be able to: calculate offline from manual coordinates; see which location, zone, and method produced a time; recognize an adjusted or unavailable event; receive correctly scheduled local notifications under supported OS conditions; and compare a mosque timetable without it replacing the base calculation. Review accessibility, privacy disclosures, and app-store rules. Notifications are best-effort OS facilities: permissions, focus modes, battery policy, scheduling limits, and device clock errors can delay or suppress them, so the app must not promise guaranteed delivery.
+Before launch, a user must be able to: calculate offline from manual coordinates; see which location, zone, and method produced a time; recognize an adjusted or unavailable event; receive correctly scheduled local notifications under supported OS conditions; and understand that a future mosque timetable cannot replace the labeled base calculation. Review accessibility, privacy disclosures, and app-store rules. Notifications are best-effort OS facilities: permissions, focus modes, battery policy, scheduling limits, and device clock errors can delay or suppress them, so the app must not promise guaranteed delivery.
 
 ## 12. Build order and roadmap
 
-| Stage | Work | Completion evidence |
-| --- | --- | --- |
-| 0. Governance | Name maintainers and reviewers; agree on free-core policy, source license, method sources, and decision process. | Written ownership and review policy. |
-| 1. Specification | Define calculation contract, units, time scales, rounding, method schema, statuses, and reference cases. | Versioned specification reviewed by astronomy and Islamic-methodology advisers. |
-| 2. Rust core | Implement solar events, Fajr/Isha, Dhuhr, Asr, Maghrib, high-latitude handling, Qibla, and typed results. | Offline CLI calculation lab and passing reference comparisons. |
-| 3. Time and data | Bundle time-zone data, coordinate-to-zone mapping, offline locations, and versioned method definitions. | Reproducible results and documented update/rollback process. |
-| 4. Mobile MVP | Build simple iOS/Android UI, settings, manual location, method selection, Qibla, explanations, and local notifications. | Real-device review of daily use, travel, accessibility, and permissions. |
-| 5. Web | Reuse core through WASM; build responsive web/PWA presentation. | Offline operation after install/load and clear browser capability limits. |
-| 6. Launch | Independent calculation review, scholarly wording review, privacy review, localization review, and staged release. | Published limitations, version history, issue-report path, and maintenance plan. |
+The active, phase-gated plan is [Delivery roadmap](roadmap.md). Its seven phases begin with the existing research foundation, then validation, civil time and difficult geography, portable bindings, trustworthy experience, offline consumer beta, and public release with stewardship. Governance and 2050 reproducibility run through every phase. The earlier stage list was a planning sketch and is superseded by that roadmap.
 
 After launch, add the monthly timetable and export, mosque and iqamah schedules, Hijri and Ramadan features, more languages, widgets, watch/vehicle clients, and a graphical calculation lab according to user need. Keep optional content and AI assistance separate from deterministic calculation. AI may explain a documented result or help with navigation; it must not generate the prayer time or issue religious rulings.
 
@@ -204,9 +198,9 @@ After launch, add the monthly timetable and export, mosque and iqamah schedules,
 
 ## 14. Decisions still required
 
-1. Public project name, GitHub ownership, repository visibility, and software license.
+1. Software license, maintainers, and ownership policy for the existing public Salah repository.
 2. Which communities and regions receive reviewed default method profiles at launch. No global default should be chosen merely because it is convenient for implementation.
-3. Exact astronomical model, source reference, precision target, and rounding policy.
+3. Release precision targets, broader model validation, and presentation rounding policy; the research kernel already records its current astronomy model.
 4. Time-zone lookup dataset, license, update channel, and archive policy.
 5. Advisory reviewers and the process for resolving a documented method dispute.
 6. Flutter-versus-native mobile prototype result and web offline support targets.
@@ -224,4 +218,4 @@ These are starting points for technical and methodology review, not automatic en
 - [Rust documentation](https://doc.rust-lang.org/)
 - [Flutter platform support](https://docs.flutter.dev/platform-integration/)
 
-The next concrete deliverable should be **Specification v0.1**, accompanied by a small Rust CLI calculation lab and a reviewable set of reference cases. That gives the project a measurable foundation before interface design expands.
+The first Rust CLI, versioned contract, and selected reference cases now exist. The active next deliverable is the Phase 1 numerical accuracy budget and wider independent reference matrix described in the [validation plan](phase-1-validation.md).

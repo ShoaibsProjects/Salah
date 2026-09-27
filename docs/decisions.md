@@ -10,6 +10,7 @@
 | Use Rust for the calculation core. | One portable implementation can serve native clients and WebAssembly while remaining independent of a UI framework. |
 | Make core calculations work offline. | A person must be able to calculate times and Qibla without an account, remote API, or subscription. |
 | Publish a versioned calculation specification and reference cases. | Results need to be explainable and reproducible, including after the original maintainers or interface change. |
+| Use phase gates tied to evidence, with one bounded task at a time. | The active [roadmap](roadmap.md) prevents dates, version numbers, or a passing sample from being mistaken for product readiness. |
 | Keep Islamic methods configurable and sourced. | Astronomy alone does not settle all jurisprudential and regional choices. |
 | Keep mosque prayer-start and iqamah times separate from calculated events. | They answer different questions and may differ intentionally. |
 | Keep the core free to users and private by default. | Access to daily prayer information must not depend on data collection or payment. |
@@ -30,7 +31,7 @@
 ## Unresolved decisions
 
 - First calculation profile and authoritative parameter sources.
-- Solar model, physical assumptions, rounding, and numerical tolerance.
+- Broader numerical accuracy budget, physical model limits, and presentation rounding; the current research model is recorded in the calculation contract.
 - High-latitude defaults by region and the scholarly review process.
 - Time-zone boundary dataset, licensing, and update mechanism.
 - Product license, maintainers, funding, and governance through 2050.

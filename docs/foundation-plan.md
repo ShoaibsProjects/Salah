@@ -1,6 +1,6 @@
 # Foundation plan: from vision to a working core
 
-**Status:** build plan, not an implementation report.
+**Status:** historical foundation plan for the first Rust slice. The active phase plan is [Delivery roadmap](roadmap.md), with current work in [Phase 1 validation](phase-1-validation.md).
 **Working rule:** finish small, independently checkable capabilities before expanding platforms or feature count.
 
 ## Current progress
@@ -88,4 +88,4 @@ These tasks inform decisions; they do not change the principle that the core mus
 - How should display-minute rounding differ by use case and regional method?
 - What license and maintainership model will let others sustain the free core?
 
-The next implementation step is broader **F2 validation** plus source review for the first real method profile. Do not present `research-15` as a named institution's timetable.
+The first core slice is implemented. Follow the active [Phase 1 validation plan](phase-1-validation.md) for the next bounded tasks. Do not present `research-15` as a named institution's timetable.
