@@ -22,7 +22,7 @@
 | --- | --- | --- |
 | Mobile interface | Flutter is a candidate, not a dependency of the Rust engine. | After a small Rust binding probe and accessibility review. |
 | Web interface | Rust-to-WASM with a responsive client is the leading approach. | After checking offline, browser, and deployment behavior. |
-| First time input | Explicit fixed UTC offset for the initial research CLI; IANA zone support is required before claiming global civil-time accuracy. | At the F3 civil-time milestone. |
+| First time input | Explicit fixed UTC offset for the initial research CLI; IANA zone support is required before claiming global civil-time accuracy. | At the Phase 2 civil-time milestone (see roadmap.md Phase 2). |
 | First method profile | `research-15` uses 15° Fajr and Isha angles with zero adjustments. It carries no institutional attribution. | Replace or supplement only after source and scholarly review. |
 | First published angle set | `mwl-angles-18-17` reproduces the Fajr and Isha angles in the PrayTimes MWL table with zero Dhuhr/Maghrib adjustment. It is a sourced parameter set, not an endorsement or complete regional timetable. | Revisit when primary institutional specifications and regional practice are reviewed. |
 | Crate layout | Begin with one core crate and one CLI crate. | Split only when real module boundaries and independent reuse are clear. |

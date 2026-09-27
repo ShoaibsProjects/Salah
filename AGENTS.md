@@ -11,6 +11,7 @@ This repository is the canonical workspace for Salah. Read these files before ch
 7. `specification/reference-cases.md` — independently sourced comparison data and limits.
 8. `data/reference/README.md` and `specification/usno-matrix-v1-report.md` — versioned solar source provenance, raw UTC comparison, and known disagreement.
 9. `data/reference/prayer-library-v1.tsv` and `specification/prayer-library-v1-report.md` — pinned prayer-library comparison and unresolved Asr/high-latitude differences.
+10. `docs/director-handoff.md` — delegation backlog, agent prompts, evidence requirements, and review protocol. `docs/roadmap.md` remains authoritative for phase gates.
 
 ## Project intent
 
@@ -33,6 +34,7 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 ## How to work here
 
 - Take one bounded task from the active phase in `docs/roadmap.md`. The first contract, core, CLI, and reference slice already exist. Do not treat a phase gate as passed without its recorded evidence.
+- Take delegation packets for delegated Phase 1 work only from `docs/director-handoff.md` §3 with the prompt in §4 and the review protocol in §5. Do not redefine P1.4/P1.5 scope elsewhere.
 - Add a reference case with provenance whenever implementing a calculation rule or fixing a discrepancy. Compare UTC instants before comparing rounded local display times. Preserve a prior model's manifest/report when behavior changes; create a new versioned comparison rather than rewriting historical evidence.
 - Record assumptions and open scholarly or astronomical questions in the specification. Do not silently choose defaults that affect religious practice.
 - Keep platform adapters thin. Probe the Rust-to-mobile and Rust-to-WASM boundary early, before committing to a UI framework.

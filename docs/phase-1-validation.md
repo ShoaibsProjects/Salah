@@ -1,6 +1,6 @@
 # Phase 1 — validation and method integrity
 
-**Status:** active plan. P1.1 has an initial [accuracy-budget protocol](../specification/accuracy-budget.md); P1.2 has a [19-case USNO manifest](../data/reference/solar-usno-v1.tsv) and [signed report](../specification/usno-matrix-v1-report.md); P1.3 has a [28-row prayer-library manifest](../data/reference/prayer-library-v1.tsv) and [discrepancy report](../specification/prayer-library-v1-report.md). Near-grazing, polar Asr, and independent review remain open. The [delivery roadmap](roadmap.md) owns the phase gate. This document does not declare the kernel accurate for every Earth location or religious convention.
+**Status:** active plan. P1.1 has an initial [accuracy-budget protocol](../specification/accuracy-budget.md); P1.2 has a [19-case USNO manifest](../data/reference/solar-usno-v1.tsv) and [signed report](../specification/usno-matrix-v1-report.md); P1.3 has a [28-row prayer-library manifest](../data/reference/prayer-library-v1.tsv) and [discrepancy report](../specification/prayer-library-v1-report.md). Near-grazing, polar Asr, and independent review remain open. The [delivery roadmap](roadmap.md) owns the phase gate; the [director handoff](director-handoff.md) §3–§5 owns delegation packets, prompts, and review. This document does not declare the kernel accurate for every Earth location or religious convention.
 
 ## Starting evidence and known limits
 
