@@ -3,6 +3,10 @@
 **Status:** build plan, not an implementation report.
 **Working rule:** finish small, independently checkable capabilities before expanding platforms or feature count.
 
+## Current progress
+
+The repository now has a dependency-free `salah-core` crate and an offline `salah-cli`. The first slice calculates a solar cycle with one explicit fixed UTC offset and a research-only 15°/15° profile. It preserves UTC results and typed unavailable events. Solar outputs have selected independent USNO comparisons; Fajr, Isha, and Asr have selected Adhan JS comparisons. See [reference cases](../specification/reference-cases.md). This is an F1 research prototype, not a released global prayer timetable. Institutional method review, broader validation, IANA time zones, Qibla, and high-latitude fallback remain open.
+
 ## Decision on the proposed seven-milestone plan
 
 Keep its central order: **Rust calculation core → independent validation → platform clients**. Four changes make the start safer:
@@ -55,13 +59,14 @@ Salah/
 │   ├── decisions.md
 │   └── foundation-plan.md
 ├── specification/
-│   └── calculation-contract-v0.1.md
-└── crates/                  # add at F0 implementation start
+│   ├── calculation-contract-v0.1.md
+│   └── reference-cases.md
+└── crates/
     ├── salah-core/
     └── salah-cli/
 ```
 
-CI belongs in the first code change: format, lint, build, and run the reference cases on every pull request. A release tag means a documented, validated behavior; version numbers should follow actual compatibility needs. Avoid publishing `v1.0.0` simply because a checklist reached its last item.
+CI checks formatting, lints, and reference cases on pushes and pull requests. A release tag means a documented, validated behavior; version numbers should follow actual compatibility needs. Avoid publishing `v1.0.0` simply because a checklist reached its last item.
 
 ## Work that can proceed independently
 
@@ -73,13 +78,12 @@ CI belongs in the first code change: format, lint, build, and run the reference 
 
 These tasks inform decisions; they do not change the principle that the core must work offline.
 
-## Open decisions before F1 is called complete
+## Open decisions before moving beyond the research slice
 
-- Which documented method profile is first, and who reviewed its parameters?
-- Which solar model and apparent-horizon assumptions will be used?
-- What internal precision, presentation rounding, and comparison tolerance are acceptable?
-- How is a local civil date mapped to event instants under an explicit UTC offset?
-- Which source fixtures will be treated as independent references?
+- Which institutional method profile is first, and who will review its parameters?
+- What is the broader numerical error budget beyond the selected USNO and Adhan comparisons?
+- Which high-latitude and near-tangency cases need an independent astronomical adjudication?
+- How should display-minute rounding differ by use case and regional method?
 - What license and maintainership model will let others sustain the free core?
 
-The next agent should take **F0**, make these definitions concrete, and only then implement the first vertical slice.
+The next implementation step is broader **F2 validation** plus source review for the first real method profile. Do not present `research-15` as a named institution's timetable.
