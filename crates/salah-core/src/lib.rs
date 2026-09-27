@@ -1,8 +1,8 @@
 //! Offline solar and prayer-time calculations for Earth.
 //!
-//! The first release deliberately uses an explicit fixed UTC offset and a
-//! research-only 15°/15° profile. It does not claim a named institutional
-//! method or infer a civil time zone from coordinates.
+//! This research kernel uses an explicit fixed UTC offset and source-labeled
+//! angle profiles. It does not claim institutional endorsement or infer a
+//! civil time zone from coordinates.
 
 mod civil;
 mod method;

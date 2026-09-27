@@ -1,10 +1,10 @@
-# Reference cases for kernel v0.2
+# Reference cases for kernel v0.3
 
 These cases are independent checks of the first offline core. They are not a certification of any religious method. The built-in `research-15` profile uses 15° solar depression for both Fajr and Isha, no Dhuhr/Maghrib adjustment, and no high-latitude fallback. It is not attributed to ISNA or another institution.
 
 ## Solar events: U.S. Naval Observatory
 
-The [USNO Complete Sun and Moon Data API](https://aa.usno.navy.mil/data/api#rstt) returned these civil clock times on 27 September 2026. The API reports to the minute. Tests convert the listed fixed offset to UTC and allow ±90 seconds to account for reporting precision and model/horizon differences.
+The [USNO Complete Sun and Moon Data API](https://aa.usno.navy.mil/data/api#rstt) returned these civil clock times for the listed dates. The API reports to the minute. Tests convert the listed fixed offset to UTC and allow ±90 seconds to account for reporting precision and model/horizon differences.
 
 | Place and date | Coordinates | Fixed offset | Rise | Upper transit | Set | Source |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -17,6 +17,8 @@ The [USNO Complete Sun and Moon Data API](https://aa.usno.navy.mil/data/api#rstt
 | Makkah, 2028-02-29 | 21.4225, 39.8262 | UTC+03:00 | 06:42 | 12:33 | 18:25 | [USNO response](https://aa.usno.navy.mil/api/rstt/oneday?date=2028-02-29&coords=21.4225,39.8262&tz=3) |
 | 65.72° N, 2026-06-21 | 65.72, 0 | UTC+00:00 | 00:10 | 12:02 | 23:53 | [USNO response](https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-21&coords=65.72,0&tz=0) |
 | 65.74° N, 2026-06-21 | 65.74, 0 | UTC+00:00 | none | 12:02 | none | [USNO response](https://aa.usno.navy.mil/api/rstt/oneday?date=2026-06-21&coords=65.74,0&tz=0) |
+| Sydney, 1900-12-21 | -33.8688, 151.2093 | UTC+10:00 | 04:41 | 11:53 | 19:06 | [USNO response](https://aa.usno.navy.mil/api/rstt/oneday?date=1900-12-21&coords=-33.8688,151.2093&tz=10) |
+| London, 2100-06-21 | 51.5072, -0.1276 | UTC+00:00 | 03:43 | 12:03 | 20:22 | [USNO response](https://aa.usno.navy.mil/api/rstt/oneday?date=2100-06-21&coords=51.5072,-0.1276&tz=0) |
 
 The USNO API's `isdst` field is not used as the civil-time authority here; the test supplies the shown explicit offset. A fixed offset is not a time-zone database.
 

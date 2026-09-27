@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "salah-cli"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "salah-core",
 ]
 
 [[package]]
 name = "salah-core"
-version = "0.2.0"
+version = "0.3.0"
