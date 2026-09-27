@@ -1,6 +1,6 @@
 # Foundation plan: from vision to a working core
 
-**Status:** historical foundation plan for the first Rust slice. The active phase plan is [Delivery roadmap](roadmap.md), with current work in [Phase 1 validation](phase-1-validation.md).
+**Status:** historical foundation plan for the first Rust slice. The active phase plan is [Delivery roadmap](roadmap.md), with current work in [Phase 1 validation](phase-1-validation.md). Delegation packets live in [Director handoff](director-handoff.md).
 **Working rule:** finish small, independently checkable capabilities before expanding platforms or feature count.
 
 ## Current progress
