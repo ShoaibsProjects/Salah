@@ -118,6 +118,34 @@ fn usno_solar_events_across_seasons_and_hemispheres() {
     near(leap_day.sunrise, utc(2028, 2, 29, 3, 42, 0), 90);
     near(leap_day.dhuhr, utc(2028, 2, 29, 9, 33, 0), 90);
     near(leap_day.sunset, utc(2028, 2, 29, 15, 25, 0), 90);
+
+    let sydney_1900 = calculate_prayer_times(input(
+        1900,
+        12,
+        21,
+        -33.8688,
+        151.2093,
+        600,
+        AsrCriterion::Standard,
+    ))
+    .unwrap();
+    near(sydney_1900.sunrise, utc(1900, 12, 20, 18, 41, 0), 90);
+    near(sydney_1900.dhuhr, utc(1900, 12, 21, 1, 53, 0), 90);
+    near(sydney_1900.sunset, utc(1900, 12, 21, 9, 6, 0), 90);
+
+    let london_2100 = calculate_prayer_times(input(
+        2100,
+        6,
+        21,
+        51.5072,
+        -0.1276,
+        0,
+        AsrCriterion::Standard,
+    ))
+    .unwrap();
+    near(london_2100.sunrise, utc(2100, 6, 21, 3, 43, 0), 90);
+    near(london_2100.dhuhr, utc(2100, 6, 21, 12, 3, 0), 90);
+    near(london_2100.sunset, utc(2100, 6, 21, 20, 22, 0), 90);
 }
 
 #[test]

@@ -5,7 +5,7 @@ This repository is the canonical workspace for Salah. Read these files before ch
 1. `docs/vision-and-architecture.md` — product promise and long-term constraints.
 2. `docs/foundation-plan.md` — current build order and milestone gates.
 3. `docs/decisions.md` — accepted decisions versus options still under evaluation.
-4. `specification/calculation-contract-v0.2.md` — current calculation interface and unresolved definitions. Keep earlier contracts for historical results.
+4. `specification/calculation-contract-v0.3.md` — current calculation interface and unresolved definitions. Keep earlier contracts for historical results.
 5. `specification/reference-cases.md` — independently sourced comparison data and limits.
 
 ## Project intent
@@ -16,6 +16,7 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 
 - Keep astronomical calculations, prayer-method parameters, civil-time conversion, location lookup, and presentation in separate modules. Do not put prayer mathematics in Flutter or UI code.
 - Represent calculation results as UTC instants and typed statuses. Convert to local civil time using an explicitly chosen time-zone rule set. Never assume the device zone is the location's zone.
+- Keep date, coordinate, and offset invariants behind checked constructors; do not expose a path that lets callers pass impossible civil input into the engine.
 - Preserve the selected method, its parameters and version, adjustment chain, astronomy model, and time-zone data version with each result. Make output explainable and reproducible.
 - Return an explicit unavailable event when the chosen solar condition does not occur. Apply high-latitude alternatives only as separately labeled, documented rules.
 - Keep calculated prayer beginning, mosque timetable, and iqamah as separate data. Do not present one method as the universal religious answer or issue religious rulings.

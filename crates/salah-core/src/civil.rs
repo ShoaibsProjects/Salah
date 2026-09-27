@@ -2,15 +2,35 @@ use core::fmt;
 
 use crate::CalculationError;
 
-/// Proleptic Gregorian civil date. The solar model's supported range is 1900–2100.
+/// Proleptic Gregorian civil date. Public construction is restricted to the
+/// solar model's supported input range, 1900–2100.
+///
+/// The fields are private so a caller cannot bypass calendar validation.
+///
+/// ```compile_fail
+/// use salah_core::CivilDate;
+/// let _ = CivilDate { year: 2026, month: 2, day: 31 };
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CivilDate {
-    pub year: i32,
-    pub month: u8,
-    pub day: u8,
+    year: i32,
+    month: u8,
+    day: u8,
 }
 
 impl CivilDate {
+    pub const fn year(self) -> i32 {
+        self.year
+    }
+
+    pub const fn month(self) -> u8 {
+        self.month
+    }
+
+    pub const fn day(self) -> u8 {
+        self.day
+    }
+
     pub fn new(year: i32, month: u8, day: u8) -> Result<Self, CalculationError> {
         if !(1900..=2100).contains(&year) || !(1..=12).contains(&month) {
             return Err(CalculationError::InvalidDate);
@@ -162,6 +182,19 @@ mod tests {
         assert!(CivilDate::new(2100, 2, 29).is_err());
         let before_epoch = CivilDate::new(1969, 12, 31).unwrap();
         assert_eq!(before_epoch.days_since_unix_epoch(), -1);
+    }
+
+    #[test]
+    fn every_supported_gregorian_day_round_trips() {
+        let first = CivilDate::new(1900, 1, 1).unwrap().days_since_unix_epoch();
+        let last = CivilDate::new(2100, 12, 31)
+            .unwrap()
+            .days_since_unix_epoch();
+        for day_number in first..=last {
+            let date = CivilDate::from_days_since_unix_epoch(day_number);
+            assert_eq!(date.days_since_unix_epoch(), day_number);
+            assert!(CivilDate::new(date.year(), date.month(), date.day()).is_ok());
+        }
     }
 
     #[test]
