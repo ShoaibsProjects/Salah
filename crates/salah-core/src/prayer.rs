@@ -1,4 +1,4 @@
-use crate::solar::{self, altitude_degrees, crossing, position};
+use crate::solar::{self, CrossingDirection, altitude_degrees, crossing, position};
 use crate::{
     AsrCriterion, CalculationError, CivilDate, Coordinates, FixedUtcOffset, MethodProfile,
     UtcInstant,
@@ -10,7 +10,7 @@ use core::fmt;
 /// and apparent solar radius; it does not model local terrain or weather.
 const APPARENT_HORIZON_DEGREES: f64 = -0.833;
 const HALF_SOLAR_DAY_SECONDS: f64 = 43_200.0;
-pub const ASTRONOMY_MODEL: &str = "NOAA-MEEUS-SOLAR-1";
+pub const ASTRONOMY_MODEL: &str = "NOAA-MEEUS-SOLAR-2";
 
 #[derive(Debug, Clone, Copy)]
 pub struct CalculationInput {
@@ -113,16 +113,16 @@ pub fn calculate_prayer_times(input: CalculationInput) -> Result<PrayerTimes, Ca
     let morning_start = transit - HALF_SOLAR_DAY_SECONDS;
     let evening_end = transit + HALF_SOLAR_DAY_SECONDS;
 
-    let apparent_sunrise = crossing(morning_start, transit, |t| {
+    let apparent_sunrise = crossing(morning_start, transit, CrossingDirection::Rising, |t| {
         altitude_degrees(t, input.coordinates) - APPARENT_HORIZON_DEGREES
     })?;
-    let apparent_sunset = crossing(transit, evening_end, |t| {
+    let apparent_sunset = crossing(transit, evening_end, CrossingDirection::Falling, |t| {
         altitude_degrees(t, input.coordinates) - APPARENT_HORIZON_DEGREES
     })?;
-    let fajr_crossing = crossing(morning_start, transit, |t| {
+    let fajr_crossing = crossing(morning_start, transit, CrossingDirection::Rising, |t| {
         altitude_degrees(t, input.coordinates) + method.fajr_depression_degrees
     })?;
-    let isha_crossing = crossing(transit, evening_end, |t| {
+    let isha_crossing = crossing(transit, evening_end, CrossingDirection::Falling, |t| {
         altitude_degrees(t, input.coordinates) + method.isha_depression_degrees
     })?;
 
@@ -133,12 +133,9 @@ pub fn calculate_prayer_times(input: CalculationInput) -> Result<PrayerTimes, Ca
     let asr_crossing = if noon_zenith_distance >= core::f64::consts::FRAC_PI_2 {
         None
     } else {
-        crossing(transit, evening_end, |t| {
-            let declination = position(t).declination_radians;
-            let zenith_distance =
-                (input.coordinates.latitude_degrees().to_radians() - declination).abs();
-            let noon_shadow = zenith_distance.tan();
-            let target_altitude = (1.0 / (asr_factor + noon_shadow)).atan().to_degrees();
+        let noon_shadow = noon_zenith_distance.tan();
+        let target_altitude = (1.0 / (asr_factor + noon_shadow)).atan().to_degrees();
+        crossing(transit, evening_end, CrossingDirection::Falling, |t| {
             altitude_degrees(t, input.coordinates) - target_altitude
         })?
     };

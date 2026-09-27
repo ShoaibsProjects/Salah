@@ -5,7 +5,7 @@ This repository is the canonical workspace for Salah. Read these files before ch
 1. `docs/vision-and-architecture.md` — product promise and long-term constraints.
 2. `docs/foundation-plan.md` — current build order and milestone gates.
 3. `docs/decisions.md` — accepted decisions versus options still under evaluation.
-4. `specification/calculation-contract-v0.1.md` — initial calculation interface and unresolved definitions.
+4. `specification/calculation-contract-v0.2.md` — current calculation interface and unresolved definitions. Keep earlier contracts for historical results.
 5. `specification/reference-cases.md` — independently sourced comparison data and limits.
 
 ## Project intent
@@ -35,4 +35,4 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 
 ## Current state
 
-The repository now contains `salah-core` and `salah-cli` as a research preview. They implement one fixed-offset, sea-level, angle-based daily calculation with no high-latitude substitution. Solar events are checked against USNO; selected Fajr, Isha, and Asr results are compared with Adhan JS. No institutional method, time-zone lookup, or consumer notification behavior is certified. Continue the validation and method-source work in `docs/foundation-plan.md` before building a production UI.
+The repository now contains `salah-core` and `salah-cli` as a research preview. They implement fixed-offset, sea-level, angle-based daily calculations with no high-latitude substitution. Available profiles are `research-15` and `mwl-angles-18-17`, the latter sourced to the PrayTimes parameter table without claiming institutional endorsement. Solar events are checked against USNO; selected prayer outputs are compared with Adhan JS and PrayTimes v2. No time-zone lookup, institutional certification, or consumer notification behavior exists. Continue the validation and method-source work in `docs/foundation-plan.md` before building a production UI.
