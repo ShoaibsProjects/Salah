@@ -1,0 +1,17 @@
+name: Rust kernel
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Check lints
+        run: cargo clippy --locked --offline --workspace --all-targets -- -D warnings
+      - name: Check reference cases
+        run: cargo test --locked --offline --workspace

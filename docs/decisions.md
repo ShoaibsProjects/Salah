@@ -22,6 +22,7 @@
 | Mobile interface | Flutter is a candidate, not a dependency of the Rust engine. | After a small Rust binding probe and accessibility review. |
 | Web interface | Rust-to-WASM with a responsive client is the leading approach. | After checking offline, browser, and deployment behavior. |
 | First time input | Explicit fixed UTC offset for the initial research CLI; IANA zone support is required before claiming global civil-time accuracy. | At the F3 civil-time milestone. |
+| First method profile | `research-15` uses 15° Fajr and Isha angles with zero adjustments. It carries no institutional attribution. | Replace or supplement only after source and scholarly review. |
 | Crate layout | Begin with one core crate and one CLI crate. | Split only when real module boundaries and independent reuse are clear. |
 | Update system | Versioned, authenticated data packs are a long-term target. | When method or time-zone update requirements and platform limits are known. |
 

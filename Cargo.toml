@@ -1,0 +1,7 @@
+[workspace]
+members = ["crates/salah-core", "crates/salah-cli"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
