@@ -78,7 +78,7 @@ A smaller model must never be asked to “make prayer times accurate” without 
 * **Acceptance evidence:** options table with sources; worked examples derived from cited vectors for each option; Maghrib/sunset separation, missing-event rendering, and post-midnight Isha date handling each illustrated; `EventRule` gap note (what the schema shows today vs what a minute rule needs); open decision questions listed for the architect.
 * **Report back:** new survey path, options table with sources, example table with UTC + source links, non-binding observation, unresolved items, limitations.
 
-### P1.5-I1 — Implement optional prayer-start display adapter (next; smaller model suitable with senior code review)
+### P1.5-I1 — Implement optional prayer-start display adapter (completed; reviewed in `0be7aee`)
 
 * **Objective/reason:** implement the architect's [presentation contract v0.1](../specification/presentation-contract-v0.1.md) without changing prayer calculation results. Advances the Phase 1 P1.5 schema and example acceptance line; does not close Phase 1.
 * **In scope:** `crates/salah-core/src/presentation.rs` (new, pure presentation logic), `crates/salah-core/src/lib.rs` (export), `crates/salah-cli/src/main.rs` (opt-in `--display-minute` view), and a focused presentation regression test file. No external dependency.
@@ -132,7 +132,7 @@ VERIFY: check every cited vector against its source file; check relative links a
 RETURN: files changed and diff stat; source/options table; worked UTC examples with citations; what remains unknown by method; EventRule/schema gap; non-binding observation; verification results; limitations. Stop for architect review.
 ```
 
-### Next packet prompt — P1.5-I1 (display adapter; give verbatim to Muse 1.3)
+### Implementation packet prompt — P1.5-I1 (historical; completed)
 
 ```text
 You are implementing P1.5-I1 in /Users/shoaibakthar/Documents/Salah. Read AGENTS.md; docs/roadmap.md; docs/phase-1-validation.md P1.5; docs/director-handoff.md §3 P1.5-I1 and §5; docs/decisions.md; specification/presentation-contract-v0.1.md; specification/rounding-survey-v1.md; specification/calculation-contract-v0.3.md; crates/salah-core/src/prayer.rs, civil.rs, method.rs, lib.rs; crates/salah-cli/src/main.rs. The presentation contract v0.1 is the decision. The survey is evidence; its corrected second-rounding note must not be replaced by a commutation assumption.
@@ -180,6 +180,6 @@ RETURN: diff stat, evidence tables, gaps, assumptions, discrepancies, logs, limi
 
 * **Completed technical evidence:** P1.4-M1 method-source manifest and register were reviewed and committed as `7145b2d`. The secondary-source provenance is explicit. Qualified Islamic-methodology review remains vacant, so P1.4 religious review is open and no consumer method endorsement follows.
 * **Completed survey and decision:** P1.5-E1 evidence is in the [rounding survey](../specification/rounding-survey-v1.md). The architect corrected its second-rounding and post-adjustment examples, then selected a bounded research-preview [presentation policy](../specification/presentation-contract-v0.1.md). Neither document certifies an institutional method or consumer timetable.
-* **Exact next packet:** P1.5-I1 using the verbatim prompt in §4. Give it to one smaller agent; stop for architect code review before committing.
+* **Completed implementation:** P1.5-I1's optional typed display adapter and CLI view were reviewed and committed as `0be7aee`. The normal CLI output and calculation UTC results remain unchanged.
 * **Open questions for human owner/expert:** acceptability of PrayTimes-secondary-only provenance for an MWL-associated label; who fills astronomy + Islamic-methodology + civil-data + product/a11y roles; license/funding path; TZ response-archival rights and mirror; Qibla reference coordinate; rounding-policy authority per method.
-* **Ready to delegate:** P1.5-I1 implementation. **Ready to review:** its code and regression evidence after return. **Blocked pending external review:** P1.6-G1 gate, any regional default or endorsement, polar/high-latitude policy, global accuracy claim, consumer release.
+* **Next technical priority:** independently investigate the near-grazing event-existence disagreement before a P1.6 gate review. A new bounded evidence packet must be specified before delegating it. **Ready to delegate:** no further packet yet. **Blocked pending external review:** P1.6-G1 gate, any regional default or endorsement, polar/high-latitude policy, global accuracy claim, consumer release.
