@@ -32,10 +32,14 @@
 ## Unresolved decisions
 
 - First calculation profile and authoritative parameter sources.
-- Broader numerical accuracy budget and physical model limits; the research-preview prayer-start presentation policy is decided but not yet implemented or approved for consumer use.
+- Broader numerical accuracy budget and physical model limits; the optional research-preview prayer-start presentation policy is implemented but not approved for consumer use.
 - High-latitude defaults by region and the scholarly review process.
 - Time-zone boundary dataset, licensing, and update mechanism.
 - Product license, maintainers, funding, and governance through 2050.
 - Launch languages, platform minimums, and notification behavior by OS.
 
 The repository name is **Salah**. “2050” describes the maintenance horizon, not a guarantee that software or civil-time data can remain unchanged until that year.
+
+## Interim Phase 1 gate review — 2026-09-28
+
+The [Phase 1 gate report v0.1](../specification/phase-1-gate-report-v0.1.md) records the selected-case comparisons and reviewer vacancies. Phase 1 remains **open**. The independent Horizons audit supports Salah's near-grazing status under its fixed threshold, but the USNO-side cause is unresolved; the Asr residual and polar-night policy also remain open. No consumer accuracy claim, regional method endorsement, or Phase 2 gate approval follows from this review.
