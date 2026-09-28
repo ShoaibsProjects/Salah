@@ -43,3 +43,5 @@ The repository name is **Salah**. “2050” describes the maintenance horizon, 
 ## Interim Phase 1 gate review — 2026-09-28
 
 The [Phase 1 gate report v0.1](../specification/phase-1-gate-report-v0.1.md) records the selected-case comparisons and reviewer vacancies. Phase 1 remains **open**. The independent Horizons audit supports Salah's near-grazing status under its fixed threshold, but the USNO-side cause is unresolved; the Asr residual and polar-night policy also remain open. No consumer accuracy claim, regional method endorsement, or Phase 2 gate approval follows from this review.
+
+The later [P1.3-A1-R1 Asr audit](../specification/asr-residual-audit-v1.md) reproduced the Adhan shadow-target epoch contribution and measured the remaining near-fixed-target gap in three selected cases. It does not apportion the solar ephemeris and root-method terms or supply independent astronomy or Islamic-methodology review. The Phase 1 decision remains **open**; no threshold or calculation behavior changes.
