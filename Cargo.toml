@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/salah-core", "crates/salah-cli"]
+members = ["crates/salah-core", "crates/salah-cli", "crates/salah-time"]
 resolver = "2"
 
 [workspace.package]
