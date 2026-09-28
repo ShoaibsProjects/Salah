@@ -7,6 +7,7 @@
 mod civil;
 mod method;
 mod prayer;
+mod presentation;
 mod solar;
 
 pub use civil::{CivilDate, CivilDateTime, FixedUtcOffset, UtcInstant};
@@ -14,6 +15,10 @@ pub use method::{AsrCriterion, MethodProfile};
 pub use prayer::{
     CalculationInput, CalculationRecord, Event, EventRule, PrayerTimes, UnavailableReason,
     calculate_prayer_times,
+};
+pub use presentation::{
+    DISPLAY_POLICY_ID, DISPLAY_POLICY_REVISION, LocalDisplayMinute, PrayerStart,
+    PrayerStartReceipt, PrayerStartStatus, prayer_start_minute,
 };
 
 use core::fmt;

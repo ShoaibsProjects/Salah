@@ -3,14 +3,15 @@ use std::process::ExitCode;
 
 use salah_core::{
     AsrCriterion, CalculationInput, CivilDate, Coordinates, Event, FixedUtcOffset, MethodProfile,
-    calculate_prayer_times,
+    PrayerStart, calculate_prayer_times, prayer_start_minute,
 };
 
 const USAGE: &str = "Usage: salah-cli --lat DEGREES --lon DEGREES --date YYYY-MM-DD \
 --utc-offset <+HH:MM|-HH:MM> --method <research-15|mwl-angles-18-17> \
---asr <standard|hanafi>\n\n\
+--asr <standard|hanafi> [--display-minute]\n\n\
 This is an offline research calculation. The fixed UTC offset is not a time zone.\n\
-The MWL angle profile reproduces published parameters, not an endorsed timetable.";
+The MWL angle profile reproduces published parameters, not an endorsed timetable.\n\
+--display-minute appends research-preview whole-minute prayer-start labels.";
 
 fn main() -> ExitCode {
     match run() {
@@ -29,6 +30,7 @@ fn run() -> Result<(), String> {
     let mut offset = None;
     let mut method = None;
     let mut asr = None;
+    let mut display_minute = false;
     let mut args = env::args().skip(1);
     if args.len() == 0 {
         println!("{USAGE}");
@@ -36,6 +38,10 @@ fn run() -> Result<(), String> {
     }
 
     while let Some(flag) = args.next() {
+        if flag == "--display-minute" {
+            display_minute = true;
+            continue;
+        }
         if flag == "--help" || flag == "-h" {
             println!("{USAGE}");
             return Ok(());
@@ -114,6 +120,24 @@ fn run() -> Result<(), String> {
                 utc.to_utc()
             ),
             Event::Unavailable { reason } => println!("{name:<8} unavailable: {reason}"),
+        }
+    }
+    if display_minute {
+        println!(
+            "\nResearch-preview prayer-start minutes ({} v{}; calculated beginnings shown above; not a fasting cutoff or mosque timetable):",
+            salah_core::DISPLAY_POLICY_ID,
+            salah_core::DISPLAY_POLICY_REVISION
+        );
+        for prayer in PrayerStart::all() {
+            let receipt = prayer_start_minute(&result, prayer);
+            match receipt.status {
+                salah_core::PrayerStartStatus::Occurs { display, .. } => {
+                    println!("{:<8} {display}", prayer.name())
+                }
+                salah_core::PrayerStartStatus::Unavailable { reason } => {
+                    println!("{:<8} unavailable: {reason}", prayer.name())
+                }
+            }
         }
     }
     Ok(())
