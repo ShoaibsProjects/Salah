@@ -48,6 +48,10 @@ Create a versioned method-source register. For every named profile, record its p
 
 ## P1.5 — Event and rounding contract
 
+See the [rounding-options survey](../specification/rounding-survey-v1.md) (P1.5-E1 evidence; selects no rule).
+
+The architect selected a research-preview display rule in the separate [presentation contract v0.1](../specification/presentation-contract-v0.1.md). Its implementation and schema evidence are still pending; the calculation contract v0.3 remains historical and unchanged.
+
 Specify raw event, adjusted prayer beginning, displayed timetable minute, and notification instant separately. Decide how minute rounding works per selected method, including whether an adjustment occurs before rounding. Verify that Maghrib/sunset, missing events, and Isha crossing local midnight are represented correctly. Do not round away a discrepancy to make comparisons appear to agree.
 
 **Acceptance:** the contract contains exact examples derived from cited vectors, and the CLI/result schema reveals which rule produced a displayed time.
@@ -60,6 +64,6 @@ Summarize the matrix and discrepancy ledger by regime and event; state what was 
 
 P1.1, P1.2, and the initial P1.3 prayer-rule comparison are written. P1.3 records the approximately one-minute Asr disagreement and the polar/high-latitude status differences without altering the kernel. P1.5 rounding definitions can proceed alongside method-source work. P1.6 is a gate review, not a date-driven ceremony.
 
-The P1.4 [method-source manifest](../data/reference/method-sources-v1.tsv) and [register](../specification/method-register-v1.md) now record technical provenance and pending review; primary institutional confirmation and qualified Islamic-methodology review remain open. The next bounded task is **P1.5-E1: survey rounding options and cited examples**, without selecting or implementing a rule. The [accuracy budget](../specification/accuracy-budget.md), [solar report](../specification/usno-matrix-v1-report.md), and [prayer-rule report](../specification/prayer-library-v1-report.md) show which release claims remain unsupported.
+The P1.4 [method-source manifest](../data/reference/method-sources-v1.tsv) and [register](../specification/method-register-v1.md) record technical provenance and pending review; primary institutional confirmation and qualified Islamic-methodology review remain open. P1.5-E1 produced the [rounding survey](../specification/rounding-survey-v1.md), and the architect recorded the bounded [presentation decision](../specification/presentation-contract-v0.1.md). The next task is **P1.5-I1: implement that optional display adapter with cited regression cases**, leaving calculation outputs intact. The [accuracy budget](../specification/accuracy-budget.md), [solar report](../specification/usno-matrix-v1-report.md), and [prayer-rule report](../specification/prayer-library-v1-report.md) show which release claims remain unsupported.
 
 Each later calculation change needs a linked discrepancy, a source or invariant that demonstrates it, a contract/model/profile version decision, and a regression case. Keep historical contracts and reference provenance intact.

@@ -78,6 +78,14 @@ A smaller model must never be asked to “make prayer times accurate” without 
 * **Acceptance evidence:** options table with sources; worked examples derived from cited vectors for each option; Maghrib/sunset separation, missing-event rendering, and post-midnight Isha date handling each illustrated; `EventRule` gap note (what the schema shows today vs what a minute rule needs); open decision questions listed for the architect.
 * **Report back:** new survey path, options table with sources, example table with UTC + source links, non-binding observation, unresolved items, limitations.
 
+### P1.5-I1 — Implement optional prayer-start display adapter (next; smaller model suitable with senior code review)
+
+* **Objective/reason:** implement the architect's [presentation contract v0.1](../specification/presentation-contract-v0.1.md) without changing prayer calculation results. Advances the Phase 1 P1.5 schema and example acceptance line; does not close Phase 1.
+* **In scope:** `crates/salah-core/src/presentation.rs` (new, pure presentation logic), `crates/salah-core/src/lib.rs` (export), `crates/salah-cli/src/main.rs` (opt-in `--display-minute` view), and a focused presentation regression test file. No external dependency.
+* **Out of scope:** `prayer.rs`, `solar.rs`, `civil.rs`, `method.rs`, existing contracts, profile IDs/revisions, astronomy, raw/adjusted UTC outputs, existing CLI output without the new flag, time-zone lookup, notification scheduling, mosque data, or high-latitude fallback.
+* **Acceptance evidence:** a typed receipt carries prayer name, occurring/unavailable status, actual adjusted UTC when present, local date and minute when present, source `EventRule`, method ID/revision, and presentation-policy ID/revision; applies only to Fajr/Dhuhr/Asr/Maghrib/Isha; preserves sunrise/sunset seconds and unavailable reasons; uses Euclidean ceiling after the existing adjusted second; never double-applies an adjustment; carries London midnight and pre-1970 date boundaries; normal CLI output remains byte-for-byte unchanged without `--display-minute`; all cited contract examples and hypothetical nonzero-adjustment case have regression assertions. No consumer accuracy or religious claim.
+* **Report back:** precise diff, API shape, test outputs, preserved-output check, edge-case results, limitations. Stop for architect code review; no commit or push.
+
 ### P1.6-G1 — Gate report skeleton (senior only; blocked until P1.4/P1.5 + open ledger items progress)
 
 * **Objective:** summarize matrix + ledger by regime/event; state verified, excluded, and reviewer-signed wording; record whether numeric/source criteria are met. Keeps Phase 1 open or narrows scope if unmet. No consumer UI claim.
@@ -104,7 +112,7 @@ VERIFY: cargo fmt --all -- --check; cargo clippy --locked --offline --workspace 
 RETURN: files changed + diff stat; per-parameter source table (source, edition/URL, date, hash where applicable); primary-source gaps; assumptions; any discrepancies found (do not fix beyond scope); test logs; a limitations paragraph stating reviewer vacancies and unsupported claims. Stop after the register is reviewable; do not implement P1.5 or Phase 2.
 ```
 
-### Next packet prompt — P1.5-E1 (rounding options survey; give verbatim to Muse 1.3)
+### Survey packet prompt — P1.5-E1 (historical; completed)
 
 ```text
 You are preparing P1.5-E1, a rounding-options SURVEY, in /Users/shoaibakthar/Documents/Salah. This is evidence gathering for an architect decision, not an implementation or a decision about which rounding rule is correct.
@@ -122,6 +130,22 @@ DO NOT: modify crates/**, existing contracts (especially historical v0.3), metho
 VERIFY: check every cited vector against its source file; check relative links and the exact file diff; run cargo fmt --all -- --check, cargo clippy --locked --offline --workspace --all-targets -- -D warnings, and cargo test --locked --offline --workspace.
 
 RETURN: files changed and diff stat; source/options table; worked UTC examples with citations; what remains unknown by method; EventRule/schema gap; non-binding observation; verification results; limitations. Stop for architect review.
+```
+
+### Next packet prompt — P1.5-I1 (display adapter; give verbatim to Muse 1.3)
+
+```text
+You are implementing P1.5-I1 in /Users/shoaibakthar/Documents/Salah. Read AGENTS.md; docs/roadmap.md; docs/phase-1-validation.md P1.5; docs/director-handoff.md §3 P1.5-I1 and §5; docs/decisions.md; specification/presentation-contract-v0.1.md; specification/rounding-survey-v1.md; specification/calculation-contract-v0.3.md; crates/salah-core/src/prayer.rs, civil.rs, method.rs, lib.rs; crates/salah-cli/src/main.rs. The presentation contract v0.1 is the decision. The survey is evidence; its corrected second-rounding note must not be replaced by a commutation assumption.
+
+TASK: implement a pure, typed, optional prayer-start display adapter in the Rust core and an opt-in CLI --display-minute view. The adapter accepts a PrayerTimes result and one of the five prayer-start names, selects its Event internally, and returns a typed receipt with prayer name, actual adjusted UTC instant if occurring, local displayed date/HH:MM if occurring, source EventRule if occurring, method ID/revision, display-policy ID/revision (`prayer-start-ceil-minute`, `0.1`), or the original UnavailableReason with no minute. Use the existing Event.utc exactly once as the adjusted beginning. Convert it with the record's FixedUtcOffset, then use Euclidean integer arithmetic to choose the first whole local minute at or after that second. Preserve date rollover. Do not round the raw f64 again, reapply an adjustment, or change a calculation result. Sunrise and sunset have no prayer-start minute receipt; retain their existing second-precision CLI lines.
+
+CLI: --display-minute is a boolean opt-in flag; existing invocations without it must keep their current output byte-for-byte. When present, append a clearly labeled research-preview section naming the display-policy ID/revision and showing the five prayer-start local date/HH:MM labels or unavailable reasons. The existing second-precision lines remain visible. Do not describe the labels as certified timetable or fasting cutoffs.
+
+FILES IN SCOPE: new crates/salah-core/src/presentation.rs; crates/salah-core/src/lib.rs export; crates/salah-cli/src/main.rs; a new focused regression test file under crates/salah-core/tests/. Add no dependency. If a sound implementation truly requires another file, stop and report the reason rather than widening scope silently.
+
+VERIFY with regression assertions for every cited kernel example in presentation-contract-v0.1.md: Minneapolis Dhuhr/Maghrib, Makkah Dhuhr, London Isha with 06-22 local date, and Tromsø unavailable. Also cover exact minute, one second after, 23:59:59 date rollover, a pre-1970 Unix second using Euclidean division, and a hypothetical valid nonzero Dhuhr/Maghrib adjustment without changing built-in profiles. Show that the adjusted Event.utc is used once and source sunset remains distinct from Maghrib. Check that ordinary CLI output without the flag is byte-for-byte unchanged. Run cargo fmt --all -- --check; cargo clippy --locked --offline --workspace --all-targets -- -D warnings; cargo test --locked --offline --workspace. Report exact commands/results.
+
+DO NOT edit prayer.rs, solar.rs, civil.rs, method.rs, Cargo.toml, existing contracts, methods, outputs, thresholds, reference data, roadmap, AGENTS.md, or decisions.md. Do not add TZDB, notifications, UI, high-latitude fallback, Ramadan/fasting rules, or consumer claims. Preserve .idea/. Do not commit or push. Return the diff, typed API description, test evidence, limitations, then stop for architect review.
 ```
 
 ### Reusable packet template
@@ -155,6 +179,7 @@ RETURN: diff stat, evidence tables, gaps, assumptions, discrepancies, logs, limi
 ## 6. Handoff summary
 
 * **Completed technical evidence:** P1.4-M1 method-source manifest and register were reviewed and committed as `7145b2d`. The secondary-source provenance is explicit. Qualified Islamic-methodology review remains vacant, so P1.4 religious review is open and no consumer method endorsement follows.
-* **Exact next packet:** P1.5-E1 using the verbatim prompt in §4. Give it to one smaller agent; stop for architect review before selecting or implementing a minute rule.
+* **Completed survey and decision:** P1.5-E1 evidence is in the [rounding survey](../specification/rounding-survey-v1.md). The architect corrected its second-rounding and post-adjustment examples, then selected a bounded research-preview [presentation policy](../specification/presentation-contract-v0.1.md). Neither document certifies an institutional method or consumer timetable.
+* **Exact next packet:** P1.5-I1 using the verbatim prompt in §4. Give it to one smaller agent; stop for architect code review before committing.
 * **Open questions for human owner/expert:** acceptability of PrayTimes-secondary-only provenance for an MWL-associated label; who fills astronomy + Islamic-methodology + civil-data + product/a11y roles; license/funding path; TZ response-archival rights and mirror; Qibla reference coordinate; rounding-policy authority per method.
-* **Ready to delegate:** P1.5-E1 survey. **Ready to review:** P1.5-E1 after its evidence arrives. **Blocked pending external review:** P1.6-G1 gate, any regional default or endorsement, polar/high-latitude policy, global accuracy claim, consumer release.
+* **Ready to delegate:** P1.5-I1 implementation. **Ready to review:** its code and regression evidence after return. **Blocked pending external review:** P1.6-G1 gate, any regional default or endorsement, polar/high-latitude policy, global accuracy claim, consumer release.
