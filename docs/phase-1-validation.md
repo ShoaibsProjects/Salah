@@ -36,6 +36,7 @@ Choose cases deliberately across both hemispheres; equinoxes and solstices; equa
 **Acceptance:** a reviewer can retrieve or verify each reference and recompute its UTC value; the matrix includes normal, boundary, and unavailable events; failures report case ID and discrepancy. Matrix breadth is documented, so a few examples cannot be described as global coverage.
 
 ## P1.3 — Prayer-rule comparison
+See the [Asr residual audit](../specification/asr-residual-audit-v1.md) and [residual manifest](../data/reference/asr-residual-v1.tsv) (P1.3-A1-R1 evidence; changes no formula).
 
 Compare Fajr, Isha, Dhuhr, Maghrib, and Standard/Hanafi Asr against at least two independently implemented libraries under **matched explicit parameters**. Record library version, configuration, rounding, high-latitude behavior, and UTC output. Investigate the already observed approximately one-minute Asr difference between Adhan JS and Salah/PrayTimes before any accuracy claim for that rule. Treat source-to-source disagreement as evidence to explain, not a vote.
 
