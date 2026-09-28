@@ -1,0 +1,17 @@
+[package]
+name = "salah-time"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+description = "Offline UTC-to-local civil-time adapter over caller-supplied IANA TZif bytes (F2-TZ0 probe)"
+publish = false
+
+[dependencies]
+salah-core = { path = "../salah-core" }
+# Pinned exactly. Default features are OFF: no host zoneinfo lookup
+# (tzdb-zoneinfo/tzdb-concatenated), no bundled database
+# (tzdb-bundle-platform/tzdb-bundle-always), and no implicit system
+# time-zone detection (tz-system). Only `std` (which implies `alloc`,
+# required for TimeZone::tzif) is enabled, so conversion works purely
+# from caller-supplied bytes plus CPU arithmetic.
+jiff = { version = "=0.2.37", default-features = false, features = ["std"] }
