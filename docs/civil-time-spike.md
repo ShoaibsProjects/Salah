@@ -1,6 +1,6 @@
 # F2-TZ0 — offline civil-time build slice
 
-**Status:** ready for implementation as a pre-gate Phase 2 probe, 2026-09-28 UTC. This is the next code task. It does not pass Phase 1 or authorize a consumer timetable. The [roadmap](roadmap.md) permits a bounded data-source probe while Phase 1 review continues.
+**Status:** implemented and architect-reviewed as a pre-gate Phase 2 probe in `9f0c97e`, 2026-09-28 UTC. It does not pass Phase 1 or authorize a consumer timetable. The [roadmap](roadmap.md) permits this bounded data-source probe while Phase 1 review continues.
 
 ## Why this slice
 
@@ -36,7 +36,7 @@ The first result must distinguish:
 
 Do not feed the resolved offset back into `CalculationInput` in this packet. The existing fixed-offset calculation interface and historical contract v0.3 remain unchanged. A later zone-aware daily calculation must define how the requested local date selects a solar cycle, including skipped dates and rare ambiguous local noons, before it can replace the manual selector.
 
-## Delegation prompt — give verbatim to OpenCode
+## Completed delegation prompt — archive; do not rerun
 
 ```text
 You are implementing F2-TZ0, a BOUNDED OFFLINE CIVIL-TIME CODE SLICE, in /Users/shoaibakthar/Documents/Salah. Start from current main. Read AGENTS.md; docs/roadmap.md Phase 2 and parallel-work rules; docs/vision-and-architecture.md dependency and time-zone sections; docs/civil-time-spike.md in full; specification/calculation-contract-v0.3.md; crates/salah-core/src/civil.rs and lib.rs READ ONLY. Phase 1 remains open; this is an allowed pre-gate probe, not a consumer release.
@@ -53,3 +53,5 @@ Show evidence for UTC instants immediately before/after Chicago DST start and en
 ## Review gate after the code slice
 
 Accept F2-TZ0 only if every result names its zone/data version, transition behavior follows the bundled bytes, and changing host time-zone settings cannot change the output. This proves the civil-time seam for selected zones. It does not prove global zone coverage, future law, coordinate lookup, or correct prayer-date selection. The next code packet can then define the zone-aware date selector against DST gaps, overlaps, skipped civil dates, and date-line cases.
+
+**Review result:** accepted for the six-zone probe. `salah-time` 0.1.0 uses Jiff 0.2.37 with only its `std` feature and exact 2026d fixture-byte matching before a result receives that version label. `salah-core` remains dependency-free. The generator verifies both official archive hashes before extraction and every TZif/LICENSE hash before replacing checked-in fixtures; it reproduced the manifest on this host. Formatting, linting, and the full 41-test offline workspace suite passed. The seven civil evidence cases passed under two different host `TZ` settings in separate processes. An unsafe process-wide environment mutation in the submitted test was removed. CI now fetches locked build dependencies once before its offline checks; the same fetch-then-offline sequence passed with a fresh Cargo cache. The conversion runtime needs no network. Mobile and WASM targets are not installed on this host, so portability is **unverified**. The adapter reparses bytes per call and is limited to six named zones; parsed-rule reuse, full IANA coverage, authenticated update/rollback, and zone-aware prayer-date selection remain later work.

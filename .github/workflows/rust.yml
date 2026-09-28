@@ -1,14 +1,16 @@
-name: Rust kernel
+name: Rust workspace
 
 on:
   push:
   pull_request:
 
 jobs:
-  core:
+  workspace:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+      - name: Fetch locked build dependencies
+        run: cargo fetch --locked
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Check lints
