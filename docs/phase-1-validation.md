@@ -25,6 +25,8 @@ The current MWL-named profile is only an 18°/17° parameter set sourced to a Pr
 
 ## P1.2 — Versioned source manifest and solar matrix
 
+See the [grazing independent audit](../specification/grazing-independent-audit-v1.md) and [Horizons grazing manifest](../data/reference/grazing-horizons-v1.tsv) (P1.2-G1 evidence; changes no formula).
+
 **Objective:** make every external expected value traceable and rerunnable.
 
 Build a compact source manifest with case ID, coordinates and datum, local date, source URL/API and version, retrieval date, response hash or permitted archived response, source precision/time scale, horizon/elevation assumptions, fixed offset used for presentation, expected UTC events, and reason for inclusion. Preserve the original response where license and terms allow; otherwise preserve an exact retrieval recipe and checksum. Keep reference tooling outside the runtime core.
