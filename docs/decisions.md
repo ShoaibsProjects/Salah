@@ -25,13 +25,14 @@
 | First time input | Explicit fixed UTC offset for the initial research CLI; IANA zone support is required before claiming global civil-time accuracy. | At the Phase 2 civil-time milestone (see roadmap.md Phase 2). |
 | First method profile | `research-15` uses 15° Fajr and Isha angles with zero adjustments. It carries no institutional attribution. | Replace or supplement only after source and scholarly review. |
 | First published angle set | `mwl-angles-18-17` reproduces the Fajr and Isha angles in the PrayTimes MWL table with zero Dhuhr/Maghrib adjustment. It is a sourced parameter set, not an endorsement or complete regional timetable. | Revisit when primary institutional specifications and regional practice are reviewed. |
+| Research-preview prayer-start minute display | The architect selected [`prayer-start-ceil-minute` revision `0.1`](../specification/presentation-contract-v0.1.md) on 2026-09-27: use the already adjusted UTC second, then show the first whole local minute at or after it. This is Salah's display rule for the five prayer beginnings, not a method or religious ruling. Sunrise/sunset remain second-precision events; fasting cutoffs and notifications need separate rules. | Revisit for sourced method conventions, IANA time-zone transitions, qualified methodology/product review, or any consumer release. |
 | Crate layout | Begin with one core crate and one CLI crate. | Split only when real module boundaries and independent reuse are clear. |
 | Update system | Versioned, authenticated data packs are a long-term target. | When method or time-zone update requirements and platform limits are known. |
 
 ## Unresolved decisions
 
 - First calculation profile and authoritative parameter sources.
-- Broader numerical accuracy budget, physical model limits, and presentation rounding; the current research model is recorded in the calculation contract.
+- Broader numerical accuracy budget and physical model limits; the research-preview prayer-start presentation policy is decided but not yet implemented or approved for consumer use.
 - High-latitude defaults by region and the scholarly review process.
 - Time-zone boundary dataset, licensing, and update mechanism.
 - Product license, maintainers, funding, and governance through 2050.
