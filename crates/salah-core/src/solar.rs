@@ -75,7 +75,23 @@ pub(crate) fn upper_transit(
     local_day_start_utc: i64,
     coordinates: Coordinates,
 ) -> Result<f64, CalculationError> {
-    let local_noon_utc = local_day_start_utc as f64 + 43_200.0;
+    upper_transit_from_noon_estimate(local_day_start_utc as f64 + 43_200.0, coordinates)
+}
+
+/// Find the upper solar transit nearest to an explicit UTC anchor.
+///
+/// The anchor is a UTC instant expressed in Unix seconds (as `f64`); the
+/// selector is identical to [`upper_transit`] with the legacy local-noon UTC
+/// estimate substituted by the caller-supplied anchor. No local date, fixed
+/// offset, or time-zone rule is consulted here.
+pub(crate) fn upper_transit_from_noon_estimate(
+    noon_estimate_utc_seconds: f64,
+    coordinates: Coordinates,
+) -> Result<f64, CalculationError> {
+    if !noon_estimate_utc_seconds.is_finite() {
+        return Err(CalculationError::NumericalFailure);
+    }
+    let local_noon_utc = noon_estimate_utc_seconds;
     let longitude_seconds = coordinates.longitude_degrees() * 240.0;
     let initial_equation = position(local_noon_utc).equation_of_time_minutes * 60.0;
     let solar_day_index =

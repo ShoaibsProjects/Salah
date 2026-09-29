@@ -1,6 +1,6 @@
 # F2-TZ1 — explicit UTC solar-cycle anchor
 
-**Status:** approved next bounded code packet; not implemented. Phase 1 and Phase 2 gates remain open. This is an additive research API, not a consumer timetable.
+**Status:** implemented and architect-reviewed for research use on 2026-09-28. Phase 1 and Phase 2 gates remain open. This is an additive research API, not a consumer timetable.
 
 ## Why this is next
 
