@@ -1,6 +1,6 @@
 # Salah
 
-**Project status:** Rust calculation-kernel research preview, September 2026. The repository has no consumer mobile or web application yet. Phase 1 validation remains open; the civil-time work currently present is the reviewed F2-TZ0 probe and does not authorize a production timetable.
+**Project status:** Rust calculation-kernel research preview, September 2026. The repository has no consumer mobile or web application yet. Phase 1 validation remains open. F2-TZ0 and F2-TZ1 are reviewed; F2-TZ2 local-date selection is implemented in the current working tree and awaits review. No production timetable is authorized.
 
 Salah is building a free, private, offline-capable prayer-time system for Earth. Its durable center is a documented, versioned Rust calculation core with reproducible reference data. Future iOS, Android, web, and other clients are intended to consume that core rather than reimplement prayer mathematics in UI code.
 
@@ -17,7 +17,7 @@ Salah is building a free, private, offline-capable prayer-time system for Earth.
 - The solver handles upper transit, direction-aware sunrise/sunset/twilight crossings, near-grazing interior extrema, and explicit unavailable events. It does **not** silently apply a high-latitude fallback.
 - The optional research-preview presentation adapter `prayer-start-ceil-minute` v0.1 produces a separate whole-minute label for the five prayer beginnings. It never replaces the calculation's UTC instant and is not a notification instant, fasting cutoff, or mosque timetable.
 - `salah-cli` exposes the kernel with explicit coordinates, date, fixed UTC offset, method, Asr criterion, and optional `--display-minute` output.
-- `salah-time` **v0.1.0** is a separate, narrowly scoped UTC-to-local adapter. It uses pinned `jiff` 0.2.37 and caller-supplied TZif bytes from a six-zone IANA 2026d fixture pack. It does not infer a zone from coordinates, read the host zone database, or feed the result back into the prayer engine.
+- `salah-time` **v0.1.0** converts UTC instants with pinned `jiff` 0.2.37 and caller-supplied TZif bytes from a six-zone IANA 2026d fixture pack. The F2-TZ2 research selector uses the F2-TZ1 UTC-anchor API to find every solar cycle whose transit maps to a requested local date; it returns zero, one, or multiple matches explicitly. It does not infer a zone from coordinates or read the host zone database.
 - Reference and validation assets include a 19-case USNO solar matrix, grazing-horizon evidence, a 28-row prayer-library comparison, an Asr residual audit, method-source manifests, and presentation/rounding tests.
 - CI runs the Rust workspace checks through the repository workflow; the project is dependency-light and has no mandatory runtime service.
 
@@ -27,7 +27,7 @@ The current kernel is intentionally narrower than the product vision:
 
 - `--utc-offset` is a manually supplied fixed offset, **not** an IANA time zone and not a DST rule set.
 - There is no coordinate-to-time-zone lookup, global bundled zone pack, consumer location experience, Qibla implementation, notifications, Flutter/mobile client, WASM client, or web app.
-- The current civil-time adapter is only a reviewed six-zone probe: `Etc/UTC`, `America/Chicago`, `Europe/London`, `Asia/Kathmandu`, `Pacific/Kiritimati`, and `Pacific/Apia`.
+- Civil-time coverage is limited to the six pinned probe zones: `Etc/UTC`, `America/Chicago`, `Europe/London`, `Asia/Kathmandu`, `Pacific/Kiritimati`, and `Pacific/Apia`. F2-TZ2 is under architect review; its selector is not a consumer daily schedule.
 - Elevation, terrain, weather, and local atmospheric conditions are not modeled; elevation is fixed at sea level.
 - No high-latitude alternative is selected. If the chosen solar condition does not cross during the cycle, the result is explicitly unavailable.
 - Phase 1 has not passed. Existing allowances and comparisons are case-specific investigation triggers, not global accuracy claims. Institutional method review, broader astronomy evidence, civil-time integration, and release thresholds remain open.
@@ -38,7 +38,7 @@ The current kernel is intentionally narrower than the product vision:
 crates/
   salah-core/       Offline solar/prayer kernel, typed events, records, tests
   salah-cli/        Minimal research command-line interface
-  salah-time/       Separate TZif UTC-to-local probe with pinned fixtures
+  salah-time/       Pinned TZif conversion and local-date transit selector
 
 data/reference/    Versioned USNO, prayer-library, Asr, grazing, and method data
 
@@ -48,7 +48,7 @@ tools/              Offline/reference-audit helpers (Python and Node)
 .github/workflows/  Rust CI
 ```
 
-The intended data flow is: validated coordinates/date/offset and a versioned method profile enter `salah-core`; the solar solver computes UTC events and statuses; the CLI renders those events with the explicit fixed offset. `salah-time` is deliberately downstream and independent: it interprets an already-computed `UtcInstant` using explicitly supplied, pinned TZif bytes and returns the zone ID, tzdb version, resolved offset in seconds, and local civil time.
+The existing CLI flow sends validated coordinates/date/fixed offset and a versioned method profile to `salah-core`, which computes UTC events and statuses. The experimental IANA flow sends coordinates, method, Asr criterion, a requested local date, selected zone ID, and pinned TZif bytes to `salah-time`; it uses `salah-core` to enumerate candidate solar cycles, then verifies each transit's local date with those same zone bytes and records the zone-data version.
 
 ## Quick start
 
@@ -108,6 +108,7 @@ Start with these documents:
 - [Reference data guide](data/reference/README.md) — provenance and offline matrix commands.
 - [Presentation contract v0.1](specification/presentation-contract-v0.1.md) — separate research-preview minute-display policy.
 - [Civil-time spike](docs/civil-time-spike.md) — reviewed six-zone TZif conversion boundary.
+- [Civil-date transit selector v0.1](specification/civil-date-transit-selector-v0.1.md) — F2-TZ2 API and completeness argument.
 - [Decision record](docs/decisions.md) — accepted choices and unresolved decisions.
 - [Contributor and agent guidance](AGENTS.md) — rules for calculation changes, evidence, and review.
 
@@ -115,6 +116,6 @@ When changing calculation behavior, preserve the prior contract/model/profile id
 
 ## Planned next steps
 
-The active roadmap places the project in Phase 1: wider validation, method provenance and review, event/rounding definitions, discrepancy ownership, and a gate report. After those gates, the roadmap covers full offline civil-time data and difficult geography, portable Rust/WASM/mobile bindings, an accessible experience, an offline consumer beta, and eventual public release stewardship.
+The active roadmap keeps Phase 1 validation and independent review open while the F2-TZ2 six-zone selector is reviewed. Next, the civil-time layer must localize every event and then grow toward a versioned global zone pack and coordinate-to-zone data. Portable bindings, an accessible experience, an offline consumer beta, and public release stewardship remain later milestones.
 
 The repository intentionally defers accounts, ads, cloud-calculation dependencies, social features, blockchain, Mars support, and AI-generated prayer times.

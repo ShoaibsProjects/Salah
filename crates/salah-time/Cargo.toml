@@ -3,7 +3,7 @@ name = "salah-time"
 version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
-description = "Offline UTC-to-local civil-time adapter over caller-supplied IANA TZif bytes (F2-TZ0 probe)"
+description = "Offline IANA civil-time adapter and local-date solar transit selector"
 publish = false
 
 [dependencies]

@@ -10,10 +10,13 @@ mod prayer;
 mod presentation;
 mod solar;
 
+/// Version of the `salah-core` package that produced calculation records.
+pub const CORE_ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub use civil::{CivilDate, CivilDateTime, FixedUtcOffset, UtcInstant};
 pub use method::{AsrCriterion, MethodProfile};
 pub use prayer::{
-    CalculationInput, CalculationRecord, Event, EventRule, PrayerTimes,
+    ASTRONOMY_MODEL, CalculationInput, CalculationRecord, Event, EventRule, PrayerTimes,
     UTC_ANCHOR_MAX_UNIX_SECONDS, UTC_ANCHOR_MIN_UNIX_SECONDS, UTC_ANCHOR_SELECTION_POLICY_ID,
     UTC_ANCHOR_SELECTION_POLICY_REVISION, UnavailableReason, UtcAnchorInput, UtcAnchorRecord,
     UtcAnchorTimes, calculate_prayer_times, calculate_utc_anchor_times,
