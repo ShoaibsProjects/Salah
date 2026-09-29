@@ -35,4 +35,4 @@ RETURN: changed files and diff stat; public API and policy ID; anchor-range rule
 
 ## Following packet
 
-F2-TZ2 will use the pinned `salah-time` zone rules to identify **all** solar transits whose converted local date matches the requested date. It will return explicit outcomes for zero, one, or multiple matching cycles, including skipped dates and date-line transitions. It will not choose one silently. Only after that selector is reviewed can a zone-aware daily prayer calculation be assembled and assessed for consumer use.
+[F2-TZ2](civil-time-date-selector.md) will use the pinned `salah-time` zone rules to identify **all** solar transits whose converted local date matches the requested date. It will return explicit outcomes for zero, one, or multiple matching cycles, including skipped dates and date-line transitions. It will not choose one silently. Only after that selector is reviewed can a zone-aware daily prayer calculation be assembled and assessed for consumer use.
