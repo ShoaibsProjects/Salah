@@ -1,7 +1,7 @@
 use crate::solar::{self, CrossingDirection, altitude_degrees, crossing, position};
 use crate::{
-    AsrCriterion, CalculationError, CivilDate, Coordinates, FixedUtcOffset, MethodProfile,
-    UtcInstant,
+    AsrCriterion, CORE_ENGINE_VERSION, CalculationError, CivilDate, Coordinates, FixedUtcOffset,
+    MethodProfile, UtcInstant,
 };
 use core::fmt;
 
@@ -201,7 +201,7 @@ pub fn calculate_prayer_times(input: CalculationInput) -> Result<PrayerTimes, Ca
             method,
             asr_criterion: input.asr_criterion,
             astronomy_model: ASTRONOMY_MODEL,
-            engine_version: env!("CARGO_PKG_VERSION"),
+            engine_version: CORE_ENGINE_VERSION,
             high_latitude_rule: "none",
             assumed_elevation_meters: 0.0,
         },
@@ -254,7 +254,7 @@ pub fn calculate_utc_anchor_times(
             method,
             asr_criterion: input.asr_criterion,
             astronomy_model: ASTRONOMY_MODEL,
-            engine_version: env!("CARGO_PKG_VERSION"),
+            engine_version: CORE_ENGINE_VERSION,
             high_latitude_rule: "none",
             assumed_elevation_meters: 0.0,
         },

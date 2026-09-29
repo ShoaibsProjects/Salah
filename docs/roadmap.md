@@ -74,4 +74,4 @@ The [F2-TZ0 offline civil-time conversion](civil-time-spike.md) probe is impleme
 
 F2-TZ1 status (architect-reviewed): the additive UTC-anchor API is implemented in `salah-core` with the versioned selector and [UTC-anchor contract v0.1](../specification/utc-anchor-contract-v0.1.md). Legacy results, CLI output, and historical contract v0.3 are preserved. Phase 1 and Phase 2 gates remain open; no consumer claim follows.
 
-The next bounded code packet is [F2-TZ2 local-date transit selection](civil-time-date-selector.md) for the six pinned zones. It must enumerate every matching solar cycle and return zero, one, or multiple matches explicitly.
+F2-TZ2 local-date transit selection is implemented in the working tree for the six pinned zones; see the [selector contract](../specification/civil-date-transit-selector-v0.1.md). It enumerates matching cycles explicitly and remains under review; the Phase 1 and Phase 2 gates remain open.
