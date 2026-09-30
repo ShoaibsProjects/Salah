@@ -16,6 +16,9 @@ use salah_time::{
 };
 use salah_update::VerifiedRulePack;
 
+mod document;
+pub use document::{SCHEDULE_DOCUMENT_SCHEMA, ScheduleDocumentError, schedule_document};
+
 /// Identity of the advisory assessment for installed civil-time data.
 pub const DATA_ASSESSMENT_POLICY_ID: &str = "installed-civil-time-data-assessment";
 /// Revision of [`DATA_ASSESSMENT_POLICY_ID`].

@@ -4,13 +4,15 @@
 
 ## Current piece
 
-**Phase 2: Civil Time → F2-TZ9: Timezone Data Updates → P2b.2a: Verified Snapshot in Calculations.**
+**Phase 3: Portable Calculation Platform → F3-C1: Engine Interface → Named-Timezone Command and Schedule Document.**
 
-The Prayer Kernel calculates UTC events. The Civil Clock turns those events into local readings under one timezone snapshot. The new runtime path lets the Schedule Composer consume a `VerifiedRulePack`, including one loaded from update storage, and use that snapshot consistently for the requested date and every event. Its exact identity stays with the result. See the [runtime contract](../specification/runtime-rule-snapshot-v0.1.md).
+You can now ask the command-line program for a local schedule with coordinates, a Gregorian date, a named IANA timezone, a method, and an Asr choice. The command uses the existing Prayer Kernel, Civil Clock, and Schedule Composer. DST and date-line rules come from the bundled snapshot. It prints full local dates and seconds, UTC, and exact data identity. Add `--json` to obtain the reusable, versioned document for future clients. See the [interface contract](../specification/named-zone-interface-contract-v0.1.md).
 
-The runtime owns its bytes and labels. A subsequent update, rollback, or repository close cannot change a calculation already using that handle. Signature verification still happens before payload parsing, and calculation never automatically confirms a stored trial. The legacy bundled entry point remains available.
+An explicit zone can now be chosen without loading the approximate boundary map. The result says that no map lookup occurred. Skipped dates, zero/multiple solar cycles, and unavailable events remain visible. No formula, method profile, solver threshold, or historical reference result was changed.
 
-**Evidence so far:** local workspace/all-target build and lint checks. Focused runtime acceptance cases remain open; no new runtime regression suite was added or executed in this slice. Earlier checkpoint `1be80bc` has 100 passing Rust tests and six validator tests; those are prior evidence. Mobile/WASM builds and target persistence review remain separate P2b.2 work. Neither phase gate has passed.
+**Evidence so far:** local locked offline workspace build, formatting, all-target lint checks, and diff inspection. The user requested implementation without adding tests; none were added or run locally. One existing location test fixture was updated for the new private provenance field so it still compiles. Earlier checkpoint `1be80bc` has 100 passing Rust tests and six validator tests; those are prior evidence. New interface and verified-snapshot acceptance cases remain open. Phase 1, Phase 2, and the Phase 3 cross-target gate remain open.
+
+**Next build:** F3-W1: Portable Binding Probe. Expose the same explicit engine inputs and schedule document to a browser/WASM client, assess target dependencies, and keep the app free of prayer mathematics. A simple daily schedule screen follows the working boundary. Signed-pack platform integration and trial-health policy continue as separate open work.
 
 ## Names of the main parts
 
@@ -18,11 +20,11 @@ The runtime owns its bytes and labels. A subsequent update, rollback, or reposit
 | --- | --- | --- |
 | Prayer Kernel | `salah-core` | Calculates solar and prayer events in UTC. Dependency-free research kernel; independent astronomy/methodology review and known discrepancies remain open. |
 | Civil Clock | `salah-time` | Converts UTC under a recorded IANA snapshot, handles DST/date changes, selects local-date solar cycles, and preserves missing events. |
-| Location and Zone Choice | `salah-location` | Suggests zones from approximate offline boundaries; requires confirmation or manual choice. |
+| Location and Zone Choice | `salah-location` | Suggests zones from approximate offline boundaries; requires confirmation or manual choice. Direct manual selection can bypass map lookup. |
 | Schedule Composer | `salah-engine` | Combines explicit inputs and a bundled or verified immutable rule snapshot into a local schedule with exact identity and source metadata. |
 | Update Authentication | `salah-update` | Verifies signed packages, exact hashes/inventory, and compatibility before parsing their payloads. P2a is implemented. |
 | Update Storage and Recovery | `salah-update-store` | Archives signed packages and manages trial, confirmation, restart recovery, and counter preservation. P2b.1 is implemented; runtime selection and trial confirmation remain explicit caller actions. |
-| Calculation Lab Command | `salah-cli` | Runs the existing fixed-offset research interface. Named-zone orchestration and stored packages are not exposed by this CLI yet. |
+| Calculation Lab Command | `salah-cli` | Runs named-zone local schedules, emits shared JSON, lists supported zones, and retains the historical fixed-offset interface. Stored packages are still Rust-API-only. |
 
 ## How to name work
 
@@ -36,6 +38,8 @@ Use **phase → workstream → piece**, followed by a plain name in every handof
 | F2-TZ9-P2b.2a | Verified Snapshot in Calculations | Implemented; build/lint checks; focused runtime acceptance evidence pending. |
 | F2-TZ9-P2b.2b | Platform Integration and Trial Health Policy | Open: mobile/WASM builds, platform persistence, and application-level startup/confirmation policy. |
 | F2-TZ9-P2b.3 | Production Signing Stewardship | Open: maintainers, key custody/rotation/revocation, release pipeline, retention, and distribution policy. |
+| F3-C1 | Named-Timezone Command and Schedule Document | Implemented; native build/static checks; focused acceptance evidence remains open. |
+| F3-W1 | Portable Binding Probe | Next: reuse the engine and versioned document across the browser/WASM boundary. |
 
 Phase 1 (accuracy and method integrity) and Phase 2 remain open. High-latitude alternatives, Qibla, broader independent comparisons, portable bindings, and user apps remain on the roadmap. A working update subsystem does not settle those other gates.
 

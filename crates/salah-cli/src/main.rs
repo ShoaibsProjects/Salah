@@ -6,7 +6,12 @@ use salah_core::{
     PrayerStart, calculate_prayer_times, prayer_start_minute,
 };
 
-const USAGE: &str = "Usage: salah-cli --lat DEGREES --lon DEGREES --date YYYY-MM-DD \
+mod schedule;
+
+const USAGE: &str = "Named time zone: salah-cli schedule --lat DEGREES --lon DEGREES --date YYYY-MM-DD \
+--zone IANA_ID --method <research-15|mwl-angles-18-17> --asr <standard|hanafi> [--json]\n\
+List bundled zone names: salah-cli zones\n\n\
+Legacy fixed offset: salah-cli --lat DEGREES --lon DEGREES --date YYYY-MM-DD \
 --utc-offset <+HH:MM|-HH:MM> --method <research-15|mwl-angles-18-17> \
 --asr <standard|hanafi> [--display-minute]\n\n\
 This is an offline research calculation. The fixed UTC offset is not a time zone.\n\
@@ -24,6 +29,11 @@ fn main() -> ExitCode {
 }
 
 fn run() -> Result<(), String> {
+    match env::args().nth(1).as_deref() {
+        Some("schedule") => return schedule::run(env::args().skip(2)),
+        Some("zones") => return schedule::zones(env::args().skip(2)),
+        _ => {}
+    }
     let mut latitude = None;
     let mut longitude = None;
     let mut date = None;

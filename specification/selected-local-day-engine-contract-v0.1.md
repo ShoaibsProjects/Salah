@@ -1,5 +1,7 @@
 # Selected local-day engine contract v0.1
 
+**Interface additions:** the [runtime snapshot contract](runtime-rule-snapshot-v0.1.md) extends snapshot selection and owned provenance; [F3-C1](named-zone-interface-contract-v0.1.md) adds direct manual zone selection, named-zone CLI, and a shared JSON encoder using pinned `serde_json`. Historical calculation behavior below is preserved.
+
 **Status:** experimental orchestration in `salah-engine`; not a Phase 2 gate decision.
 
 ## Purpose

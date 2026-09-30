@@ -2,6 +2,8 @@
 
 **Status:** experimental implementation in `salah-location`; not a Phase 2 gate decision.
 
+**Additive interface:** [F3-C1](named-zone-interface-contract-v0.1.md) adds direct manual selection without a polygon lookup. Its `NotLookedUp` status is distinct from the performed-lookup statuses below; historical lookup semantics remain unchanged.
+
 ## Purpose
 
 Given checked geographic coordinates, return every IANA time-zone polygon that the bundled boundary dataset says covers that point. A result is a suggestion for a user to confirm. The engine does not treat a coordinate lookup as authoritative proof of a civil time zone, even when there is only one polygon match.

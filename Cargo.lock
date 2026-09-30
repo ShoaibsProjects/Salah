@@ -334,6 +334,10 @@ name = "salah-cli"
 version = "0.3.0"
 dependencies = [
  "salah-core",
+ "salah-engine",
+ "salah-location",
+ "salah-time",
+ "serde_json",
 ]
 
 [[package]]
@@ -348,6 +352,7 @@ dependencies = [
  "salah-location",
  "salah-time",
  "salah-update",
+ "serde_json",
 ]
 
 [[package]]

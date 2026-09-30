@@ -2,9 +2,14 @@
 name = "salah-cli"
 version = "0.3.0"
 edition.workspace = true
-rust-version.workspace = true
+rust-version = "1.88"
 description = "Inspect results from the Salah calculation kernel"
 publish = false
 
 [dependencies]
 salah-core = { path = "../salah-core" }
+salah-engine = { path = "../salah-engine" }
+salah-location = { path = "../salah-location" }
+salah-time = { path = "../salah-time" }
+# Already pinned in the workspace; formats the engine's versioned document.
+serde_json = "=1.0.151"
