@@ -26,6 +26,7 @@ This repository is the canonical workspace for Salah. Read these files before ch
 22. `specification/rule-pack-repository-v0.1.md` — Unix app-private signed archive, trial/confirmation, atomic state replacement, recovery, and filesystem limits.
 23. `specification/runtime-rule-snapshot-v0.1.md` — immutable bundled/authenticated runtime selection, owned identities, shared payload validation, and acceptance gaps.
 24. `docs/current-work.md` — plain-language component names and the current phase/workstream/piece; roadmap gate authority is unchanged.
+25. `specification/named-zone-interface-contract-v0.1.md` — explicit manual zone without lookup, named-zone CLI, and shared schedule JSON; no display-minute or notification rule.
 
 ## Project intent
 
@@ -57,6 +58,8 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 - Update the specification and relevant documentation when behavior changes. Report what was verified and any remaining limitations.
 
 ## Current state
+
+F3-C1 adds `salah-cli schedule`, `salah-cli zones`, and `salah_engine::schedule_document` under the named-zone interface contract. Direct manual selection records an unperformed map lookup separately from no coverage. Native build/static checks are recorded; the user requested no new tests, and no tests were run locally in this slice. The next build is a portable binding probe, with all earlier phase gates still open.
 
 F2-TZ1 adds a reviewed UTC-anchor solar-cycle API to `salah-core`; see `specification/utc-anchor-contract-v0.1.md`. F2-TZ2 is implemented in `salah-time`; see `specification/civil-date-transit-selector-v0.2.md` for the expanded named-zone scope and v0.1 for the original six-zone evidence. F2-TZ3 localizes all seven events, F2-TZ4 classifies whether the local civil date exists, and F2-TZ5 bundles 598 named IANA zones; these extensions are implemented research code pending phase-gate review. F2-TZ6 adds an experimental offline suggestion layer in `salah-location`; suggestions require explicit confirmation or manual override and do not establish authoritative timezone boundaries. F2-TZ7 composes a selected zone and explicit calculation inputs through `salah-engine`; see the selected-local-day contract. F2-TZ8 adds a separate, caller-dated data assessment with typed notices; see the civil-time data lifecycle and assessment contract. F2-TZ9-P1 adds exact bundled pack identity and a local integrity validator. F2-TZ9-P2a adds a signed-candidate verifier in `salah-update`. F2-TZ9-P2b.1 adds experimental Unix signed archives and trial/recovery state in `salah-update-store`; see its repository contract and `docs/current-work.md`. F2-TZ9-P2b.2a adds explicit verified-snapshot calculations with exact owned identity and signed source metadata; build/lint checks are recorded, focused acceptance evidence remains open. No production key or automatic update activation exists. Zero/one/multiple solar-cycle matches remain separate from skipped/existing date status. Neither phase gate has passed.
 

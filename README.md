@@ -26,9 +26,11 @@ Our hope is to offer something useful with care: prayer times people can underst
 
 **As of 30 September 2026: the Rust research engine is being built and checked.** Mobile and web applications are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
 
-**Now building:** Phase 2: Civil Time → Timezone Data Updates → **P2b.2a: Verified Snapshot in Calculations**.
+**Latest build:** Phase 3: Portable Calculation Platform → Engine Interface → **F3-C1: Named-Timezone Command and Schedule Document**.
 
 The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
+
+You can now use that local schedule from the terminal: choose a location, date, timezone, method, and Asr setting. The command prints the times with their local dates and UTC instants. It can also return a shared JSON document for the apps we build next. Your explicit timezone choice works without consulting the boundary map.
 
 We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
 
@@ -46,11 +48,11 @@ We have built signed timezone-update storage with restart recovery. The new runt
 | **Schedule Composer** | A Rust API combining an explicit location, selected zone, date, method, and Asr criterion. |
 | **Update Authentication** | Signature, integrity, inventory, and compatibility checks for candidate timezone packs under a pinned public key. |
 | **Update Storage and Recovery** | A Unix prototype for signed archives, trial selection, confirmation, restart recovery, and update replay/downgrade checks. |
-| **Calculation Lab Command** | A working command-line research interface using a manually supplied fixed UTC offset. |
+| **Calculation Lab Command** | Named-zone local schedules, optional versioned JSON, supported-zone listing, and the earlier fixed-offset research interface. |
 
 Published checkpoint [1be80bc](https://github.com/ShoaibsProjects/Salah/commit/1be80bc) passed **100 Rust tests**, six pack-validator tests, formatting/lint checks, and GitHub CI. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test.
 
-The new runtime slice has local build and lint checks. Focused acceptance cases for alternative snapshots and their result identities remain open; the earlier checkpoint's counts are not new runtime coverage. See the [runtime contract](specification/runtime-rule-snapshot-v0.1.md).
+The runtime and new interface slices have local build and static checks. No new tests were added or run locally for the interface, as requested for this build. Focused acceptance cases for the interface and alternative snapshots remain open; the earlier checkpoint's counts are prior evidence. See the [runtime contract](specification/runtime-rule-snapshot-v0.1.md) and [interface contract](specification/named-zone-interface-contract-v0.1.md).
 
 These checks are engineering evidence. Independent scientific and Islamic-methodology review remain necessary.
 
@@ -91,14 +93,35 @@ Use the Rust toolchain pinned in [rust-toolchain.toml](rust-toolchain.toml). An 
 
 ```bash
 cargo fetch --locked
+cargo run --locked --offline -p salah-cli -- schedule \
+  --lat 44.9778 --lon -93.2650 --date 2026-09-30 \
+  --zone America/Chicago --method mwl-angles-18-17 --asr hanafi
+```
+
+This is a **research example**, with an explicit zone and method; it is not a recommended regional default. Named-zone schedules use bundled IANA rules for DST and date changes. The program reads no device timezone and needs no server for calculations.
+
+Add `--json` for the versioned schedule document. List available timezone names with:
+
+```bash
+cargo run --locked --offline -p salah-cli -- zones
+```
+
+Skipped dates, multiple solar cycles, and unavailable events stay visible. No alternative time is silently inserted. The [interface contract](specification/named-zone-interface-contract-v0.1.md) describes the input and output precisely.
+
+<details>
+<summary>The earlier fixed-offset research command</summary>
+
+```bash
 cargo run --locked --offline -p salah-cli -- \
   --lat 44.9778 --lon -93.2650 --date 2026-09-27 \
   --utc-offset -05:00 --method research-15 --asr hanafi
 ```
 
-This is a **research example**, using explicit coordinates and a fixed offset. The CLI’s `--utc-offset` does not perform IANA/DST selection. The Rust schedule API provides the separate named-zone flow.
+`--utc-offset` is a fixed offset; it does not perform IANA/DST selection. This older command remains available for reproducing earlier research outputs.
 
 Supported Asr criteria are `standard` and `hanafi`. Add `--display-minute` for the separately labeled prayer-start minute preview; it does not change the underlying UTC instant.
+
+</details>
 
 ### Run the checks
 
@@ -120,10 +143,10 @@ Committed Rust reference cases run offline. Optional source-audit and matrix-reg
 salah-core          solar events, prayer rules, typed UTC results
 salah-time          recorded timezone rules and local schedules
 salah-location      offline zone suggestions and explicit selection
-salah-engine        schedule composition and data notices
+salah-engine        schedule composition, data notices, shared JSON
 salah-update        signed candidate verification
 salah-update-store  local archives, trial selection, and recovery
-salah-cli           fixed-offset calculation lab
+salah-cli           named-zone schedules, JSON, fixed-offset lab
 ```
 
 Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and the [accuracy budget](specification/accuracy-budget.md). Preserve historical contracts and reference evidence when changing behavior.
@@ -145,6 +168,7 @@ Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and
 - [Signed candidate verification](specification/signed-rule-pack-candidate-v0.1.md)
 - [Local repository and recovery](specification/rule-pack-repository-v0.1.md)
 - [Verified runtime snapshot](specification/runtime-rule-snapshot-v0.1.md)
+- [Named-zone command and schedule document](specification/named-zone-interface-contract-v0.1.md)
 
 </details>
 

@@ -51,6 +51,8 @@ fn validate_data_version(boundary_data_version: &str) -> Result<(), ZoneLookupEr
 /// Outcome cardinality for the approximate boundary lookup.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CandidateCardinality {
+    /// No polygon lookup was requested. This does not mean no coverage.
+    NotLookedUp,
     /// No mapped polygon covers these coordinates.
     NoCoverage,
     /// One polygon in the data pack covers these coordinates. This is still a
@@ -60,10 +62,13 @@ pub enum CandidateCardinality {
     MultipleSuggestions,
 }
 
-/// The complete result of looking up coordinates in the bundled boundary map.
+/// A boundary lookup result, or an explicitly unperformed lookup retained for
+/// a direct manual choice. Inspect [`Self::lookup_performed`] before treating
+/// installed map metadata as lookup evidence.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ZoneCandidates {
     coordinates: Coordinates,
+    lookup_performed: bool,
     boundary_data_version: String,
     boundary_distribution_version: &'static str,
     boundary_data_sha256: &'static str,
@@ -73,13 +78,21 @@ pub struct ZoneCandidates {
 }
 
 impl ZoneCandidates {
-    /// Coordinates used for the lookup.
+    /// Whether the boundary map was actually consulted. Versions on an
+    /// unperformed lookup identify the compatible installed map, not evidence.
+    #[must_use]
+    pub const fn lookup_performed(&self) -> bool {
+        self.lookup_performed
+    }
+
+    /// Coordinates to which the lookup or manual choice applies.
     #[must_use]
     pub const fn coordinates(&self) -> Coordinates {
         self.coordinates
     }
 
-    /// Version of the community boundary dataset that produced these matches.
+    /// Installed boundary dataset compatible with this selection. It produced
+    /// matches only when [`Self::lookup_performed`] is true.
     #[must_use]
     pub fn boundary_data_version(&self) -> &str {
         &self.boundary_data_version
@@ -109,8 +122,8 @@ impl ZoneCandidates {
         self.timezone_database_version
     }
 
-    /// Sorted mapped candidates. An empty slice means this point has no
-    /// coverage in the bundled land-boundary dataset.
+    /// Sorted mapped candidates. An empty slice indicates no coverage only
+    /// when [`Self::lookup_performed`] is true.
     #[must_use]
     pub fn zone_ids(&self) -> &[String] {
         &self.zone_ids
@@ -120,6 +133,9 @@ impl ZoneCandidates {
     /// authoritative.
     #[must_use]
     pub fn cardinality(&self) -> CandidateCardinality {
+        if !self.lookup_performed {
+            return CandidateCardinality::NotLookedUp;
+        }
         match self.zone_ids.len() {
             0 => CandidateCardinality::NoCoverage,
             1 => CandidateCardinality::OneSuggestion,
@@ -153,7 +169,11 @@ impl ZoneCandidates {
         Ok(ZoneSelection {
             candidates: self.clone(),
             selected_zone_id: zone_id.to_owned(),
-            origin: SelectionOrigin::ManualOverride,
+            origin: if self.lookup_performed {
+                SelectionOrigin::ManualOverride
+            } else {
+                SelectionOrigin::ManualWithoutLookup
+            },
         })
     }
 }
@@ -165,9 +185,37 @@ pub enum SelectionOrigin {
     UserConfirmedSuggestion,
     /// The user chose a supported IANA zone independently of the map result.
     ManualOverride,
+    /// The user chose a supported zone without requesting a polygon lookup.
+    ManualWithoutLookup,
 }
 
-/// A user-confirmed time-zone choice paired with the lookup evidence.
+/// Select a supported zone directly, without loading or querying the polygon
+/// map. The explicit choice applies to the supplied checked coordinates;
+/// membership in the inventory does not prove jurisdictional correctness.
+pub fn select_manual_zone(
+    coordinates: Coordinates,
+    zone_id: &str,
+) -> Result<ZoneSelection, SelectionError> {
+    if !SUPPORTED_ZONE_IDS.contains(&zone_id) {
+        return Err(SelectionError::UnsupportedTimeZoneId(zone_id.to_owned()));
+    }
+    Ok(ZoneSelection {
+        candidates: ZoneCandidates {
+            coordinates,
+            lookup_performed: false,
+            boundary_data_version: BOUNDARY_DATA_VERSION.to_owned(),
+            boundary_distribution_version: BOUNDARY_DATA_DISTRIBUTION_VERSION,
+            boundary_data_sha256: BOUNDARY_DATA_SHA256,
+            lookup_implementation_version: LOOKUP_IMPLEMENTATION_VERSION,
+            timezone_database_version: TZDB_VERSION,
+            zone_ids: Vec::new(),
+        },
+        selected_zone_id: zone_id.to_owned(),
+        origin: SelectionOrigin::ManualWithoutLookup,
+    })
+}
+
+/// An explicit time-zone choice paired with lookup evidence when requested.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ZoneSelection {
     candidates: ZoneCandidates,
@@ -304,6 +352,7 @@ pub fn lookup_timezone_candidates(
 
     Ok(ZoneCandidates {
         coordinates,
+        lookup_performed: true,
         boundary_data_version: boundary_data_version.to_owned(),
         boundary_distribution_version: BOUNDARY_DATA_DISTRIBUTION_VERSION,
         boundary_data_sha256: BOUNDARY_DATA_SHA256,
@@ -326,6 +375,7 @@ mod tests {
         let coordinates = Coordinates::new(0.0, 0.0).expect("valid coordinates");
         let candidates = ZoneCandidates {
             coordinates,
+            lookup_performed: true,
             boundary_data_version: super::BOUNDARY_DATA_VERSION.to_owned(),
             boundary_distribution_version: super::BOUNDARY_DATA_DISTRIBUTION_VERSION,
             boundary_data_sha256: super::BOUNDARY_DATA_SHA256,
