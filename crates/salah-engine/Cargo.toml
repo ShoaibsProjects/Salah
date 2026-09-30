@@ -10,3 +10,4 @@ publish = false
 salah-core = { path = "../salah-core" }
 salah-location = { path = "../salah-location" }
 salah-time = { path = "../salah-time" }
+salah-update = { path = "../salah-update" }

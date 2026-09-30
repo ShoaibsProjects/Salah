@@ -23,9 +23,11 @@
 //!   cannot be reached; this crate never calls `TimeZone::get`, `system`, or
 //!   any filesystem/network API).
 //!
-//! What remains is CPU arithmetic over the supplied slice plus `salah-core`
-//! types: a build/runtime library and data dependency, not a mandatory network
-//! service, which fits the project's dependency policy (offline, free core
+//! Runtime conversion is CPU arithmetic over the supplied slice plus
+//! `salah-core` types. The shared bounded payload loader also uses pinned
+//! Serde/JSON and SHA-256 libraries previously used by `salah-update`; no new
+//! third-party package enters the workspace. These are build/runtime library
+//! and data dependencies, not mandatory network services, which fits the project's dependency policy (offline, free core
 //! use; pinned, inventoried build inputs). `jiff`/`jiff-core` are maintained
 //! by Andrew Gallant (BurntSushi) under Unlicense OR MIT, support TZif
 //! versions 1-4 per RFC 8536, parse and consistency-check the POSIX footer,
@@ -39,9 +41,12 @@
 //!
 //! - UTC-to-local only. The reverse mapping is ambiguous around transitions
 //!   and is not implemented here.
-//! - The pack covers 598 named IANA zones in release 2026d. Different valid
-//!   TZif bytes are rejected so they cannot be mislabeled with this pack's
-//!   [`TZDB_VERSION`]. Coordinate-to-zone mapping is not included.
+//! - The compiled pack covers 598 named IANA zones in release 2026d. Legacy
+//!   byte-taking entry points reject different images. The additive
+//!   [`RuntimeZone`] path uses an immutable validated inventory and records its
+//!   own exact identity. Integrity validation is not signer authentication;
+//!   the engine's signed path requires `salah_update::VerifiedRulePack`.
+//!   Coordinate-to-zone mapping is not included.
 //! - The resolved offset is reported in whole seconds and is never coerced
 //!   into `salah_core::FixedUtcOffset`, which is minute-only input state.
 //! - No zone is inferred from coordinates. The research date selector returns
@@ -50,6 +55,7 @@
 //!   seven events under the same pinned rules.
 
 use core::fmt;
+use std::borrow::Cow;
 
 use jiff::{Timestamp, tz::TimeZone};
 use salah_core::{
@@ -60,6 +66,11 @@ use salah_core::{
 };
 
 mod global_zone_index;
+mod rule_pack;
+pub use rule_pack::{
+    MAX_LICENSE_BYTES, MAX_MANIFEST_BYTES, MAX_PACK_BYTES, RulePackError, RulePackPayload,
+    ValidatedRulePack,
+};
 
 /// IANA database version of the embedded named-zone pack.
 ///
@@ -86,23 +97,78 @@ pub const TZDB_PACK_SHA256: &str = global_zone_index::PACK_SHA256;
 pub const TZDB_PACK_INVENTORY_SHA256: &str = global_zone_index::INVENTORY_SHA256;
 
 /// Exact identity of the rule snapshot used for a civil-time result.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RulePackIdentity {
     pub schema_version: u32,
-    pub tzdb_version: &'static str,
+    pub tzdb_version: Cow<'static, str>,
     pub release_year: i32,
-    pub sha256: &'static str,
-    pub inventory_sha256: &'static str,
+    pub sha256: Cow<'static, str>,
+    pub inventory_sha256: Cow<'static, str>,
 }
 
 /// Identity of the immutable rule pack compiled into this build.
 pub const BUNDLED_RULE_PACK_IDENTITY: RulePackIdentity = RulePackIdentity {
     schema_version: TZDB_PACK_SCHEMA_VERSION,
-    tzdb_version: TZDB_VERSION,
+    tzdb_version: Cow::Borrowed(TZDB_VERSION),
     release_year: TZDB_RELEASE_YEAR,
-    sha256: TZDB_PACK_SHA256,
-    inventory_sha256: TZDB_PACK_INVENTORY_SHA256,
+    sha256: Cow::Borrowed(TZDB_PACK_SHA256),
+    inventory_sha256: Cow::Borrowed(TZDB_PACK_INVENTORY_SHA256),
 };
+
+/// A parsed zone inseparably paired with the exact validated snapshot identity.
+/// Private fields prevent callers replacing rules or labels. This handle does
+/// not itself claim signature authentication; the engine's signed path accepts
+/// only `salah_update::VerifiedRulePack`.
+#[derive(Debug, Clone)]
+pub struct RuntimeZone {
+    zone_id: String,
+    zone: TimeZone,
+    identity: RulePackIdentity,
+}
+impl RuntimeZone {
+    /// Prepare one zone from the compiled recovery snapshot.
+    pub fn bundled(zone_id: &str) -> Result<Self, TimeError> {
+        parse_pinned_zone(zone_id, fixture_tzif_bytes(zone_id)?)
+    }
+    #[must_use]
+    pub fn identity(&self) -> &RulePackIdentity {
+        &self.identity
+    }
+    #[must_use]
+    pub fn zone_id(&self) -> &str {
+        &self.zone_id
+    }
+    pub fn convert_utc(&self, utc: UtcInstant) -> Result<LocalCivilTime, TimeError> {
+        convert_with_zone(utc, self)
+    }
+    pub fn classify_date(&self, date: CivilDate) -> Result<LocalDateExistence, TimeError> {
+        classify_local_date_with_zone(date, self)
+    }
+    pub fn select_transits(
+        &self,
+        date: CivilDate,
+        coordinates: Coordinates,
+        method: MethodProfile,
+        asr_criterion: AsrCriterion,
+    ) -> Result<LocalDateTransitSelection, TimeError> {
+        select_local_date_transits_with_zone(date, coordinates, method, asr_criterion, self)
+    }
+    pub fn calculate_schedule(
+        &self,
+        date: CivilDate,
+        coordinates: Coordinates,
+        method: MethodProfile,
+        asr_criterion: AsrCriterion,
+    ) -> Result<LocalDatePrayerSchedule, TimeError> {
+        calculate_local_date_prayer_schedule_with_zone(
+            date,
+            coordinates,
+            method,
+            asr_criterion,
+            self,
+        )
+    }
+}
 
 /// Named IANA identifiers covered by the pinned 2026d pack.
 pub const SUPPORTED_ZONE_IDS: &[&str] = global_zone_index::SUPPORTED_ZONE_IDS;
@@ -131,9 +197,9 @@ pub struct LocalCivilTime {
     pub utc: UtcInstant,
     /// Caller-chosen IANA identifier, including a supported link name, echoed verbatim.
     pub zone_id: String,
-    /// IANA data version of the pack that supplied the rules ([`TZDB_VERSION`]).
-    pub tzdb_version: &'static str,
-    /// Exact embedded rule pack that produced the civil reading.
+    /// IANA data version of the snapshot that supplied the rules.
+    pub tzdb_version: Cow<'static, str>,
+    /// Exact rule snapshot that produced the civil reading.
     pub rule_pack: RulePackIdentity,
     /// Resolved UTC offset at `utc`, in whole seconds east of UTC.
     ///
@@ -150,7 +216,7 @@ pub struct LocalDateTransitRecord {
     pub requested_date: CivilDate,
     pub coordinates: Coordinates,
     pub zone_id: String,
-    pub tzdb_version: &'static str,
+    pub tzdb_version: Cow<'static, str>,
     pub rule_pack: RulePackIdentity,
     pub method: MethodProfile,
     pub asr_criterion: AsrCriterion,
@@ -272,7 +338,7 @@ pub enum LocalDateStatus {
 pub struct LocalDateExistence {
     pub requested_date: CivilDate,
     pub zone_id: String,
-    pub tzdb_version: &'static str,
+    pub tzdb_version: Cow<'static, str>,
     pub rule_pack: RulePackIdentity,
     pub policy_id: &'static str,
     pub policy_revision: &'static str,
@@ -296,7 +362,7 @@ impl fmt::Display for LocalCivilTime {
 /// Explicit failure modes of civil-time conversion and date selection.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TimeError {
-    /// The zone identifier is not one of [`SUPPORTED_ZONE_IDS`].
+    /// The zone identifier is absent from the selected snapshot inventory.
     InvalidZoneId(String),
     /// The supplied bytes are empty or not recognized as valid TZif data.
     MalformedTzif(String),
@@ -321,7 +387,7 @@ impl fmt::Display for TimeError {
         match self {
             Self::InvalidZoneId(id) => write!(
                 f,
-                "unsupported IANA zone id {id:?} in the pinned {TZDB_VERSION} pack"
+                "unsupported IANA zone id {id:?} in the selected rule snapshot"
             ),
             Self::MalformedTzif(detail) => write!(f, "invalid TZif bytes: {detail}"),
             Self::UnpinnedTzif(id) => {
@@ -393,10 +459,10 @@ pub fn convert_utc_to_local(
     tzif_bytes: &[u8],
 ) -> Result<LocalCivilTime, TimeError> {
     let zone = parse_pinned_zone(zone_id, tzif_bytes)?;
-    convert_with_zone(utc, zone_id, &zone)
+    convert_with_zone(utc, &zone)
 }
 
-fn parse_pinned_zone(zone_id: &str, tzif_bytes: &[u8]) -> Result<TimeZone, TimeError> {
+fn parse_pinned_zone(zone_id: &str, tzif_bytes: &[u8]) -> Result<RuntimeZone, TimeError> {
     check_zone_id(zone_id)?;
     if !tzif_bytes.starts_with(b"TZif") {
         return Err(TimeError::MalformedTzif("missing TZif header".to_owned()));
@@ -409,18 +475,19 @@ fn parse_pinned_zone(zone_id: &str, tzif_bytes: &[u8]) -> Result<TimeZone, TimeE
     // the host database or environment.
     let zone =
         TimeZone::tzif(zone_id, pinned).map_err(|e| TimeError::MalformedTzif(e.to_string()))?;
-    Ok(zone)
+    Ok(RuntimeZone {
+        zone_id: zone_id.to_owned(),
+        zone,
+        identity: BUNDLED_RULE_PACK_IDENTITY,
+    })
 }
 
-fn convert_with_zone(
-    utc: UtcInstant,
-    zone_id: &str,
-    zone: &TimeZone,
-) -> Result<LocalCivilTime, TimeError> {
+fn convert_with_zone(utc: UtcInstant, zone: &RuntimeZone) -> Result<LocalCivilTime, TimeError> {
+    let zone_id = zone.zone_id.as_str();
     let instant = Timestamp::from_second(utc.unix_seconds)
         .map_err(|_| TimeError::UnsupportedInstant(utc.unix_seconds))?;
-    let offset_seconds_east = zone.to_offset(instant).seconds();
-    let civil = zone.to_datetime(instant);
+    let offset_seconds_east = zone.zone.to_offset(instant).seconds();
+    let civil = zone.zone.to_datetime(instant);
     let date = CivilDate::new(
         i32::from(civil.year()),
         civil.month() as u8,
@@ -437,8 +504,8 @@ fn convert_with_zone(
     Ok(LocalCivilTime {
         utc,
         zone_id: zone_id.to_owned(),
-        tzdb_version: TZDB_VERSION,
-        rule_pack: BUNDLED_RULE_PACK_IDENTITY,
+        tzdb_version: zone.identity.tzdb_version.clone(),
+        rule_pack: zone.identity.clone(),
         offset_seconds_east,
         local: CivilDateTime {
             date,
@@ -470,17 +537,17 @@ pub fn select_local_date_transits(
     asr_criterion: AsrCriterion,
 ) -> Result<LocalDateTransitSelection, TimeError> {
     let zone = parse_pinned_zone(zone_id, tzif_bytes)?;
-    select_local_date_transits_with_zone(date, coordinates, zone_id, method, asr_criterion, &zone)
+    select_local_date_transits_with_zone(date, coordinates, method, asr_criterion, &zone)
 }
 
 fn select_local_date_transits_with_zone(
     date: CivilDate,
     coordinates: Coordinates,
-    zone_id: &str,
     method: MethodProfile,
     asr_criterion: AsrCriterion,
-    zone: &TimeZone,
+    zone: &RuntimeZone,
 ) -> Result<LocalDateTransitSelection, TimeError> {
+    let zone_id = zone.zone_id.as_str();
     let method = method.validate().map_err(TimeError::Calculation)?;
     let window = local_date_utc_window(date)?;
     let search_start = window.0.max(UTC_ANCHOR_MIN_UNIX_SECONDS);
@@ -537,7 +604,7 @@ fn select_local_date_transits_with_zone(
                 canonical: cycle.selected_transit.unix_seconds,
             });
         }
-        let local_transit = match convert_with_zone(cycle.selected_transit, zone_id, zone) {
+        let local_transit = match convert_with_zone(cycle.selected_transit, zone) {
             Ok(local) => local,
             // The requested date is in 1900–2100. A different candidate
             // outside that range cannot match it, so it is safely excluded.
@@ -558,8 +625,8 @@ fn select_local_date_transits_with_zone(
         requested_date: date,
         coordinates,
         zone_id: zone_id.to_owned(),
-        tzdb_version: TZDB_VERSION,
-        rule_pack: BUNDLED_RULE_PACK_IDENTITY,
+        tzdb_version: zone.identity.tzdb_version.clone(),
+        rule_pack: zone.identity.clone(),
         method,
         asr_criterion,
         astronomy_model: ASTRONOMY_MODEL,
@@ -587,15 +654,15 @@ pub fn classify_local_date(
     tzif_bytes: &[u8],
 ) -> Result<LocalDateExistence, TimeError> {
     let zone = parse_pinned_zone(zone_id, tzif_bytes)?;
-    classify_local_date_with_zone(date, zone_id, &zone)
+    classify_local_date_with_zone(date, &zone)
 }
 
 fn classify_local_date_with_zone(
     date: CivilDate,
-    zone_id: &str,
-    zone: &TimeZone,
+    zone: &RuntimeZone,
 ) -> Result<LocalDateExistence, TimeError> {
-    let intervals = local_date_utc_intervals(date, zone)?;
+    let zone_id = zone.zone_id.as_str();
+    let intervals = local_date_utc_intervals(date, &zone.zone)?;
     let status = if intervals.is_empty() {
         LocalDateStatus::Skipped
     } else {
@@ -604,8 +671,8 @@ fn classify_local_date_with_zone(
     Ok(LocalDateExistence {
         requested_date: date,
         zone_id: zone_id.to_owned(),
-        tzdb_version: TZDB_VERSION,
-        rule_pack: BUNDLED_RULE_PACK_IDENTITY,
+        tzdb_version: zone.identity.tzdb_version.clone(),
+        rule_pack: zone.identity.clone(),
         policy_id: LOCAL_DATE_EXISTENCE_POLICY_ID,
         policy_revision: LOCAL_DATE_EXISTENCE_POLICY_REVISION,
         status,
@@ -714,25 +781,29 @@ pub fn calculate_local_date_prayer_schedule(
     asr_criterion: AsrCriterion,
 ) -> Result<LocalDatePrayerSchedule, TimeError> {
     let zone = parse_pinned_zone(zone_id, tzif_bytes)?;
-    let civil_date = classify_local_date_with_zone(date, zone_id, &zone)?;
-    let selection = select_local_date_transits_with_zone(
-        date,
-        coordinates,
-        zone_id,
-        method,
-        asr_criterion,
-        &zone,
-    )?;
+    calculate_local_date_prayer_schedule_with_zone(date, coordinates, method, asr_criterion, &zone)
+}
+
+fn calculate_local_date_prayer_schedule_with_zone(
+    date: CivilDate,
+    coordinates: Coordinates,
+    method: MethodProfile,
+    asr_criterion: AsrCriterion,
+    zone: &RuntimeZone,
+) -> Result<LocalDatePrayerSchedule, TimeError> {
+    let civil_date = classify_local_date_with_zone(date, zone)?;
+    let selection =
+        select_local_date_transits_with_zone(date, coordinates, method, asr_criterion, zone)?;
     let record = selection.record;
     let matches = match selection.matches {
         LocalDateTransitMatches::Zero => LocalDatePrayerScheduleMatches::Zero,
-        LocalDateTransitMatches::One(candidate) => LocalDatePrayerScheduleMatches::One(Box::new(
-            localize_candidate(*candidate, zone_id, &zone)?,
-        )),
+        LocalDateTransitMatches::One(candidate) => {
+            LocalDatePrayerScheduleMatches::One(Box::new(localize_candidate(*candidate, zone)?))
+        }
         LocalDateTransitMatches::Multiple(candidates) => {
             let candidates = candidates
                 .into_iter()
-                .map(|candidate| localize_candidate(candidate, zone_id, &zone))
+                .map(|candidate| localize_candidate(candidate, zone))
                 .collect::<Result<Vec<_>, _>>()?;
             LocalDatePrayerScheduleMatches::Multiple(candidates)
         }
@@ -748,18 +819,17 @@ pub fn calculate_local_date_prayer_schedule(
 
 fn localize_candidate(
     candidate: LocalDateTransitCandidate,
-    zone_id: &str,
-    zone: &TimeZone,
+    zone: &RuntimeZone,
 ) -> Result<LocalDatePrayerScheduleCandidate, TimeError> {
     let cycle = candidate.cycle;
     let events = LocalPrayerEvents {
-        fajr: localize_event(cycle.fajr, zone_id, zone)?,
-        sunrise: localize_event(cycle.sunrise, zone_id, zone)?,
-        dhuhr: localize_event(cycle.dhuhr, zone_id, zone)?,
-        asr: localize_event(cycle.asr, zone_id, zone)?,
-        sunset: localize_event(cycle.sunset, zone_id, zone)?,
-        maghrib: localize_event(cycle.maghrib, zone_id, zone)?,
-        isha: localize_event(cycle.isha, zone_id, zone)?,
+        fajr: localize_event(cycle.fajr, zone)?,
+        sunrise: localize_event(cycle.sunrise, zone)?,
+        dhuhr: localize_event(cycle.dhuhr, zone)?,
+        asr: localize_event(cycle.asr, zone)?,
+        sunset: localize_event(cycle.sunset, zone)?,
+        maghrib: localize_event(cycle.maghrib, zone)?,
+        isha: localize_event(cycle.isha, zone)?,
     };
     Ok(LocalDatePrayerScheduleCandidate {
         cycle,
@@ -768,18 +838,14 @@ fn localize_candidate(
     })
 }
 
-fn localize_event(
-    event: Event,
-    zone_id: &str,
-    zone: &TimeZone,
-) -> Result<LocalizedEvent, TimeError> {
+fn localize_event(event: Event, zone: &RuntimeZone) -> Result<LocalizedEvent, TimeError> {
     match event {
         Event::Occurs {
             utc,
             unrounded_utc_unix_seconds,
             rule,
         } => Ok(LocalizedEvent::Occurs {
-            local: convert_with_zone(utc, zone_id, zone)?,
+            local: convert_with_zone(utc, zone)?,
             unrounded_utc_unix_seconds,
             rule,
         }),

@@ -7,25 +7,16 @@
 
 use std::collections::BTreeMap;
 use std::fmt;
-use std::fmt::Write as _;
-use std::ops::Range;
 
 use ed25519_dalek::{Signature, VerifyingKey};
-use jiff::tz::TimeZone;
-use serde::Deserialize;
-use sha2::{Digest, Sha256};
 
 use salah_location::BOUNDARY_DATA_SHA256;
-use salah_time::{SUPPORTED_ZONE_IDS, TZDB_PACK_INVENTORY_SHA256, TZDB_PACK_SHA256, TZDB_VERSION};
+pub use salah_time::{MAX_LICENSE_BYTES, MAX_MANIFEST_BYTES, MAX_PACK_BYTES};
+use salah_time::{RulePackError, RulePackPayload, ValidatedRulePack};
+#[cfg(test)]
+use salah_time::{TZDB_PACK_INVENTORY_SHA256, TZDB_PACK_SHA256, TZDB_VERSION};
 
 const SIGNING_DOMAIN: &[u8] = b"SALAH-TZIF-UPDATE-V1\0";
-/// Maximum raw manifest length in the v1 signed-candidate format.
-pub const MAX_MANIFEST_BYTES: usize = 4 * 1024 * 1024;
-/// Maximum raw TZif blob length in the v1 signed-candidate format.
-pub const MAX_PACK_BYTES: usize = 32 * 1024 * 1024;
-/// Maximum raw license length in the v1 signed-candidate format.
-pub const MAX_LICENSE_BYTES: usize = 256 * 1024;
-const MAX_ZONE_IDS: usize = 2048;
 const MAX_KEY_ID_BYTES: usize = 64;
 
 /// Public key installed by a trusted application release, never read from an
@@ -87,25 +78,33 @@ impl TrustStore {
         key.verify_strict(&message, &signature)
             .map_err(|_| UpdateError::InvalidSignature)?;
 
-        let manifest: Manifest = serde_json::from_slice(candidate.manifest_bytes)
-            .map_err(|error| UpdateError::InvalidManifest(error.to_string()))?;
-        let zones = validate_payload(&manifest, &candidate)?;
+        let payload = ValidatedRulePack::from_payload(RulePackPayload {
+            manifest_bytes: candidate.manifest_bytes,
+            pack_bytes: candidate.pack_bytes,
+            license_bytes: candidate.license_bytes,
+        })
+        .map_err(|error| match error {
+            RulePackError::PayloadTooLarge => UpdateError::CandidateTooLarge,
+            RulePackError::InvalidManifest(reason) => UpdateError::InvalidManifest(reason),
+            RulePackError::InvalidPayload(reason) => UpdateError::InvalidPayload(reason),
+        })?;
+        let identity = payload.identity();
+        let identity = VerifiedPackIdentity {
+            schema_version: identity.schema_version,
+            tzdb_version: identity.tzdb_version.to_string(),
+            release_year: identity.release_year,
+            sha256: identity.sha256.to_string(),
+            inventory_sha256: identity.inventory_sha256.to_string(),
+        };
         Ok(VerifiedRulePack {
             sequence: candidate.sequence,
             key_id: candidate.key_id.to_owned(),
             boundary_sha256: candidate.boundary_sha256.to_owned(),
-            identity: VerifiedPackIdentity {
-                schema_version: manifest.schema_version,
-                tzdb_version: manifest.data_version,
-                release_year: manifest.release_year,
-                sha256: manifest.pack.sha256,
-                inventory_sha256: manifest.pack.inventory_sha256,
-            },
+            identity,
+            payload,
             manifest_bytes: candidate.manifest_bytes.to_vec(),
-            pack_bytes: candidate.pack_bytes.to_vec(),
             license_bytes: candidate.license_bytes.to_vec(),
             signature: candidate.signature,
-            zones,
         })
     }
 }
@@ -133,18 +132,18 @@ pub struct VerifiedPackIdentity {
 }
 
 /// An authenticated and validated candidate. Private fields prevent callers
-/// from constructing one without passing the verifier. It is not active in
-/// the prayer engine; activation needs a separate durable transaction.
+/// from constructing one without passing the verifier. The engine can consume
+/// it as an explicit immutable runtime snapshot. Verification alone does not
+/// install a package or confirm a durable repository trial.
 pub struct VerifiedRulePack {
     sequence: u64,
     key_id: String,
     boundary_sha256: String,
     identity: VerifiedPackIdentity,
     manifest_bytes: Vec<u8>,
-    pack_bytes: Vec<u8>,
+    payload: ValidatedRulePack,
     license_bytes: Vec<u8>,
     signature: [u8; 64],
-    zones: BTreeMap<String, Range<usize>>,
 }
 
 impl VerifiedRulePack {
@@ -180,7 +179,7 @@ impl VerifiedRulePack {
 
     #[must_use]
     pub fn pack_bytes(&self) -> &[u8] {
-        &self.pack_bytes
+        self.payload.pack_bytes()
     }
 
     #[must_use]
@@ -188,11 +187,16 @@ impl VerifiedRulePack {
         &self.signature
     }
 
+    /// Immutable validated payload used by the authenticated runtime adapter.
+    /// Access cannot change its identity, bytes, or inventory.
+    #[must_use]
+    pub fn runtime_payload(&self) -> &ValidatedRulePack {
+        &self.payload
+    }
+
     #[must_use]
     pub fn zone_bytes(&self, zone_id: &str) -> Option<&[u8]> {
-        self.zones
-            .get(zone_id)
-            .and_then(|range| self.pack_bytes.get(range.clone()))
+        self.payload.zone_bytes(zone_id)
     }
 }
 
@@ -303,235 +307,6 @@ fn valid_sha256(value: &str) -> bool {
         && value
             .bytes()
             .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-}
-
-fn sha256_hex(bytes: &[u8]) -> String {
-    hex_lower(&Sha256::digest(bytes))
-}
-
-fn hex_lower(bytes: &[u8]) -> String {
-    let mut value = String::with_capacity(64);
-    for byte in bytes {
-        write!(&mut value, "{byte:02x}").expect("writing to String cannot fail");
-    }
-    value
-}
-
-fn invalid_payload(reason: impl Into<String>) -> UpdateError {
-    UpdateError::InvalidPayload(reason.into())
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Manifest {
-    data_version: String,
-    release_year: i32,
-    schema_version: u32,
-    source_archive: SourceArchive,
-    generator: Generator,
-    license: License,
-    pack: PackInfo,
-    zones: Vec<ZoneEntry>,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct SourceArchive {
-    url: String,
-    sha256: String,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Generator {
-    command: String,
-    compiler: String,
-    compiler_command: String,
-    host: String,
-    posix_footer: String,
-    tzcode_archive_sha256: String,
-    tzcode_archive_url: String,
-    zic_version: String,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct License {
-    file: String,
-    note: String,
-    sha256: String,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct PackInfo {
-    bytes: u64,
-    file: String,
-    sha256: String,
-    inventory_sha256: String,
-    unique_tzif_images: u32,
-    zone_ids: u32,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct ZoneEntry {
-    bytes: u64,
-    id: String,
-    offset: u64,
-    sha256: String,
-}
-
-fn validate_payload(
-    manifest: &Manifest,
-    candidate: &SignedPackCandidate<'_>,
-) -> Result<BTreeMap<String, Range<usize>>, UpdateError> {
-    let version_bytes = manifest.data_version.as_bytes();
-    if manifest.schema_version != 1
-        || version_bytes.len() != 5
-        || !version_bytes[..4].iter().all(u8::is_ascii_digit)
-        || !version_bytes[4].is_ascii_lowercase()
-        || std::str::from_utf8(&version_bytes[..4])
-            .ok()
-            .and_then(|year| year.parse::<i32>().ok())
-            != Some(manifest.release_year)
-    {
-        return Err(invalid_payload(
-            "unsupported schema or IANA release metadata",
-        ));
-    }
-    if manifest.data_version.as_str() < TZDB_VERSION
-        || (manifest.data_version == TZDB_VERSION
-            && (manifest.pack.sha256 != TZDB_PACK_SHA256
-                || manifest.pack.inventory_sha256 != TZDB_PACK_INVENTORY_SHA256))
-    {
-        return Err(invalid_payload(
-            "candidate is older than or conflicts with bundled data",
-        ));
-    }
-    if !valid_sha256(&manifest.source_archive.sha256)
-        || !valid_sha256(&manifest.generator.tzcode_archive_sha256)
-        || !manifest.source_archive.url.starts_with("https://")
-        || !manifest
-            .generator
-            .tzcode_archive_url
-            .starts_with("https://")
-        || [
-            &manifest.generator.command,
-            &manifest.generator.compiler,
-            &manifest.generator.compiler_command,
-            &manifest.generator.host,
-            &manifest.generator.posix_footer,
-            &manifest.generator.zic_version,
-            &manifest.license.note,
-        ]
-        .iter()
-        .any(|value| value.is_empty())
-    {
-        return Err(invalid_payload("missing or invalid source provenance"));
-    }
-    if manifest.pack.file != "tzif-pack.bin"
-        || manifest.license.file != "IANA-LICENSE"
-        || !valid_sha256(&manifest.pack.sha256)
-        || !valid_sha256(&manifest.pack.inventory_sha256)
-        || !valid_sha256(&manifest.license.sha256)
-        || manifest.pack.bytes != candidate.pack_bytes.len() as u64
-        || manifest.pack.zone_ids as usize != manifest.zones.len()
-        || manifest.zones.is_empty()
-        || manifest.zones.len() > MAX_ZONE_IDS
-    {
-        return Err(invalid_payload("invalid pack inventory or file metadata"));
-    }
-    if sha256_hex(candidate.pack_bytes) != manifest.pack.sha256 {
-        return Err(invalid_payload("pack SHA-256 mismatch"));
-    }
-    if sha256_hex(candidate.license_bytes) != manifest.license.sha256 {
-        return Err(invalid_payload("license SHA-256 mismatch"));
-    }
-
-    let mut zones = BTreeMap::new();
-    // IANA aliases often refer to one image. Cache the digest by exact slice
-    // so verification cost scales with unique bytes, not aliases × bytes.
-    let mut unique_images: BTreeMap<(usize, usize), [u8; 32]> = BTreeMap::new();
-    let mut inventory_digest = Sha256::new();
-    inventory_digest.update(b"SALAH-TZIF-ZONE-INVENTORY-V1\0");
-    let mut previous_id = "";
-    for zone in &manifest.zones {
-        if zone.id.as_str() <= previous_id || !safe_zone_id(&zone.id) {
-            return Err(invalid_payload(
-                "zone IDs are unsafe, unsorted, or duplicated",
-            ));
-        }
-        previous_id = &zone.id;
-        let start = usize::try_from(zone.offset).map_err(|_| invalid_payload("zone offset"))?;
-        let length = usize::try_from(zone.bytes).map_err(|_| invalid_payload("zone length"))?;
-        let end = start
-            .checked_add(length)
-            .ok_or_else(|| invalid_payload("zone range overflow"))?;
-        let image = candidate
-            .pack_bytes
-            .get(start..end)
-            .ok_or_else(|| invalid_payload("zone slice exceeds pack"))?;
-        let image_range = (start, end);
-        let is_new_image = !unique_images.contains_key(&image_range);
-        let zone_digest = *unique_images
-            .entry(image_range)
-            .or_insert_with(|| Sha256::digest(image).into());
-        if image.is_empty() || !valid_sha256(&zone.sha256) || hex_lower(&zone_digest) != zone.sha256
-        {
-            return Err(invalid_payload("zone SHA-256 or length mismatch"));
-        }
-        let id_len =
-            u32::try_from(zone.id.len()).map_err(|_| invalid_payload("zone ID length overflow"))?;
-        inventory_digest.update(id_len.to_be_bytes());
-        inventory_digest.update(zone.id.as_bytes());
-        inventory_digest.update(zone.offset.to_be_bytes());
-        inventory_digest.update(zone.bytes.to_be_bytes());
-        inventory_digest.update(zone_digest);
-        if is_new_image {
-            TimeZone::tzif(&zone.id, image)
-                .map_err(|_| invalid_payload(format!("invalid TZif image for {}", zone.id)))?;
-        }
-        zones.insert(zone.id.clone(), start..end);
-    }
-    if unique_images.len() != manifest.pack.unique_tzif_images as usize {
-        return Err(invalid_payload("unique image count mismatch"));
-    }
-    if hex_lower(&inventory_digest.finalize()) != manifest.pack.inventory_sha256 {
-        return Err(invalid_payload("zone inventory SHA-256 mismatch"));
-    }
-    let mut cursor = 0;
-    for &(start, end) in unique_images.keys() {
-        if start != cursor {
-            return Err(invalid_payload(
-                "overlap or unreferenced bytes in TZif pack",
-            ));
-        }
-        cursor = end;
-    }
-    if cursor != candidate.pack_bytes.len() {
-        return Err(invalid_payload("trailing unreferenced TZif bytes"));
-    }
-    if SUPPORTED_ZONE_IDS
-        .iter()
-        .any(|required| !zones.contains_key(*required))
-    {
-        return Err(invalid_payload(
-            "candidate omits a currently supported zone ID",
-        ));
-    }
-    Ok(zones)
-}
-
-fn safe_zone_id(zone_id: &str) -> bool {
-    !zone_id.is_empty()
-        && zone_id.len() <= 255
-        && zone_id.bytes().all(|byte| {
-            byte.is_ascii_alphanumeric() || matches!(byte, b'/' | b'.' | b'_' | b'-' | b'+')
-        })
-        && zone_id
-            .split('/')
-            .all(|component| !matches!(component, "" | "." | ".."))
 }
 
 #[cfg(test)]

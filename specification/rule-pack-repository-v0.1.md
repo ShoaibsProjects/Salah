@@ -1,5 +1,8 @@
 # Rule-pack repository v0.1
 
+**Runtime amendment:** [P2b.2a contract](runtime-rule-snapshot-v0.1.md) adds explicit verified-snapshot calculations and shared payload validation. The original text below records this contract's initial scope; it does not describe the newer runtime path. Production activation and focused runtime acceptance remain open.
+
+
 **Piece:** Phase 2 → F2-TZ9 (Timezone Data Updates) → P2b.1 (Local Repository and Crash Recovery). 30 September 2026. Experimental Unix filesystem adapter in `salah-update-store`; neither release gate has passed.
 
 ## Purpose and boundary

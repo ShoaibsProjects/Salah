@@ -1,5 +1,8 @@
 # Offline TZif pack interface v0.1
 
+**Runtime amendment:** [P2b.2a contract](runtime-rule-snapshot-v0.1.md) adds explicit verified-snapshot calculations and shared payload validation. The original text below records this contract's initial scope; it does not describe the newer runtime path. Production activation and focused runtime acceptance remain open.
+
+
 **Status:** first F2-TZ9 integrity/provenance slice. This is a local pack format and bundled-result identity, not an update activation or authentication scheme. Phase 2 remains open.
 
 ## Pack identity

@@ -9,11 +9,12 @@
 use core::fmt;
 
 use salah_core::{AsrCriterion, CivilDate, MethodProfile};
-use salah_location::ZoneSelection;
+use salah_location::{BOUNDARY_DATA_SHA256, ZoneSelection};
 use salah_time::{
-    LocalDatePrayerSchedule, RulePackIdentity, TZDB_VERSION, TimeError,
-    calculate_local_date_prayer_schedule, fixture_tzif_bytes,
+    BUNDLED_RULE_PACK_IDENTITY, LocalDatePrayerSchedule, RulePackIdentity, RuntimeZone,
+    TZDB_VERSION, TimeError,
 };
+use salah_update::VerifiedRulePack;
 
 /// Identity of the advisory assessment for installed civil-time data.
 pub const DATA_ASSESSMENT_POLICY_ID: &str = "installed-civil-time-data-assessment";
@@ -29,6 +30,9 @@ pub struct SelectedLocalDaySchedule {
     /// The requested-date result, including skipped-date status, all matching
     /// solar cycles, local event times, method metadata, and IANA provenance.
     pub schedule: LocalDatePrayerSchedule,
+    /// Source of the immutable snapshot used for this calculation. Signed
+    /// metadata records authentication, not production approval or freshness.
+    pub runtime_source: RuntimeRuleSource,
 }
 
 /// A concrete reason to review the installed civil-time data before relying
@@ -87,7 +91,7 @@ pub fn assess_civil_time_data(
             .candidates()
             .boundary_data_version()
             .to_owned(),
-        rule_pack: selected.schedule.record.rule_pack,
+        rule_pack: selected.schedule.record.rule_pack.clone(),
         notices,
     }
 }
@@ -143,9 +147,103 @@ pub fn calculate_selected_local_day_schedule(
     method: MethodProfile,
     asr_criterion: AsrCriterion,
 ) -> Result<SelectedLocalDaySchedule, EngineError> {
+    calculate_selected_local_day_schedule_with_snapshot(
+        &RuntimeRuleSnapshot::bundled(),
+        zone_selection,
+        requested_date,
+        method,
+        asr_criterion,
+    )
+}
+
+/// Source of an engine runtime. These are result labels; only the private
+/// runtime constructor determines which source is actually used.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RuntimeRuleSource {
+    Bundled,
+    SignedPackage {
+        sequence: u64,
+        key_id: String,
+        boundary_sha256: String,
+    },
+}
+
+enum SnapshotRules {
+    Bundled,
+    Verified(Box<VerifiedRulePack>),
+}
+
+/// Owned immutable runtime snapshot. The signed path can only be built from
+/// a pinned-key verification result. Moving a repository-loaded pack here
+/// detaches its calculation lifetime from subsequent storage transactions.
+/// Creating or using this handle never confirms a repository trial.
+pub struct RuntimeRuleSnapshot {
+    rules: SnapshotRules,
+}
+
+impl RuntimeRuleSnapshot {
+    /// Explicit compiled recovery snapshot. No storage is consulted.
+    #[must_use]
+    pub const fn bundled() -> Self {
+        Self {
+            rules: SnapshotRules::Bundled,
+        }
+    }
+
+    /// Consume authenticated, validated bytes. The trust store and (when
+    /// applicable) repository remain responsible for key and sequence policy.
+    #[must_use]
+    pub fn from_verified(pack: VerifiedRulePack) -> Self {
+        Self {
+            rules: SnapshotRules::Verified(Box::new(pack)),
+        }
+    }
+
+    #[must_use]
+    pub fn identity(&self) -> RulePackIdentity {
+        match &self.rules {
+            SnapshotRules::Bundled => BUNDLED_RULE_PACK_IDENTITY,
+            SnapshotRules::Verified(pack) => pack.runtime_payload().identity().clone(),
+        }
+    }
+
+    #[must_use]
+    pub fn source(&self) -> RuntimeRuleSource {
+        match &self.rules {
+            SnapshotRules::Bundled => RuntimeRuleSource::Bundled,
+            SnapshotRules::Verified(pack) => RuntimeRuleSource::SignedPackage {
+                sequence: pack.sequence(),
+                key_id: pack.key_id().to_owned(),
+                boundary_sha256: pack.boundary_sha256().to_owned(),
+            },
+        }
+    }
+
+    fn zone(&self, zone_id: &str) -> Result<RuntimeZone, TimeError> {
+        match &self.rules {
+            SnapshotRules::Bundled => RuntimeZone::bundled(zone_id),
+            SnapshotRules::Verified(pack) => pack.runtime_payload().zone(zone_id),
+        }
+    }
+}
+
+/// Calculate using one explicitly selected immutable snapshot. A missing zone
+/// or failed calculation is an error; this does not retry using bundled rules.
+/// Every local reading and date classifier uses the same parsed runtime zone.
+pub fn calculate_selected_local_day_schedule_with_snapshot(
+    snapshot: &RuntimeRuleSnapshot,
+    zone_selection: &ZoneSelection,
+    requested_date: CivilDate,
+    method: MethodProfile,
+    asr_criterion: AsrCriterion,
+) -> Result<SelectedLocalDaySchedule, EngineError> {
     let selection_tzdb_version = zone_selection.candidates().timezone_database_version();
+    // Selection was created under the bundled boundary inventory. Verified
+    // packs authenticate that exact artifact and retain all its supported IDs;
+    // their newer IANA rule label need not match the old geometry release label.
     if selection_tzdb_version != TZDB_VERSION
         || zone_selection.candidates().boundary_data_version() != TZDB_VERSION
+        || zone_selection.candidates().boundary_data_sha256() != BOUNDARY_DATA_SHA256
     {
         return Err(EngineError::IncompatibleZoneSelection {
             boundary_data_version: zone_selection
@@ -156,20 +254,16 @@ pub fn calculate_selected_local_day_schedule(
             engine_timezone_database_version: TZDB_VERSION,
         });
     }
-
-    let zone_id = zone_selection.zone_id();
-    let tzif_bytes = fixture_tzif_bytes(zone_id)?;
-    let schedule = calculate_local_date_prayer_schedule(
+    let zone = snapshot.zone(zone_selection.zone_id())?;
+    let schedule = zone.calculate_schedule(
         requested_date,
         zone_selection.coordinates(),
-        zone_id,
-        tzif_bytes,
         method,
         asr_criterion,
     )?;
-
     Ok(SelectedLocalDaySchedule {
         zone_selection: zone_selection.clone(),
         schedule,
+        runtime_source: snapshot.source(),
     })
 }

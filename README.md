@@ -1,10 +1,20 @@
+<div align="center">
+
 # Salah
 
-### A quiet companion for prayer. A careful foundation for trust.
+*Prayer, with clarity and care.*
 
-Assalamu alaikum. You are welcome here.
+Assalamu alaikum — you are welcome here.
 
-We are building Salah with a simple intention: to help people make room for prayer, with clear information and a calm experience. Wherever someone lives, and however comfortable they are with technology, we want the essentials to be easy to understand and available offline.
+[Our intention](#our-intention) · [Our progress](#where-we-are-today) · [For builders](#try-the-engine)
+
+</div>
+
+## Welcome
+
+Thank you for stopping by. Salah is a small effort to make prayer-time information clear, private, and available wherever life takes you.
+
+At home or on a journey, we hope it becomes a quiet, useful companion. You do not need to understand the technology to be part of this work. Your questions, experience, and care for your community are welcome too.
 
 > I am God; there is no god but Me. So worship Me and keep up the prayer so that you remember Me.
 >
@@ -16,9 +26,17 @@ Our hope is to offer something useful with care: prayer times people can underst
 
 **As of 30 September 2026: the Rust research engine is being built and checked.** Mobile and web applications are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
 
-**Current piece:** Phase 2: Civil Time → F2-TZ9: Timezone Data Updates → **P2b.1: Local Repository and Crash Recovery**.
+**Now building:** Phase 2: Civil Time → Timezone Data Updates → **P2b.2a: Verified Snapshot in Calculations**.
 
-The engine calculates solar and prayer events, converts them into local clock readings, and preserves the choices and data behind each result. The latest piece stores signed timezone updates and recovers a previous valid selection after an interrupted trial. Stored updates are not yet connected to live prayer calculations.
+The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
+
+We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
+
+[See what we are building now](docs/current-work.md) · [Follow the roadmap](docs/roadmap.md)
+
+<details>
+<summary>The engine pieces and recorded checks</summary>
+
 
 | Part | What exists |
 | --- | --- |
@@ -30,13 +48,15 @@ The engine calculates solar and prayer events, converts them into local clock re
 | **Update Storage and Recovery** | A Unix prototype for signed archives, trial selection, confirmation, restart recovery, and update replay/downgrade checks. |
 | **Calculation Lab Command** | A working command-line research interface using a manually supplied fixed UTC offset. |
 
-The latest local verification on macOS passed **100 Rust tests** and formatting/lint checks. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test. These checks are engineering evidence; independent scientific and Islamic-methodology review remain necessary.
+Published checkpoint [1be80bc](https://github.com/ShoaibsProjects/Salah/commit/1be80bc) passed **100 Rust tests**, six pack-validator tests, formatting/lint checks, and GitHub CI. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test.
 
-**Next piece:** **P2b.2: Stored-Pack Runtime and Platform Integration** — make the verified selected timezone snapshot the one actually used, and identify it on every civil-time result.
+The new runtime slice has local build and lint checks. Focused acceptance cases for alternative snapshots and their result identities remain open; the earlier checkpoint's counts are not new runtime coverage. See the [runtime contract](specification/runtime-rule-snapshot-v0.1.md).
 
-[Understand the current work](docs/current-work.md) · [Read the full roadmap](docs/roadmap.md) · [See the vision](docs/vision-and-architecture.md)
+These checks are engineering evidence. Independent scientific and Islamic-methodology review remain necessary.
 
-## The promise we are working toward
+</details>
+
+## Our intention
 
 - **Free to use.** Everyday prayer calculations should require no subscription, paid API, or account.
 - **Private by design.** Location can stay on the device; manual coordinates and zone choice remain available.
@@ -49,16 +69,21 @@ Free use is our product intention. Long-term maintenance still needs people, gov
 
 ## What still needs care
 
-This repository is a **research preview**, with no institutionally endorsed or production-ready timetable.
+This repository is a **research preview**, with no institutionally endorsed or production-ready timetable. We will keep its limits visible as it grows.
+
+<details>
+<summary>Read the current limits and review questions</summary>
 
 - Known questions remain around near-grazing horizon comparisons, Asr model/solver differences, and polar-night Asr policy. [The Phase 1 gate report](specification/phase-1-gate-report-v0.1.md) records the evidence and open questions.
 - The kernel currently uses a sea-level horizon model, UTC as a practical approximation to UT1, and dates from 1900–2100. Terrain, elevation, and local atmospheric conditions are not modeled.
 - High-latitude alternatives, Qibla, Islamic calendar features, mobile/web interfaces, notifications, and portable bindings remain ahead.
 - Available profiles are `research-15` and `mwl-angles-18-17`. The first is an engineering profile; the second records a published secondary parameter set. Neither is a universal default or institutional endorsement. See the [method register](specification/method-register-v1.md).
 - Timezone boundary data is approximate. Independent transition checks cover selected locations; a large zone inventory does not establish accuracy everywhere.
-- Signed update storage is currently a Unix prototype checked on macOS. Production signing stewardship, other platforms, and runtime activation remain unfinished.
+- Signed update storage is a Unix prototype. The explicit runtime path is implemented with acceptance evidence pending. Production signing stewardship, platform integration, and automatic activation remain unfinished.
 
 When the chosen solar condition does not occur, the engine says so. Any later alternative must be separately named, documented, and reviewed.
+
+</details>
 
 ## Try the engine
 
@@ -88,6 +113,9 @@ Committed Rust reference cases run offline. Optional source-audit and matrix-reg
 
 ## For builders and reviewers
 
+<details>
+<summary>Architecture, evidence, and contributor notes</summary>
+
 ```text
 salah-core          solar events, prayer rules, typed UTC results
 salah-time          recorded timezone rules and local schedules
@@ -116,6 +144,7 @@ Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and
 - [Offline pack identity and validation](specification/offline-tzif-pack-interface-v0.1.md)
 - [Signed candidate verification](specification/signed-rule-pack-candidate-v0.1.md)
 - [Local repository and recovery](specification/rule-pack-repository-v0.1.md)
+- [Verified runtime snapshot](specification/runtime-rule-snapshot-v0.1.md)
 
 </details>
 
@@ -125,7 +154,9 @@ Astronomers, qualified Islamic-methodology reviewers, engineers, accessibility s
 
 A project source-code license has not yet been selected; free use is the intended product direction, not a license grant. Third-party materials retain their own licenses and attribution: [timezone boundary data](data/third-party/tzf-2026d/ATTRIBUTION.md) and [IANA timezone data](crates/salah-time/fixtures/global/IANA-LICENSE). Maintainer responsibilities and production release stewardship remain open roadmap work.
 
-## A gentle intention
+</details>
+
+## You are welcome to stay
 
 We hope Salah becomes a small, dependable part of a person’s day: clear when they need information, quiet when they need space, and welcoming when they return.
 
