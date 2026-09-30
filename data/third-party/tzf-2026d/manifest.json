@@ -1,0 +1,49 @@
+{
+  "data_version": "2026d",
+  "retrieved_on": "2026-09-29",
+  "boundary_source": {
+    "project": "timezone-boundary-builder",
+    "release": "2026d",
+    "release_url": "https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2026d",
+    "upstream_input": "combined-with-oceans.json",
+    "upstream_reported_zone_count": 444,
+    "includes_ocean_polygons": true
+  },
+  "distribution": {
+    "crate": "tzf-dist",
+    "version": "0.0.2026-d-fix1",
+    "cargo_lock_checksum_sha256": "2523c6471fd5827173b5b9d51d4444e1033a1f19339da61603cee9300e3f44be",
+    "artifact": "lite.tzb",
+    "size_bytes": 4100168,
+    "sha256": "c1ee211d87027ebc87904d05e52942a644908d1e4ad2d062b0dbbc032eda22e8",
+    "upstream_md5": "a943bc5e4bc3b45e98be03cfb92155e4",
+    "license": "MIT AND ODbL-1.0"
+  },
+  "lookup_implementation": {
+    "crate": "tzf-rs",
+    "version": "2.1.2",
+    "cargo_lock_checksum_sha256": "5bd4bd76dc7816db8a12043dbac00254158c17cd2c731aa951fd85f1a9d1f1ae",
+    "license": "MIT",
+    "api": "EmbeddedFinder::get_tz_names"
+  },
+  "civil_time_rules": {
+    "iana_tzdb_version": "2026d",
+    "repository_pack": "salah-time global timezone pack"
+  },
+  "files": {
+    "license_data": {
+      "path": "LICENSE_DATA",
+      "sha256": "1d553feead201a7619788171b43cca12675e82d70b197aa45795986bb8603e72"
+    },
+    "license_code": ["LICENSE", "TZF-RS-LICENSE"],
+    "source_statistics": {
+      "path": "STATS.md",
+      "sha256": "bbcf577335e6b5b6a713c8d9ce839a368e869df762b357667da109466653cf82"
+    },
+    "boundary_simplification_report": {
+      "path": "BORDER_CHANGE.md",
+      "sha256": "4c17cf1c460986aaa44da5499adaaadbf03d6e200b824549b935d603fbe752c5"
+    },
+    "attribution": "ATTRIBUTION.md"
+  }
+}

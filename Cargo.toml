@@ -1,5 +1,13 @@
 [workspace]
-members = ["crates/salah-core", "crates/salah-cli", "crates/salah-time"]
+members = [
+    "crates/salah-core",
+    "crates/salah-cli",
+    "crates/salah-time",
+    "crates/salah-location",
+    "crates/salah-engine",
+    "crates/salah-update",
+    "crates/salah-update-store",
+]
 resolver = "2"
 
 [workspace.package]

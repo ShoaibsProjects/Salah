@@ -1,0 +1,13 @@
+[package]
+name = "salah-location"
+version = "0.1.0"
+edition.workspace = true
+rust-version = "1.88"
+description = "Offline coordinate-to-time-zone suggestions with explicit user confirmation"
+publish = false
+
+[dependencies]
+salah-core = { path = "../salah-core" }
+salah-time = { path = "../salah-time" }
+tzf-dist = { version = "=0.0.2026-d-fix1" }
+tzf-rs = { version = "=2.1.2", default-features = false }
