@@ -27,8 +27,12 @@
 | First published angle set | `mwl-angles-18-17` reproduces the Fajr and Isha angles in the PrayTimes MWL table with zero Dhuhr/Maghrib adjustment. It is a sourced parameter set, not an endorsement or complete regional timetable. | Revisit when primary institutional specifications and regional practice are reviewed. |
 | Research-preview prayer-start minute display | The architect selected [`prayer-start-ceil-minute` revision `0.1`](../specification/presentation-contract-v0.1.md) on 2026-09-27: use the already adjusted UTC second, then show the first whole local minute at or after it. This is Salah's display rule for the five prayer beginnings, not a method or religious ruling. Sunrise/sunset remain second-precision events; fasting cutoffs and notifications need separate rules. | Revisit for sourced method conventions, IANA time-zone transitions, qualified methodology/product review, or any consumer release. |
 | Crate layout | `salah-core` owns prayer calculations, `salah-cli` exposes the research command line, and experimental `salah-time` owns offline civil-time conversion. | Split further only when real module boundaries and independent reuse are clear. |
-| Civil-time TZif parser probe | Jiff 0.2.37 is accepted for the separate [six-zone F2-TZ0 probe](civil-time-spike.md), with pinned caller-supplied TZif bytes and no host-zone fallback. Its license is Unlicense OR MIT; `salah-core` remains independent. | Review mobile/WASM builds, full data-pack and update design, dependency inventory, and performance before adopting for consumer use. |
+| Civil-time TZif parser probe | Jiff 0.2.37 is accepted for the separate [F2-TZ0 probe](civil-time-spike.md) and F2-TZ5 named-zone data experiment, with pinned caller-supplied TZif bytes and no host-zone fallback. Its license is Unlicense OR MIT; `salah-core` remains independent. | Review mobile/WASM builds, pack update design, dependency inventory, licensing, and performance before consumer use. |
 | Update system | Versioned, authenticated data packs are a long-term target. | When method or time-zone update requirements and platform limits are known. |
+| Installed civil-time data notice | [`installed-civil-time-data-assessment` v0.1](../specification/civil-time-data-assessment-contract-v0.1.md) compares an explicit observation date with the pinned pack year and requested date. Its typed notices do not change a schedule or certify civil-time accuracy. | Revisit when the pack interface and actual update channel exist. |
+| Bundled rule-pack identity | The [schema 1 TZif interface](../specification/offline-tzif-pack-interface-v0.1.md) records the exact pack hash in civil-time results and checks the local manifest and zone slices. This is integrity, not source authentication. | Revisit when signed activation, multi-pack storage, and rollback are designed. |
+| Signed update candidate | The [v0.1 verifier](../specification/signed-rule-pack-candidate-v0.1.md) uses strict Ed25519 under public keys supplied by a trusted application release, verifies before parsing, and yields an inert candidate. No production key or activation path is configured. | Revisit for key custody/rotation, persistent rollback protection, platform storage, and independent security review. |
+| Local update repository | The [P2b.1 Unix prototype](../specification/rule-pack-repository-v0.1.md) stores separate signed archives and atomically replaces a small trial/confirmation state. Recovery retains both sequence and IANA-release high-water records. No new third-party package enters the lockfile, and storage stays outside `salah-core`. | Review other targets, filesystem/hardware durability, exact runtime pack integration, OS-protected rollback requirements, and archive retention before consumer use. |
 
 ## Unresolved decisions
 
@@ -40,6 +44,8 @@
 - Launch languages, platform minimums, and notification behavior by OS.
 
 The repository name is **Salah**. “2050” describes the maintenance horizon, not a guarantee that software or civil-time data can remain unchanged until that year.
+
+The [civil-time data lifecycle](civil-time-data-lifecycle.md) records the standard offline operating rule and the sequence for compatible, authenticated pack updates and a separately labeled manual correction. Strict Ed25519 candidate verification and an experimental Unix archive/recovery adapter are implemented. Production signing stewardship, runtime pack activation, other platform storage, and distribution remain open decisions.
 
 ## Interim Phase 1 gate review — 2026-09-28
 

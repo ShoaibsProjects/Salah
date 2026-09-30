@@ -1,0 +1,18 @@
+[package]
+name = "salah-update-store"
+version = "0.1.0"
+edition.workspace = true
+rust-version = "1.89"
+description = "Experimental Unix storage and recovery for signed Salah rule packs"
+publish = false
+
+[dependencies]
+salah-update = { path = "../salah-update" }
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.10.9"
+
+[dev-dependencies]
+ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }
+salah-location = { path = "../salah-location" }
+salah-time = { path = "../salah-time" }

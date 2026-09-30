@@ -1,6 +1,6 @@
 # Civil-date solar-transit selector v0.1
 
-**Status:** research implementation in `salah-time`; F2-TZ2. It supports only the six exact IANA 2026d TZif fixtures recorded in `crates/salah-time/fixtures/manifest.json`. It does not amend calculation contract v0.3 or UTC-anchor contract v0.1. Phase 1 and Phase 2 remain open.
+**Status:** original F2-TZ2 six-zone implementation contract. Its current supported-zone expansion is specified by [v0.2](civil-date-transit-selector-v0.2.md), which uses the [598-name IANA pack](global-timezone-pack-v0.1.md). This document preserves the original algorithm and six-zone evidence record. Phase 1 and Phase 2 remain open.
 
 ## Public contract
 
@@ -64,4 +64,4 @@ The integration suite covers:
 - first and last supported Gregorian dates;
 - a UTC-anchor selection boundary, candidate sorting, method/model/zone provenance, and malformed TZif rejection.
 
-No coordinates-to-zone mapping is performed. The six-zone fixture pack is a probe, not global civil-time coverage. A zero, one, or multiple result does not establish global accuracy, a religious ruling, or a consumer timetable.
+No coordinates-to-zone mapping is performed. The original six-zone evidence set is a probe, not independent validation of all zone histories. A zero, one, or multiple result does not establish global prayer-time accuracy, a religious ruling, or a consumer timetable.

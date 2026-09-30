@@ -35,4 +35,4 @@ RETURN: changed files and diff stat; public API and policy ID; anchor-range rule
 
 ## Following packet
 
-[F2-TZ2](civil-time-date-selector.md) now uses the pinned `salah-time` zone rules to identify all solar transits whose converted local date matches the requested date. Its research implementation returns explicit zero, one, or multiple matches. Architect review is pending; a full local daily schedule and consumer assessment remain later work.
+[F2-TZ2](civil-time-date-selector.md) uses pinned `salah-time` rules to identify all solar transits whose converted local date matches the request. F2-TZ3 localizes each event; F2-TZ4 distinguishes a skipped date from zero transit matches; F2-TZ5 expands the named-zone pack. See the [schedule slice](civil-time-local-schedule.md), [zone-pack contract](../specification/global-timezone-pack-v0.1.md), and selector [scope amendment](../specification/civil-date-transit-selector-v0.2.md). These remain research APIs and do not authorize a consumer timetable.

@@ -1,121 +1,140 @@
 # Salah
 
-**Project status:** Rust calculation-kernel research preview, September 2026. The repository has no consumer mobile or web application yet. Phase 1 validation remains open. F2-TZ0 and F2-TZ1 are reviewed; F2-TZ2 local-date selection is implemented in the current working tree and awaits review. No production timetable is authorized.
+### A quiet companion for prayer. A careful foundation for trust.
 
-Salah is building a free, private, offline-capable prayer-time system for Earth. Its durable center is a documented, versioned Rust calculation core with reproducible reference data. Future iOS, Android, web, and other clients are intended to consume that core rather than reimplement prayer mathematics in UI code.
+Assalamu alaikum. You are welcome here.
 
-> **Important:** The current implementation is research infrastructure, not a religious ruling, institutionally endorsed timetable, or global civil-time solution. Read the calculation record and method metadata before interpreting a result.
+We are building Salah with a simple intention: to help people make room for prayer, with clear information and a calm experience. Wherever someone lives, and however comfortable they are with technology, we want the essentials to be easy to understand and available offline.
 
-## What exists today
+> I am God; there is no god but Me. So worship Me and keep up the prayer so that you remember Me.
+>
+> — Qur’an [20:14](https://quran.com/20/14), translation by Muhammad A. S. Abdel Haleem
 
-- `salah-core` **v0.3.0** calculates one location and one Gregorian local date offline.
-- The core returns UTC instants, raw unrounded seconds, typed `Occurs`/`Unavailable` events, event rules, and a reproducibility record.
-- The implemented solar model is `NOAA-MEEUS-SOLAR-2`, using NOAA equations derived from Meeus, a sea-level apparent horizon of `-0.833°`, and UTC as a practical approximation to UT1.
-- Checked constructors reject invalid coordinates, dates, offsets, and method parameters. Supported dates are 1900–2100.
-- Built-in parameter profiles are `research-15` (15° Fajr/Isha, explicitly unattributed) and `mwl-angles-18-17` (18° Fajr/17° Isha, sourced to the PrayTimes parameter table; not an MWL endorsement).
-- Asr supports `standard` and `hanafi` shadow criteria. Dhuhr and Maghrib adjustments are represented in the method profile and are zero in both built-in profiles.
-- The solver handles upper transit, direction-aware sunrise/sunset/twilight crossings, near-grazing interior extrema, and explicit unavailable events. It does **not** silently apply a high-latitude fallback.
-- The optional research-preview presentation adapter `prayer-start-ceil-minute` v0.1 produces a separate whole-minute label for the five prayer beginnings. It never replaces the calculation's UTC instant and is not a notification instant, fasting cutoff, or mosque timetable.
-- `salah-cli` exposes the kernel with explicit coordinates, date, fixed UTC offset, method, Asr criterion, and optional `--display-minute` output.
-- `salah-time` **v0.1.0** converts UTC instants with pinned `jiff` 0.2.37 and caller-supplied TZif bytes from a six-zone IANA 2026d fixture pack. The F2-TZ2 research selector uses the F2-TZ1 UTC-anchor API to find every solar cycle whose transit maps to a requested local date; it returns zero, one, or multiple matches explicitly. It does not infer a zone from coordinates or read the host zone database.
-- Reference and validation assets include a 19-case USNO solar matrix, grazing-horizon evidence, a 28-row prayer-library comparison, an Asr residual audit, method-source manifests, and presentation/rounding tests.
-- CI runs the Rust workspace checks through the repository workflow; the project is dependency-light and has no mandatory runtime service.
+Our hope is to offer something useful with care: prayer times people can understand, privacy they can keep, and room for the different scholarly practices of their communities.
 
-## Current boundaries
+## Where we are today
 
-The current kernel is intentionally narrower than the product vision:
+**As of 30 September 2026: the Rust research engine is being built and checked.** Mobile and web applications are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
 
-- `--utc-offset` is a manually supplied fixed offset, **not** an IANA time zone and not a DST rule set.
-- There is no coordinate-to-time-zone lookup, global bundled zone pack, consumer location experience, Qibla implementation, notifications, Flutter/mobile client, WASM client, or web app.
-- Civil-time coverage is limited to the six pinned probe zones: `Etc/UTC`, `America/Chicago`, `Europe/London`, `Asia/Kathmandu`, `Pacific/Kiritimati`, and `Pacific/Apia`. F2-TZ2 is under architect review; its selector is not a consumer daily schedule.
-- Elevation, terrain, weather, and local atmospheric conditions are not modeled; elevation is fixed at sea level.
-- No high-latitude alternative is selected. If the chosen solar condition does not cross during the cycle, the result is explicitly unavailable.
-- Phase 1 has not passed. Existing allowances and comparisons are case-specific investigation triggers, not global accuracy claims. Institutional method review, broader astronomy evidence, civil-time integration, and release thresholds remain open.
+**Current piece:** Phase 2: Civil Time → F2-TZ9: Timezone Data Updates → **P2b.1: Local Repository and Crash Recovery**.
 
-## Repository map
+The engine calculates solar and prayer events, converts them into local clock readings, and preserves the choices and data behind each result. The latest piece stores signed timezone updates and recovers a previous valid selection after an interrupted trial. Stored updates are not yet connected to live prayer calculations.
 
-```text
-crates/
-  salah-core/       Offline solar/prayer kernel, typed events, records, tests
-  salah-cli/        Minimal research command-line interface
-  salah-time/       Pinned TZif conversion and local-date transit selector
+| Part | What exists |
+| --- | --- |
+| **Prayer Kernel** | Dependency-free Rust calculations for Fajr, sunrise, Dhuhr, Asr, Maghrib, Isha, and sunset; UTC results and explicit unavailable events. |
+| **Civil Clock** | An embedded IANA 2026d pack with 598 named zones; DST, date changes, skipped dates, and local schedule conversion. |
+| **Location and Zone Choice** | Approximate offline timezone suggestions, with explicit confirmation or manual choice. |
+| **Schedule Composer** | A Rust API combining an explicit location, selected zone, date, method, and Asr criterion. |
+| **Update Authentication** | Signature, integrity, inventory, and compatibility checks for candidate timezone packs under a pinned public key. |
+| **Update Storage and Recovery** | A Unix prototype for signed archives, trial selection, confirmation, restart recovery, and update replay/downgrade checks. |
+| **Calculation Lab Command** | A working command-line research interface using a manually supplied fixed UTC offset. |
 
-data/reference/    Versioned USNO, prayer-library, Asr, grazing, and method data
+The latest local verification on macOS passed **100 Rust tests** and formatting/lint checks. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test. These checks are engineering evidence; independent scientific and Islamic-methodology review remain necessary.
 
-docs/               Vision, roadmap, validation plan, decisions, handoff, civil-time probe
-specification/      Calculation contracts, accuracy protocol, reports, method and display contracts
-tools/              Offline/reference-audit helpers (Python and Node)
-.github/workflows/  Rust CI
-```
+**Next piece:** **P2b.2: Stored-Pack Runtime and Platform Integration** — make the verified selected timezone snapshot the one actually used, and identify it on every civil-time result.
 
-The existing CLI flow sends validated coordinates/date/fixed offset and a versioned method profile to `salah-core`, which computes UTC events and statuses. The experimental IANA flow sends coordinates, method, Asr criterion, a requested local date, selected zone ID, and pinned TZif bytes to `salah-time`; it uses `salah-core` to enumerate candidate solar cycles, then verifies each transit's local date with those same zone bytes and records the zone-data version.
+[Understand the current work](docs/current-work.md) · [Read the full roadmap](docs/roadmap.md) · [See the vision](docs/vision-and-architecture.md)
 
-## Quick start
+## The promise we are working toward
 
-### Requirements
+- **Free to use.** Everyday prayer calculations should require no subscription, paid API, or account.
+- **Private by design.** Location can stay on the device; manual coordinates and zone choice remain available.
+- **Offline essentials.** Daily calculation should work without a server or internet connection.
+- **Explainable times.** A result should carry its method, astronomical model, adjustments, timezone data, and any unavailable condition.
+- **Respect for communities.** Calculated prayer beginnings, mosque timetables, and iqamah are different things. Method choices deserve clear explanations and qualified review.
+- **A durable center.** iOS, Android, and web clients will use the same documented engine. The interface can evolve while the calculation foundation remains reviewable.
 
-- Rust toolchain from `rust-toolchain.toml` (`1.98.1`, with `clippy` and `rustfmt`).
-- Python 3 for the USNO audit helper.
-- Node.js is needed only for the optional prayer-matrix regeneration tool.
+Free use is our product intention. Long-term maintenance still needs people, governance, and a sustainable funding plan. Timezone laws can change, so offline snapshots also need a responsible update path.
 
-### Run a calculation
+## What still needs care
+
+This repository is a **research preview**, with no institutionally endorsed or production-ready timetable.
+
+- Known questions remain around near-grazing horizon comparisons, Asr model/solver differences, and polar-night Asr policy. [The Phase 1 gate report](specification/phase-1-gate-report-v0.1.md) records the evidence and open questions.
+- The kernel currently uses a sea-level horizon model, UTC as a practical approximation to UT1, and dates from 1900–2100. Terrain, elevation, and local atmospheric conditions are not modeled.
+- High-latitude alternatives, Qibla, Islamic calendar features, mobile/web interfaces, notifications, and portable bindings remain ahead.
+- Available profiles are `research-15` and `mwl-angles-18-17`. The first is an engineering profile; the second records a published secondary parameter set. Neither is a universal default or institutional endorsement. See the [method register](specification/method-register-v1.md).
+- Timezone boundary data is approximate. Independent transition checks cover selected locations; a large zone inventory does not establish accuracy everywhere.
+- Signed update storage is currently a Unix prototype checked on macOS. Production signing stewardship, other platforms, and runtime activation remain unfinished.
+
+When the chosen solar condition does not occur, the engine says so. Any later alternative must be separately named, documented, and reviewed.
+
+## Try the engine
+
+Use the Rust toolchain pinned in [rust-toolchain.toml](rust-toolchain.toml). An initial build needs the locked build dependencies; subsequent calculations and checks can run offline once those are present.
 
 ```bash
-cargo run -p salah-cli -- \
+cargo fetch --locked
+cargo run --locked --offline -p salah-cli -- \
   --lat 44.9778 --lon -93.2650 --date 2026-09-27 \
   --utc-offset -05:00 --method research-15 --asr hanafi
 ```
 
-To additionally show the research-preview prayer-start minute labels:
+This is a **research example**, using explicit coordinates and a fixed offset. The CLI’s `--utc-offset` does not perform IANA/DST selection. The Rust schedule API provides the separate named-zone flow.
+
+Supported Asr criteria are `standard` and `hanafi`. Add `--display-minute` for the separately labeled prayer-start minute preview; it does not change the underlying UTC instant.
+
+### Run the checks
 
 ```bash
-cargo run -p salah-cli -- \
-  --lat 44.9778 --lon -93.2650 --date 2026-09-27 \
-  --utc-offset -05:00 --method research-15 --asr hanafi \
-  --display-minute
-```
-
-Supported methods are `research-15` and `mwl-angles-18-17`; supported Asr values are `standard` and `hanafi`. The CLI prints seconds and UTC alongside the fixed-offset local text, and reports unavailable events instead of inventing a time.
-
-### Test offline
-
-```bash
-cargo test --locked --offline
 cargo fmt --all -- --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo clippy --locked --offline --workspace --all-targets -- -D warnings
+cargo test --locked --offline --workspace
+python3 tools/test_validate_tzif_pack.py
 ```
 
-Focused reference checks:
+Committed Rust reference cases run offline. Optional source-audit and matrix-regeneration tools have their own research dependencies; those tools are not required for daily calculation.
 
-```bash
-cargo test --locked --offline -p salah-core --test usno_solar_matrix -- --nocapture
-cargo test --locked --offline -p salah-core --test prayer_library_matrix -- --nocapture
-cargo test --locked --offline -p salah-core --test presentation_minute -- --nocapture
-python3 tools/verify_usno_matrix.py --all
+## For builders and reviewers
+
+```text
+salah-core          solar events, prayer rules, typed UTC results
+salah-time          recorded timezone rules and local schedules
+salah-location      offline zone suggestions and explicit selection
+salah-engine        schedule composition and data notices
+salah-update        signed candidate verification
+salah-update-store  local archives, trial selection, and recovery
+salah-cli           fixed-offset calculation lab
 ```
 
-The Python command performs an online source audit when it needs to retrieve USNO responses; the Rust reference tests themselves use committed data and do not require network access. The optional `tools/generate_prayer_matrix.cjs` tool requires separately obtained, hash-checked Adhan JS and PrayTimes sources.
+Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and the [accuracy budget](specification/accuracy-budget.md). Preserve historical contracts and reference evidence when changing behavior.
 
-## Documentation and evidence
+<details>
+<summary>Calculation, civil-time, and update contracts</summary>
 
-Start with these documents:
+- [Calculation contract v0.3](specification/calculation-contract-v0.3.md)
+- [Reference data and provenance](data/reference/README.md)
+- [Presentation policy](specification/presentation-contract-v0.1.md)
+- [Local-date solar-cycle selection](specification/civil-date-transit-selector-v0.2.md)
+- [Local prayer schedule](specification/local-prayer-schedule-contract-v0.1.md)
+- [Civil-date existence](specification/civil-date-existence-contract-v0.1.md)
+- [Global timezone pack](specification/global-timezone-pack-v0.1.md)
+- [Coordinate-to-zone selection](specification/coordinate-zone-selection-contract-v0.1.md)
+- [Selected local-day engine](specification/selected-local-day-engine-contract-v0.1.md)
+- [Timezone data lifecycle](docs/civil-time-data-lifecycle.md)
+- [Offline pack identity and validation](specification/offline-tzif-pack-interface-v0.1.md)
+- [Signed candidate verification](specification/signed-rule-pack-candidate-v0.1.md)
+- [Local repository and recovery](specification/rule-pack-repository-v0.1.md)
 
-- [Vision and architecture](docs/vision-and-architecture.md) — product promise and separation of concerns.
-- [Delivery roadmap](docs/roadmap.md) — authoritative phase gates and current position.
-- [Phase 1 validation plan](docs/phase-1-validation.md) — active evidence tasks and open limitations.
-- [Calculation contract v0.3](specification/calculation-contract-v0.3.md) — current kernel interface and assumptions.
-- [Accuracy budget](specification/accuracy-budget.md) — comparison protocol and what is not yet measured.
-- [Reference data guide](data/reference/README.md) — provenance and offline matrix commands.
-- [Presentation contract v0.1](specification/presentation-contract-v0.1.md) — separate research-preview minute-display policy.
-- [Civil-time spike](docs/civil-time-spike.md) — reviewed six-zone TZif conversion boundary.
-- [Civil-date transit selector v0.1](specification/civil-date-transit-selector-v0.1.md) — F2-TZ2 API and completeness argument.
-- [Decision record](docs/decisions.md) — accepted choices and unresolved decisions.
-- [Contributor and agent guidance](AGENTS.md) — rules for calculation changes, evidence, and review.
+</details>
 
-When changing calculation behavior, preserve the prior contract/model/profile identity, add provenance and a regression case, compare UTC instants before rounded local display, and document unresolved astronomical or scholarly questions. Do not treat a passing sample or a phase document as permission to claim global accuracy or production readiness.
+Astronomers, qualified Islamic-methodology reviewers, engineers, accessibility specialists, translators, and thoughtful users are welcome. A careful question or a clearly documented discrepancy can help as much as a new feature. We ask contributors to treat one another with patience, explain uncertainty honestly, and keep the person relying on the result in mind.
 
-## Planned next steps
+### Licensing and stewardship
 
-The active roadmap keeps Phase 1 validation and independent review open while the F2-TZ2 six-zone selector is reviewed. Next, the civil-time layer must localize every event and then grow toward a versioned global zone pack and coordinate-to-zone data. Portable bindings, an accessible experience, an offline consumer beta, and public release stewardship remain later milestones.
+A project source-code license has not yet been selected; free use is the intended product direction, not a license grant. Third-party materials retain their own licenses and attribution: [timezone boundary data](data/third-party/tzf-2026d/ATTRIBUTION.md) and [IANA timezone data](crates/salah-time/fixtures/global/IANA-LICENSE). Maintainer responsibilities and production release stewardship remain open roadmap work.
 
-The repository intentionally defers accounts, ads, cloud-calculation dependencies, social features, blockchain, Mars support, and AI-generated prayer times.
+## A gentle intention
+
+We hope Salah becomes a small, dependable part of a person’s day: clear when they need information, quiet when they need space, and welcoming when they return.
+
+> those who have faith and whose hearts find peace in the remembrance of God- truly it is in the remembrance of God that hearts find peace-
+>
+> — Qur’an [13:28](https://quran.com/13/28), translation by Muhammad A. S. Abdel Haleem
+
+May Allah place barakah in this work, keep our intentions sincere, and make it beneficial to those who use it.
+
+[Translation sources and verification](docs/readme-quran-sources.md), retrieved 30 September 2026. The welcome and project intentions above are our own words.
+
+_Grounded with quran.ai: fetch_translation(20:14, 13:28, en-abdel-haleem)._

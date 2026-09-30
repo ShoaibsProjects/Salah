@@ -2,6 +2,12 @@
 
 **Status:** F2-TZ2 is implemented in the current working tree and awaits architect review. F2-TZ1 is reviewed and committed as `6d5341c`. Phase 1 and Phase 2 gates remain open; this remains a six-zone research slice.
 
+F2-TZ3 adds the next bounded layer: localize every event in each selected cycle. See [local schedule slice](civil-time-local-schedule.md) and [schedule contract](../specification/local-prayer-schedule-contract-v0.1.md). Transit selection semantics remain unchanged.
+
+F2-TZ4 independently classifies whether the civil date exists under the pinned zone transitions; this prevents `Zero` transit matches from being mistaken for a skipped date. See [civil-date existence contract](../specification/civil-date-existence-contract-v0.1.md).
+
+F2-TZ5 expands the accepted zone byte set to the 598-name IANA pack without changing this selector's enumeration policy. See the [v0.2 scope amendment](../specification/civil-date-transit-selector-v0.2.md) and [pack contract](../specification/global-timezone-pack-v0.1.md); this original packet remains the six-zone evidence record.
+
 ## User-visible question
 
 For a chosen location, IANA zone, and Gregorian date, which calculated solar cycle has its upper transit on that **local date**? The current core can calculate a cycle from a UTC anchor, and `salah-time` can convert a UTC instant under six pinned 2026d zone files. F2-TZ2 joins those operations without passing a time-zone offset into the legacy fixed-offset API.

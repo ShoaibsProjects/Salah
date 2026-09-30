@@ -1,0 +1,2 @@
+# Preserve verbatim third-party documents, including upstream whitespace.
+data/third-party/** -whitespace
