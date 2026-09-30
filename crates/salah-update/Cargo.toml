@@ -8,9 +8,5 @@ publish = false
 
 [dependencies]
 ed25519-dalek = { version = "=2.2.0", default-features = false, features = ["std"] }
-jiff = { version = "=0.2.37", default-features = false, features = ["std"] }
-serde = { version = "=1.0.229", features = ["derive"] }
-serde_json = "=1.0.151"
-sha2 = "=0.10.9"
 salah-location = { path = "../salah-location" }
 salah-time = { path = "../salah-time" }

@@ -15,3 +15,9 @@ salah-core = { path = "../salah-core" }
 # required for TimeZone::tzif) is enabled, so conversion works purely
 # from caller-supplied bytes plus CPU arithmetic.
 jiff = { version = "=0.2.37", default-features = false, features = ["std"] }
+
+# Shared integrity validation for immutable runtime snapshots; authentication
+# remains in salah-update. These versions already exist in the lockfile.
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.10.9"

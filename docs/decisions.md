@@ -34,6 +34,8 @@
 | Signed update candidate | The [v0.1 verifier](../specification/signed-rule-pack-candidate-v0.1.md) uses strict Ed25519 under public keys supplied by a trusted application release, verifies before parsing, and yields an inert candidate. No production key or activation path is configured. | Revisit for key custody/rotation, persistent rollback protection, platform storage, and independent security review. |
 | Local update repository | The [P2b.1 Unix prototype](../specification/rule-pack-repository-v0.1.md) stores separate signed archives and atomically replaces a small trial/confirmation state. Recovery retains both sequence and IANA-release high-water records. No new third-party package enters the lockfile, and storage stays outside `salah-core`. | Review other targets, filesystem/hardware durability, exact runtime pack integration, OS-protected rollback requirements, and archive retention before consumer use. |
 
+| Explicit runtime snapshot | The [P2b.2a runtime contract](../specification/runtime-rule-snapshot-v0.1.md) uses immutable bundled or verified snapshots, one parsed zone per schedule, and owned exact identities. Signature authentication precedes shared payload validation. | Focused runtime acceptance evidence, target builds, storage integration, and trial-health policy remain open. |
+
 ## Unresolved decisions
 
 - First calculation profile and authoritative parameter sources.

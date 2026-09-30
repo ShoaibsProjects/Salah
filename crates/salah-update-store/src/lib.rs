@@ -11,8 +11,10 @@
 //! or another process with the app's credentials modifying files outside this
 //! API. Hardware/power-loss behavior and mobile packaging need separate review.
 //!
-//! Stored selection does not activate a pack in today's prayer engine. A
-//! future adapter must validate a trial with its runtime before confirmation.
+//! Stored selection does not automatically replace a live runtime. A caller
+//! can load and move the verified selection into `salah-engine`'s explicit
+//! snapshot API. The application must exercise it before confirming a trial;
+//! this crate neither calculates schedules nor performs that confirmation.
 
 /// Whether this adapter has an implementation for the compilation target.
 pub const STORAGE_PLATFORM_SUPPORTED: bool = cfg!(unix);

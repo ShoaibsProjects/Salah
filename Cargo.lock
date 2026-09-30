@@ -347,6 +347,7 @@ dependencies = [
  "salah-core",
  "salah-location",
  "salah-time",
+ "salah-update",
 ]
 
 [[package]]
@@ -365,6 +366,9 @@ version = "0.1.0"
 dependencies = [
  "jiff",
  "salah-core",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -372,12 +376,8 @@ name = "salah-update"
 version = "0.1.0"
 dependencies = [
  "ed25519-dalek",
- "jiff",
  "salah-location",
  "salah-time",
- "serde",
- "serde_json",
- "sha2",
 ]
 
 [[package]]
