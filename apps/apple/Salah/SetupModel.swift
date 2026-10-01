@@ -16,22 +16,32 @@ final class SetupModel: ObservableObject {
     @Published private(set) var candidates: ZoneCandidates?
     @Published private(set) var schedule: ScheduleDocument?
     @Published private(set) var errorMessage: String?
-    @Published private(set) var zoneMessage = "Enter coordinates or request a device estimate. A supported timezone can also be chosen manually."
-    @Published private(set) var locationMessage = "Salah uses coordinates on this device and does not send them to a server. Manual entry always works without a location fix."
+    @Published private(set) var zoneMessage = "Choose a city offline or request device location. You can also enter coordinates and choose a timezone yourself."
+    @Published private(set) var locationMessage = "Choose a city offline, use a saved place, or request device location. Salah keeps your coordinates on this device."
     @Published private(set) var isLocating = false
     @Published private(set) var isCalculating = false
     @Published private(set) var isLookingUp = false
     @Published private(set) var deviceFix: DeviceFix?
     @Published private(set) var exampleLoaded = false
+    @Published private(set) var places = SavedPlacesDocument()
+    @Published private(set) var placeMessage: String?
+    @Published private(set) var isSavingPlace = false
+    @Published private(set) var selectedPlaceID: UUID?
+    @Published private(set) var locationName = ""
 
     private let gateway = EngineGateway()
     private let location = DeviceLocation()
+    private let placeRepository: SavedPlacesRepository
+    private var placeSource = PlaceSource(kind: "manual")
+    private var expectedMethodRevision: String?
     private var revision: UInt64 = 0
     private var lookupGeneration: UInt64 = 0
     private var lookupTask: Task<Void, Never>?
     private var calculationTask: Task<Void, Never>?
     private var clockTask: Task<Void, Never>?
     private var startupTask: Task<Void, Never>?
+
+    init(placeRepository: SavedPlacesRepository = .shared) { self.placeRepository = placeRepository }
 
     static var dateCalendar: Calendar {
         var calendar = Calendar(identifier: .gregorian)
@@ -53,6 +63,8 @@ final class SetupModel: ObservableObject {
         !methodID.isEmpty && !asr.isEmpty && !isCalculating && !isLocating
     }
 
+    var canSavePlace: Bool { schedule != nil && canCalculate && !isSavingPlace }
+
     private var coordinates: (Double, Double)? {
         guard let a = Double(latitude), let b = Double(longitude), a.isFinite, b.isFinite,
               (-90...90).contains(a), (-180...180).contains(b) else { return nil }
@@ -61,6 +73,7 @@ final class SetupModel: ObservableObject {
 
     func start() {
         guard startupTask == nil, inventory == nil else { return }
+        let initialRevision = revision
         startupTask = Task { [weak self] in
             guard let self else { return }
             defer { self.startupTask = nil }
@@ -72,6 +85,13 @@ final class SetupModel: ObservableObject {
                 }
                 inventory = document
                 if coordinates != nil { startLookup() }
+                do {
+                    places = try await placeRepository.load()
+                    if revision == initialRevision, coordinates == nil, !isLocating,
+                       let startupID = places.startupID, let place = places.places.first(where: { $0.id == startupID }) {
+                        useSavedPlace(place)
+                    }
+                } catch { placeMessage = "Saved places could not be opened: \(error.localizedDescription) Choose a city or device location; existing saved data was preserved." }
             } catch { errorMessage = "The bundled engine could not start. \(error.localizedDescription)" }
         }
     }
@@ -97,6 +117,9 @@ final class SetupModel: ObservableObject {
             cancelLocation()
             deviceFix = nil
             locationMessage = "Using manually entered coordinates. Confirm the offline timezone suggestion or choose another zone."
+            placeSource = PlaceSource(kind: "manual")
+            selectedPlaceID = nil
+            locationName = ""
         }
         candidates = nil
         zoneID = ""
@@ -172,7 +195,7 @@ final class SetupModel: ObservableObject {
         if zoneConfirmed { refreshToday() }
     }
 
-    func chooseMethod(_ value: String) { changed(); methodID = value; refreshToday() }
+    func chooseMethod(_ value: String) { changed(); expectedMethodRevision = nil; methodID = value; refreshToday() }
     func chooseAsr(_ value: String) { changed(); asr = value; refreshToday() }
     func todayMode(_ value: Bool) { changed(); useToday = value; clock = nil; if value { refreshToday() } }
     func chooseDate(_ value: Date) { changed(); manualDate = value; useToday = false; clock = nil }
@@ -240,6 +263,11 @@ final class SetupModel: ObservableObject {
                 try document.validate()
                 guard document.requested_local_date == selectedDate, document.zone_id == zone,
                       document.method.id == method, document.method.asr == criterion else { throw ClientError.invalidDocument }
+                if let expectedMethodRevision, document.method.revision != expectedMethodRevision {
+                    methodID = ""
+                    self.expectedMethodRevision = nil
+                    throw ClientError.message("The saved calculation profile changed in this app version. Choose the profile again before calculating.")
+                }
                 schedule = document
                 isCalculating = false
             } catch {
@@ -255,7 +283,7 @@ final class SetupModel: ObservableObject {
         cancelLocation()
         changed()
         isLocating = true
-        locationMessage = "Waiting for one Core Location system estimate (up to 30 seconds)…"
+        locationMessage = "Waiting for one device estimate (up to \(precise ? 90 : 30) seconds). You can cancel and choose a city offline."
         location.request(precise: precise) { [weak self] result in
             guard let self else { return }
             isLocating = false
@@ -264,6 +292,11 @@ final class SetupModel: ObservableObject {
                 latitude = String(fix.latitude)
                 longitude = String(fix.longitude)
                 deviceFix = fix
+                selectedPlaceID = nil
+                locationName = ""
+                placeSource = PlaceSource(kind: "device", horizontalAccuracyMeters: fix.horizontalAccuracyMeters,
+                                          measuredAt: fix.measuredAt, reducedAccuracy: fix.reducedAccuracy,
+                                          simulated: fix.simulated, accessoryProduced: fix.accessoryProduced)
                 coordinatesChanged(manual: false)
                 locationMessage = "Core Location estimate; reported accuracy \(fix.horizontalAccuracyMeters.formatted(.number.precision(.fractionLength(0)))) m. Its physical source is unknown; offline acquisition depends on the device."
             case .failure(let error): locationMessage = error.localizedDescription; refreshToday()
@@ -271,7 +304,11 @@ final class SetupModel: ObservableObject {
         }
     }
 
-    func cancelLocation() { location.cancel(); isLocating = false }
+    func cancelLocation() {
+        if isLocating { locationMessage = "Location request cancelled. Choose a city offline or a saved place, or try again outdoors." }
+        location.cancel()
+        isLocating = false
+    }
 
     func inactive(background: Bool) {
         // Apple's permission prompt can make a scene inactive. There is no
@@ -286,16 +323,130 @@ final class SetupModel: ObservableObject {
         clockTask?.cancel()
         clockTask = nil
         isCalculating = false
-        locationMessage = deviceFix == nil ? "Acquisition stopped while this app was inactive. Manual coordinates remain available." : "Using the previous device estimate. Request a new fix if you have moved."
+        if deviceFix != nil { locationMessage = "Using the previous device estimate. Request a new fix if you have moved." }
     }
 
     func active() { location.resume(); refreshToday() }
+
+    func chooseCity(_ choice: CityChoice) {
+        cancelLocation()
+        deviceFix = nil
+        latitude = String(choice.city.latitude)
+        longitude = String(choice.city.longitude)
+        selectedPlaceID = nil
+        locationName = "\(choice.city.name), \(choice.country)"
+        placeSource = PlaceSource(kind: "city", geonameID: choice.city.id, catalogueSHA: choice.catalogueSHA)
+        coordinatesChanged(manual: false)
+        locationMessage = "\(locationName) · approximate GeoNames city reference point, not your exact device position. Confirm the timezone; device location can refine the coordinates."
+    }
+
+    func useSavedPlace(_ place: SavedPlace) {
+        cancelLocation()
+        changed()
+        cancelLookup()
+        deviceFix = nil
+        candidates = nil
+        clock = nil
+        latitude = String(place.latitude)
+        longitude = String(place.longitude)
+        zoneID = inventory?.zone_ids.contains(place.zoneID) == true ? place.zoneID : ""
+        zoneConfirmed = false
+        methodID = place.methodID
+        asr = place.asr
+        expectedMethodRevision = place.methodRevision
+        useToday = true
+        placeSource = place.source
+        selectedPlaceID = place.id
+        locationName = place.name
+        locationMessage = "Using saved \(place.name). This is a stored place, not a fresh location fix. Choose device location or another city if you have travelled."
+        if place.source.kind == "city" { locationMessage += " Its coordinates are an approximate city point." }
+        guard !zoneID.isEmpty, place.rulePackSHA == inventory?.rule_pack.sha256 else {
+            zoneMessage = "Installed timezone rules changed or the saved zone is unavailable. Choose and confirm the timezone again."
+            return
+        }
+        guard let boundarySHA = place.boundarySHA else {
+            zoneConfirmed = true
+            zoneMessage = "Your saved timezone choice applies to this unchanged rule pack. You can correct it."
+            calculate()
+            return
+        }
+        zoneMessage = "Checking your saved map confirmation against the installed data…"
+        let requestedRevision = revision
+        Task {
+            do {
+                let request = LookupRequest(latitude_degrees: place.latitude, longitude_degrees: place.longitude)
+                let response: LookupResponse = try await gateway.run(.lookup, request: JSONEncoder().encode(request))
+                guard requestedRevision == revision else { return }
+                guard response.status == "ok", let candidate = response.candidates,
+                      candidate.boundary_sha256 == boundarySHA, candidate.zone_ids.contains(place.zoneID) else {
+                    zoneMessage = "The installed map changed or no longer confirms the saved zone. Confirm or correct the timezone again."
+                    return
+                }
+                candidates = candidate
+                zoneConfirmed = true
+                zoneMessage = "Your saved confirmation applies to the same rule pack and boundary data. You can correct it."
+                calculate()
+            } catch {
+                guard requestedRevision == revision else { return }
+                zoneMessage = "The saved map confirmation could not be checked. Choose and confirm a timezone manually."
+            }
+        }
+    }
+
+    func savePlace(name: String, useOnStartup: Bool) {
+        guard canSavePlace, let (a, b) = coordinates, let schedule else { return }
+        let place = SavedPlace(id: UUID(), name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                               latitude: a, longitude: b, zoneID: zoneID, methodID: methodID,
+                               methodRevision: schedule.method.revision, asr: asr,
+                               rulePackSHA: schedule.rule_pack.sha256,
+                               boundarySHA: candidates?.zone_ids.contains(zoneID) == true ? candidates?.boundary_sha256 : nil,
+                               source: placeSource)
+        isSavingPlace = true
+        Task {
+            do {
+                places = try await placeRepository.save(place, useOnStartup: useOnStartup)
+                placeMessage = "Saved \(place.name) on this device\(useOnStartup ? "; it will be used when Salah opens" : "")."
+            } catch { placeMessage = "The place was not confirmed saved: \(error.localizedDescription)" }
+            isSavingPlace = false
+        }
+    }
+
+    func removeSavedPlaces(_ ids: Set<UUID>) {
+        guard !isSavingPlace else { return }
+        isSavingPlace = true
+        Task {
+            do {
+                places = try await placeRepository.remove(ids)
+                if let selectedPlaceID, ids.contains(selectedPlaceID) { self.selectedPlaceID = nil; locationMessage = "Saved copy removed. The current location remains only in this session." }
+                placeMessage = "Saved copy removed from this app."
+            } catch { placeMessage = error.localizedDescription }
+            isSavingPlace = false
+        }
+    }
+
+    func clearSavedPlaces() {
+        guard !isSavingPlace else { return }
+        isSavingPlace = true
+        Task {
+            do {
+                try await placeRepository.clear()
+                places = SavedPlacesDocument()
+                selectedPlaceID = nil
+                placeMessage = "All saved copies removed. The current setup remains only in this session."
+            } catch { placeMessage = error.localizedDescription }
+            isSavingPlace = false
+        }
+    }
 
     func loadExample() {
         cancelLocation()
         changed()
         cancelLookup()
         deviceFix = nil
+        selectedPlaceID = nil
+        locationName = ""
+        placeSource = PlaceSource(kind: "manual")
+        expectedMethodRevision = nil
         candidates = nil
         latitude = "44.9778"
         longitude = "-93.2650"

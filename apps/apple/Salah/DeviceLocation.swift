@@ -20,14 +20,22 @@ final class DeviceLocation: NSObject, @preconcurrency CLLocationManagerDelegate 
     private var completion: ((Result<DeviceFix, Error>) -> Void)?
     private var permissionRequested = false
     private var fixRequested = false
+    private var preciseRequested = false
+    private var temporaryAccuracyRequested = false
+    private var accuracyPromptPending = false
+    private var requestID: UUID?
     private var sceneIsActive = true
-    var isAwaitingPermission: Bool { manager?.authorizationStatus == .notDetermined }
+    var isAwaitingPermission: Bool { manager?.authorizationStatus == .notDetermined || accuracyPromptPending }
 
     func request(precise: Bool, completion: @escaping (Result<DeviceFix, Error>) -> Void) {
         cancel()
         self.completion = completion
         permissionRequested = false
         fixRequested = false
+        preciseRequested = precise
+        temporaryAccuracyRequested = false
+        accuracyPromptPending = false
+        requestID = UUID()
         sceneIsActive = true
         // Global locationServicesEnabled() can synchronously consult the OS.
         // Let authorization/delegate callbacks report availability so this
@@ -39,9 +47,10 @@ final class DeviceLocation: NSObject, @preconcurrency CLLocationManagerDelegate 
         provider.pausesLocationUpdatesAutomatically = true
         // No always authorization, background mode, continuous update, or network fallback.
         deadline = Task { [weak self, weak provider] in
-            do { try await Task.sleep(for: .seconds(30)) } catch { return }
+            let seconds = precise ? 90 : 30
+            do { try await Task.sleep(for: .seconds(seconds)) } catch { return }
             guard let self, let provider, self.manager === provider else { return }
-            self.finish(.failure(ClientError.message("No usable location arrived within 30 seconds. Try outdoors once, or enter coordinates manually.")))
+            self.finish(.failure(ClientError.message("No usable location arrived within \(seconds) seconds. Choose a city offline or a saved place; try the device outdoors later.")))
         }
         beginIfAuthorized(provider)
     }
@@ -53,6 +62,8 @@ final class DeviceLocation: NSObject, @preconcurrency CLLocationManagerDelegate 
         manager?.delegate = nil
         manager = nil
         completion = nil
+        accuracyPromptPending = false
+        requestID = nil
     }
 
     func pauseForPermissionPrompt() { sceneIsActive = false }
@@ -74,7 +85,24 @@ final class DeviceLocation: NSObject, @preconcurrency CLLocationManagerDelegate 
         case .notDetermined:
             if !permissionRequested { permissionRequested = true; provider.requestWhenInUseAuthorization() }
         case .authorizedAlways, .authorizedWhenInUse:
-            if sceneIsActive && !fixRequested { fixRequested = true; provider.requestLocation() }
+            guard sceneIsActive, !fixRequested, !accuracyPromptPending else { return }
+            if preciseRequested && provider.accuracyAuthorization == .reducedAccuracy && !temporaryAccuracyRequested {
+                temporaryAccuracyRequested = true
+                accuracyPromptPending = true
+                let identifier = requestID
+                provider.requestTemporaryFullAccuracyAuthorization(withPurposeKey: "PrayerLocation") { [weak self] _ in
+                    Task { @MainActor [weak self] in
+                        guard let self, self.requestID == identifier, let activeProvider = self.manager else { return }
+                        self.accuracyPromptPending = false
+                        // Declining the prompt still permits a labeled
+                        // approximate estimate; it never becomes precise.
+                        self.beginIfAuthorized(activeProvider)
+                    }
+                }
+                return
+            }
+            fixRequested = true
+            provider.requestLocation()
         case .denied, .restricted:
             finish(.failure(ClientError.message("Location permission or Location Services are unavailable. Enter coordinates manually, or check Settings.")))
         @unknown default:

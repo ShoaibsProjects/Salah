@@ -12,7 +12,7 @@ Salah should be a calm, free companion that can calculate prayer times on the de
 - Installed astronomy, method definitions, timezone rules, and boundary maps are sufficient for the supported calculation scope. Each result records their identities.
 - Device readings are inputs to checked adapters. The engine validates and combines them; it cannot create a sensor reading when no receiver or trustworthy input exists.
 - Automatic filling reduces typing. It exposes source, uncertainty, and correction controls instead of presenting a guess as a fact.
-- Manual entry, previously saved places, and a future sourced offline place directory are complete alternatives to live positioning. Core use remains available when permission is declined or the device lacks location hardware.
+- Manual entry, previously saved places, and a sourced offline place directory (implemented for Apple in F4-A2) are complete alternatives to live positioning. Core use remains available when permission is declined or the device lacks location hardware.
 - No method or Asr preference is inferred from a sensor, country, name, or nationality. The person chooses a practice once and can change it.
 - Daily essentials are free to use. Maintenance, data stewardship, licensing, platform compatibility, and future civil-time changes still require people and updates.
 
@@ -39,7 +39,7 @@ There are two different capabilities:
 
 The second must not be inferred from the first. The Web Geolocation API does not identify its physical source or expose a portable GNSS-only switch. `enableHighAccuracy` is a preference, not proof that GPS supplied the result or that no network was used. The browser feature therefore remains optional, with `unknown_browser_provider` provenance. Strict sensor-only operation cannot be promised for the current web adapter.
 
-A future Android adapter will investigate the native GNSS provider rather than depend on Google Play location services. A future Apple adapter will audit Core Location's actual capabilities; browser/OS source uncertainty remains visible wherever the API cannot enforce the intended policy. Embedded devices may connect directly to a GNSS receiver. Neither native adapter is implemented by this document.
+A future Android adapter will investigate the native GNSS provider rather than depend on Google Play location services. The Apple adapter now uses bounded, optional Core Location; browser/OS source uncertainty remains visible wherever the API cannot enforce the intended policy. Embedded devices may connect directly to a GNSS receiver. The Apple implementation and its physical proof boundary are recorded in the Apple contracts; Android remains planned.
 
 ### 3.1 What offline location means on each platform
 
@@ -120,7 +120,7 @@ Without an independent time source, offline software cannot prove that a plausib
 6. Compute UTC events in Rust, localize using the same rule snapshot, and expose unavailable conditions and separately reviewed alternatives.
 7. Show a calm daily schedule with explanations. Add current/next prayer, Qibla, and reminders only with their own specified rules and platform evidence.
 
-Routine use should then require few taps. Confirmation is repeated when relevant evidence changes, not merely to make a person re-enter the same data every day. Saved-place persistence and its invalidation policy are future work; the present preview keeps setup in page memory.
+Routine use should then require few taps. Confirmation is repeated when relevant evidence changes, not merely to make a person re-enter the same data every day. Apple F4-A2 implements opt-in saved places with rule/map/method invalidation; the browser preview still keeps setup in page memory. Saved Apple points remain visibly stored and require a new choice after travel.
 
 ## 7. System boundaries
 
@@ -147,7 +147,7 @@ versioned result + input/data provenance
 - Bundle all essential app files. Browser offline preparation checks an exact build inventory and file hashes before declaring its copy ready. Cache state is checked locally; browser eviction or user-cleared storage still requires reinstalling files. Native installations provide a stronger packaging boundary, subject to their OS.
 - Preserve permission denial, no fix, stale coordinates, unsupported clocks/zones, date-line changes, missing solar events, and data/update failure as explicit states. Never display a fabricated successful time.
 - Async replies are accepted only for the setup that requested them. Manual edits cancel acceptance of pending device fixes and prior computations.
-- Keep coordinates, practice settings, and calculated schedules on device. Cache only public app/data files. Explicit exports contain the person's chosen calculation data; no location history is collected by default.
+- Keep coordinates, practice settings, and calculated schedules on device. Browser caching stores only public app/data files. Native saved places require explicit opt-in and app-private protected storage with deletion. Explicit exports contain the person's chosen calculation data; no location history is collected by default.
 
 ## 9. What exists and what remains
 
@@ -158,8 +158,9 @@ versioned result + input/data provenance
 | Web automatic timezone suggestion and selected-zone device-date conversion | Implemented in F4-C2; one timezone confirmation remains under the current map policy. |
 | Hash-checked browser package and cached startup | Implemented in F3-W2; browser offline restart, update, eviction, and accessibility acceptance remain open. |
 | Browser device fix | Optional platform provider with unknown source/network behavior; not certified offline sensor acquisition. |
-| Android/Apple native GNSS/location adapters and embedded receiver integration | Planned capability audits and build slices. |
-| Saved places/settings and sourced offline place directory | Planned. Manual coordinates already work without a lookup service. |
+| Apple native location adapter | Implemented optional Core Location, unknown internal source; physical radio-off proof remains open. |
+| Android native GNSS and embedded receiver integration | Planned capability audits and build slices. |
+| Saved places/settings and sourced offline place directory | Apple F4-A2 implemented: bundled city points and opt-in protected records. Other clients remain future work; physical protection acceptance is open. |
 | Qibla, reviewed high-latitude alternatives, next-prayer state, notifications, broader method registry | Still require implementation/source review and their gates. |
 | Independent science, Islamic methodology, privacy/security, licenses, production keys and succession | Open release/stewardship work. |
 
@@ -169,7 +170,7 @@ No whole-product accuracy or universal sensor claim follows from automatic filli
 
 Follow this contract and one bounded packet from the roadmap. Preserve the kernel and its known discrepancy ledger. Keep client logic about acquisition/display only; timezone and date derivation use the shared Rust rules. Implement hardware capability evidence before promising strict offline live location. Preserve user confirmations and reproducibility when convenience is added. Expand source-backed data and device acceptance before broadening product claims.
 
-The next steps after this slice are real browser offline/permission/clock acceptance, a native GNSS capability probe, and saved-place/offline directory design. Scientific and methodology review continue in parallel. The long-lived asset is a reviewable engine and maintained, archived data, with a gentle interface around them.
+The next steps after this slice are real browser offline/permission/clock acceptance, physical Apple positioning/protection and native interaction acceptance, then Android GNSS integration. Scientific and methodology review continue in parallel. The long-lived asset is a reviewable engine and maintained, archived data, with a gentle interface around them.
 
 ## Technical sources
 

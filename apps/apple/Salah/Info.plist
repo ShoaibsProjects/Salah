@@ -12,6 +12,8 @@
     <key>LSRequiresIPhoneOS</key><true/>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Fill coordinates for local prayer calculations only when you ask. Salah uses them on this device and does not send them to a server; you can enter them manually instead.</string>
+    <key>NSLocationTemporaryUsageDescriptionDictionary</key>
+    <dict><key>PrayerLocation</key><string>You requested a more precise location to refine your prayer calculation coordinates. Salah uses this estimate on the device. You can keep approximate permission and choose a city instead.</string></dict>
     <key>UILaunchScreen</key><dict/>
     <key>UISupportedInterfaceOrientations</key>
     <array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>

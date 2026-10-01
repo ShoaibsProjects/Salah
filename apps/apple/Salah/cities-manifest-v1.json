@@ -1,0 +1,25 @@
+{
+  "schema": "salah-offline-cities-manifest-v1",
+  "version": "geonames-2026-10-01",
+  "file": "cities-v1.json",
+  "rows": 34152,
+  "bytes": 6806396,
+  "sha256": "085e06b69c8b0e435177680c05d29bdfbc0cba9722b0a2d3f678478426940878",
+  "retrieved": "2026-10-01",
+  "license": "CC-BY-4.0",
+  "point_semantics": "approximate_city_reference_point",
+  "sources": [
+    {
+      "url": "https://download.geonames.org/export/dump/cities15000.zip",
+      "sha256": "f00213685cfe4ee1deeb7a4e52ce6258ac99d7b27209ffca0e8590ccab433763"
+    },
+    {
+      "url": "https://download.geonames.org/export/dump/countryInfo.txt",
+      "sha256": "93bafc525813f22e4711ff9ed6d626343094ce48c26388dc7c49189b3d7d5512"
+    },
+    {
+      "url": "https://download.geonames.org/export/dump/readme.txt",
+      "sha256": "b1957379b6c1242c700c98ac9a8aa0a09f56c3c0a50ee72175527005f48ef2c5"
+    }
+  ]
+}

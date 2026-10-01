@@ -74,6 +74,8 @@ def licenses(channel, environment):
         "TZF-DIST-LICENSE": ROOT / "data/third-party/tzf-2026d/LICENSE",
         "TZF-RS-LICENSE": ROOT / "data/third-party/tzf-2026d/TZF-RS-LICENSE",
         "THIRD-PARTY.md": APPLE / "THIRD-PARTY.md",
+        "GEONAMES-ATTRIBUTION.md": ROOT / "data/third-party/geonames-2026-10-01/ATTRIBUTION.md",
+        "GEONAMES-README.txt": ROOT / "data/third-party/geonames-2026-10-01/readme.txt",
     }
     for name, source in notices.items():
         shutil.copyfile(source, notice_root / name)
@@ -85,6 +87,10 @@ def main():
     parser.add_argument("--framework-only", action="store_true", help="Do not build the Swift app")
     parser.add_argument("--device-app", action="store_true", help="Build unsigned device app instead of simulator")
     args = parser.parse_args()
+    catalogue_manifest = json.loads((APPLE / "Salah/cities-manifest-v1.json").read_text())
+    catalogue = (APPLE / "Salah/cities-v1.json").read_bytes()
+    if len(catalogue) != catalogue_manifest["bytes"] or hashlib.sha256(catalogue).hexdigest() != catalogue_manifest["sha256"]:
+        raise ValueError("Bundled offline city directory differs from its manifest")
     channel = tomllib.loads((ROOT / "rust-toolchain.toml").read_text())["toolchain"]["channel"]
     compiler = subprocess.check_output(["rustup", "which", "--toolchain", channel, "rustc"], text=True).strip()
     environment = os.environ.copy()
@@ -111,6 +117,7 @@ def main():
         "schema": "salah-apple-engine-build-v1", "abi": 1,
         "rust_toolchain": channel, "minimum_ios": "17.0",
         "cargo_lock_sha256": hashlib.sha256((ROOT / "Cargo.lock").read_bytes()).hexdigest(),
+        "city_catalogue_sha256": catalogue_manifest["sha256"],
         "libraries": [
             {"target": target, "bytes": library.stat().st_size,
              "sha256": hashlib.sha256(library.read_bytes()).hexdigest()}
@@ -124,7 +131,7 @@ def main():
         run(["xcodebuild", "-quiet", "-project", str(APPLE / "Salah.xcodeproj"), "-scheme", "Salah",
              "-configuration", "Debug", "-sdk", sdk, "-destination", destination,
              "-derivedDataPath", str(ROOT / "target/apple-xcode"),
-             "CODE_SIGNING_ALLOWED=NO", "build"])
+             "CODE_SIGNING_ALLOWED=NO", "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES", "build"])
         product = ROOT / f"target/apple-xcode/Build/Products/Debug-{sdk}/Salah.app"
         print(f"Built unsigned research app: {product}")
     print(f"Bundled engine built: {framework}")

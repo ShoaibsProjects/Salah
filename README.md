@@ -26,7 +26,7 @@ Our hope is to offer something useful with care: prayer times people can underst
 
 **As of 1 October 2026: the Rust research engine, local web preview, and first native iPhone/iPad development app are built.** They use the same engine and bundled data. The Apple app compiles for device and Simulator; six complete schedule records match the CLI and WebAssembly. Physical iPhone offline-location testing, native usability and consumer releases remain ahead. Phase 1 accuracy/methodology and Phase 2 civil-time gates remain open.
 
-**Latest pieces:** Phase 3 → **F3-A1: Apple Native Foundation**; Phase 4 → **F4-A1: One-Shot Apple Location**. [Build the Apple preview](apps/apple/README.md). The web preview's offline setup and saved package remain available.
+**Latest pieces:** Phase 3 → **F3-A1: Apple Native Foundation**; Phase 4 → **F4-A2: Offline Places and iPhone 12 Compatibility**. [Build the Apple preview](apps/apple/README.md). The web preview's offline setup and saved package remain available.
 
 The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
 
@@ -36,7 +36,7 @@ That same engine builds into WebAssembly. The local browser screen is a quiet pl
 
 If you choose device location, the browser asks once and displays the provider's uncertainty. A compass supplies direction, not coordinates. A GNSS receiver can work without internet, but hardware and platform access differ; this browser API cannot certify which source was used or that no network was involved. Salah calls no remote prayer or location service. Browser/device review remains ahead.
 
-The whole operating idea is kept in the [offline product contract](docs/offline-product-contract.md): one local engine, bundled essential data, automatic setup where readings are usable, and clear correction when they are missing or uncertain. A saved browser copy can reopen with its engine files offline; the new Apple binary bundles them at installation. Optional Apple location is bounded and shows uncertainty, while manual inputs remain usable. We want daily use to stay available when a server disappears.
+The whole operating idea is kept in the [offline product contract](docs/offline-product-contract.md): one local engine, bundled essential data, automatic setup where readings are usable, and clear correction when they are missing or uncertain. A saved browser copy can reopen with its engine files offline; the new Apple binary bundles them at installation. On iPhone 12 and newer with iOS 17+, choose a city offline or save a place for a quieter next visit. Optional device location is bounded and shows uncertainty; manual inputs remain available. City points are approximate and travel needs a new location choice. We want daily use to stay available when a server disappears.
 
 We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
 
@@ -57,7 +57,7 @@ We have built signed timezone-update storage with restart recovery. The new runt
 | **Calculation Lab Command** | Named-zone local schedules, optional versioned JSON, supported-zone listing, and the earlier fixed-offset research interface. |
 | **Browser Bridge and First Screen** | A strict JSON-to-Rust WebAssembly boundary, worker-based local schedule preview, event explanations, and JSON download. Browser acceptance remains pending. |
 | **Offline Setup and Saved Package** | Embedded coordinate-to-zone suggestions, selected-zone date from the device UTC clock, and opt-in hash-checked public app caching. Browser restart/update/eviction acceptance remains pending. |
-| **Apple App and Native Bridge** | SwiftUI iPhone/iPad research app, static Rust C ABI, bundled engine/data, searchable zones, native date control and optional one-shot location. Six cross-target records match; physical-device/Store acceptance remains open. |
+| **Apple App and Native Bridge** | SwiftUI iPhone/iPad research app, static Rust C ABI, bundled engine/data, searchable zones, native date control, optional one-shot location, offline city search and opt-in saved places. Six cross-target records match; physical-device/Store acceptance remains open. |
 
 Published checkpoint [1be80bc](https://github.com/ShoaibsProjects/Salah/commit/1be80bc) passed **100 Rust tests**, six pack-validator tests, formatting/lint checks, and GitHub CI. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test.
 
