@@ -18,7 +18,7 @@ F3-C1 now exposes that facade through `salah-cli schedule` with explicit named-z
 
 F3-W1 adds the [WebAssembly bridge and first local browser screen](../specification/wasm-bridge-contract-v0.1.md). The pinned-compiler WASM build and direct generated-module use in Node.js succeeded; browser interaction/visual review is pending. A worker calls the same engine, with strict explicit JSON inputs and the existing schedule document. CI builds an archived research preview. Durable offline installation, mobile bindings, and the Phase 3 equivalence gate remain open.
 
-F4-C1 is an exploratory browser-screen refinement: one user-initiated, energy-conscious device-location request with visible provider uncertainty, plus plain-language Fajr/Isha profile and Asr shadow-ratio guidance. It does not turn a compass into a location source, guarantee offline positioning, infer a timezone, or advance the Phase 3 gate. Browser/device review remains pending.
+F4-C1 is an exploratory browser-screen refinement: a user-initiated, energy-conscious device-location request with visible provider uncertainty and an optional higher-accuracy retry, plus plain-language Fajr/Isha profile and Asr shadow-ratio guidance. It does not turn a compass into a location source, guarantee offline positioning, infer a timezone, or advance the Phase 3 gate. Browser/device review remains pending.
 
 ## How phases work
 

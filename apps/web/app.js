@@ -1,6 +1,7 @@
 const form = document.querySelector("#schedule-form");
 const calculateButton = document.querySelector("#calculate");
 const deviceLocationButton = document.querySelector("#device-location");
+const preciseLocationButton = document.querySelector("#precise-location");
 const locationStatus = document.querySelector("#location-status");
 const engineState = document.querySelector("#engine-state");
 const errorBox = document.querySelector("#error");
@@ -55,6 +56,8 @@ function cancelLocationRequest(message) {
   locationRequestId = 0;
   clearTimeout(locationRequestTimer);
   deviceLocationButton.disabled = false;
+  preciseLocationButton.disabled = false;
+  preciseLocationButton.hidden = true;
   deviceLocationButton.removeAttribute("aria-busy");
   setLocationMessage(message);
 }
@@ -65,7 +68,7 @@ function explainMethod() {
     ?? "Choose the calculation convention used by your community. The Sun-angle choices give estimated Fajr and Isha beginnings; there is no universal selection here.";
 }
 
-function useDeviceLocation() {
+function useDeviceLocation({ highAccuracy = false } = {}) {
   if (locationRequestId !== 0) return;
   if (!window.isSecureContext) {
     setLocationMessage("Device location is available on a secure page or localhost. You can enter coordinates yourself here.", true);
@@ -80,22 +83,30 @@ function useDeviceLocation() {
   const requestId = ++sequence;
   locationRequestId = requestId;
   deviceLocationButton.disabled = true;
+  preciseLocationButton.disabled = true;
+  preciseLocationButton.hidden = true;
   deviceLocationButton.setAttribute("aria-busy", "true");
-  setLocationMessage("Asking your device for one location estimate… You can still enter coordinates yourself.");
+  setLocationMessage(highAccuracy
+    ? "Asking your device for a more precise location estimate… This may take longer or use more power. You can still enter coordinates yourself."
+    : "Asking your device for one energy-conscious location estimate… You can still enter coordinates yourself.");
 
   const finish = () => {
     if (locationRequestId !== requestId) return false;
     locationRequestId = 0;
     clearTimeout(locationRequestTimer);
     deviceLocationButton.disabled = false;
+    preciseLocationButton.disabled = false;
     deviceLocationButton.removeAttribute("aria-busy");
     return true;
   };
 
   locationRequestTimer = setTimeout(() => {
     if (!finish()) return;
-    setLocationMessage("No location fix arrived in time. GPS can take longer indoors; enter coordinates or try again.", true);
-  }, 25000);
+    preciseLocationButton.hidden = highAccuracy;
+    setLocationMessage(highAccuracy
+      ? "The more precise request also timed out. Check your system location setting, try again later, or enter coordinates yourself."
+      : "No location fix arrived in time. Try near a window or outdoors, request a more precise fix once, or enter coordinates yourself.", true);
+  }, highAccuracy ? 30000 : 15000);
 
   try {
     navigator.geolocation.getCurrentPosition(position => {
@@ -119,6 +130,7 @@ function useDeviceLocation() {
         source: "device_geolocation",
         reportedAccuracyMeters: Number.isFinite(accuracy) && accuracy >= 0 ? accuracy : null,
       };
+      preciseLocationButton.hidden = true;
       const accuracyText = locationCapture.reportedAccuracyMeters === null
         ? "The device did not provide an accuracy estimate."
         : `The device estimates its accuracy radius at about ${Math.ceil(locationCapture.reportedAccuracyMeters)} m.`;
@@ -126,16 +138,28 @@ function useDeviceLocation() {
     }, error => {
       if (!finish()) return;
       const message = error.code === error.PERMISSION_DENIED
-        ? "Location access was declined. Enter coordinates yourself, or allow it for this page in your browser settings if you choose."
+        ? "Location permission is blocked. If you want to allow it, check this site's browser permission and your system Location Services setting. You can also enter coordinates yourself."
         : error.code === error.POSITION_UNAVAILABLE
-          ? "Your device cannot provide a location right now. Check its location setting, or enter coordinates yourself."
-          : "No location fix arrived in time. GPS can take longer indoors; enter coordinates or try again.";
+          ? highAccuracy
+            ? "The more precise request also got no position. Check browser and system Location Services; your device may have no usable fix here. Try again later or enter coordinates yourself."
+            : "No position came from your browser or system location provider. Check Location Services for this browser and keep Wi-Fi on; some computers have no fix offline. You can try one more precise request or enter coordinates yourself."
+          : highAccuracy
+            ? "The more precise request timed out. Check your system location setting, try again later, or enter coordinates yourself."
+            : "No location fix arrived in time. Try near a window or outdoors, request a more precise fix once, or enter coordinates yourself.";
+      preciseLocationButton.hidden = error.code === error.PERMISSION_DENIED || highAccuracy;
       setLocationMessage(message, true);
-  // Prefer the platform's efficient location source first. A single request
-  // avoids ongoing sensor use; the reported radius makes uncertainty visible.
-  }, { enableHighAccuracy: false, maximumAge: 30_000, timeout: 20_000 });
+  // Start with the efficient provider. The more demanding request is opt-in
+  // after a failed first fix, never a background retry or continuous watch.
+  }, {
+    enableHighAccuracy: highAccuracy,
+    maximumAge: highAccuracy ? 0 : 30_000,
+    timeout: highAccuracy ? 25_000 : 12_000,
+  });
   } catch {
-    if (finish()) setLocationMessage("The browser could not start a location request. You can enter coordinates yourself.", true);
+    if (finish()) {
+      preciseLocationButton.hidden = highAccuracy;
+      setLocationMessage("The browser could not start a location request. You can enter coordinates yourself.", true);
+    }
   }
 }
 
@@ -276,10 +300,13 @@ form.addEventListener("submit", event => {
 
 // Editing a setting invalidates the old display and any in-flight response.
 function invalidateChoices(event) {
-  if (["latitude_degrees", "longitude_degrees"].includes(event?.target?.name)
-      && locationCapture.source !== "manual_coordinates") {
-    cancelLocationRequest("Your coordinates were edited. They are now treated as manually entered.");
-    locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
+  if (["latitude_degrees", "longitude_degrees"].includes(event?.target?.name)) {
+    preciseLocationButton.hidden = true;
+    if (locationCapture.source !== "manual_coordinates") {
+      cancelLocationRequest("Your coordinates were edited. They are now treated as manually entered.");
+      locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
+    }
+    setLocationMessage("Using manually entered coordinates. Confirm that the timezone matches this location.");
   }
   if (activeId !== null) { activeId = null; clearTimeout(watchdog); calculateButton.disabled = !loaded; calculateButton.removeAttribute("aria-busy"); }
   clearResult();
@@ -289,11 +316,13 @@ function invalidateChoices(event) {
 form.addEventListener("input", invalidateChoices);
 form.addEventListener("change", invalidateChoices);
 form.elements.namedItem("method_id").addEventListener("change", explainMethod);
-deviceLocationButton.addEventListener("click", useDeviceLocation);
+deviceLocationButton.addEventListener("click", () => useDeviceLocation());
+preciseLocationButton.addEventListener("click", () => useDeviceLocation({ highAccuracy: true }));
 
 document.querySelector("#example").addEventListener("click", () => {
   if (activeId !== null) return;
   cancelLocationRequest("Using the labeled example coordinates. Choose device location or enter your own coordinates when ready.");
+  preciseLocationButton.hidden = true;
   locationCapture = { source: "example_coordinates", reportedAccuracyMeters: null };
   clearResult();
   for (const [key, value] of Object.entries({ latitude_degrees: "44.9778", longitude_degrees: "-93.2650", local_date: "2026-10-01", zone_id: "America/Chicago", method_id: "mwl-angles-18-17", asr: "hanafi" })) form.elements.namedItem(key).value = value;

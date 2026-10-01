@@ -36,7 +36,8 @@
           <p class="muted">Choose each setting explicitly. Device location can fill coordinates; your timezone remains a separate choice.</p>
           <form id="schedule-form">
             <button id="device-location" class="location-button" type="button">Fill coordinates from device location <span aria-hidden="true">⌖</span></button>
-            <p class="field-help location-help">A compass tells direction, not location. This makes one energy-conscious request through your browser to fill latitude and longitude. This page does not send coordinates to Salah or call an online lookup. Your device may use GPS, Wi-Fi, cellular, or a recent fix; some sources need internet. The result is an estimate, not exact. You can enter coordinates yourself.</p>
+            <button id="precise-location" class="location-retry-button" type="button" hidden>Retry once with a more precise location request</button>
+            <p class="field-help location-help">A compass tells direction, not location. This starts with one energy-conscious browser request to fill latitude and longitude. If no fix is available, you may choose a more precise request, which can use more power. This page does not send coordinates to Salah or call an online lookup. Your device may use GPS, Wi-Fi, cellular, or a recent fix; some sources need internet. The result is an estimate, not exact. You can enter coordinates yourself.</p>
             <p id="location-status" class="location-status" role="status" aria-live="polite">Location permission is not requested unless you choose the button.</p>
             <div class="field-pair">
               <label>Latitude <span class="field-unit">degrees</span><input name="latitude_degrees" type="number" step="any" min="-90" max="90" placeholder="44.9778" required></label>
