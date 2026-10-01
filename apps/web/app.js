@@ -282,8 +282,10 @@ try {
     if (data?.kind === "ready") {
       if (data.inventory?.schema !== "salah-zone-inventory-v1" || !Array.isArray(data.inventory.zone_ids)) return failure("The engine returned an unsupported inventory.", true);
       clearTimeout(watchdog);
-      const options = data.inventory.zone_ids.map(id => { const option = node("option"); option.value = id; return option; });
-      document.querySelector("#zone-list").replaceChildren(...options);
+      const zonePlaceholder = node("option", "Choose a time zone");
+      zonePlaceholder.value = "";
+      const options = data.inventory.zone_ids.map(id => { const option = node("option", id); option.value = id; return option; });
+      form.elements.namedItem("zone_id").replaceChildren(zonePlaceholder, ...options);
       loaded = true;
       calculateButton.disabled = false;
       deviceLocationButton.disabled = locationRequestId !== 0;
