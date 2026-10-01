@@ -5,3 +5,5 @@ __pycache__/
 /.idea/
 /apps/web/pkg/
 /apps/web/offline-worker.js
+/apps/apple/Generated/
+xcuserdata/

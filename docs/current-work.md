@@ -4,7 +4,11 @@
 
 ## Current piece
 
-**Phase 4 exploratory experience → F4-C2: Offline Setup → Timezone Suggestion and Device Date.** Alongside it, **Phase 3 → F3-W2: Browser Reliability → Saved App Package** implements cached app loading. These are research adapters; no portability, accuracy, civil-time, or religious gate is passed.
+**Phase 3 → F3-A1: Apple Native Foundation → Embedded Rust iPhone/iPad App.** Alongside it, **Phase 4 → F4-A1: One-Shot Apple Location** adds optional foreground device input. The earlier F4-C2 offline setup and F3-W2 saved browser package remain available. These are research adapters; no portability, accuracy, civil-time, or religious gate is passed.
+
+The first native SwiftUI app now compiles for iPhone/iPad and Simulator with the Rust engine statically bundled. A shared `salah-bridge` preserves the previous strict JSON operations; `salah-ffi` carries them across a versioned C boundary. Swift copies Rust-owned outputs and never calculates prayer times or converts event timezones. The installed app needs no server for manual calculation. It includes searchable IANA zones, a native date picker, selected-zone today, explicit method/Asr choices, unavailable-event explanations and the calculation record. See [Apple build instructions/evidence](../apps/apple/README.md) and the [Apple research/specification](../specification/apple-foundation-v0.1.md).
+
+Core Location is opt-in with When-in-Use permission, a 30-second deadline, reported fix age/accuracy, cancellation and manual fallback. Apple chooses location sources; neither a native request nor a Simulator result proves GNSS-only radio-off positioning. Setup stays in memory. **Apple evidence:** unsigned device and Simulator builds pass; the app launches and renders its initial form on iOS 26 Simulator. Six complete CLI/WASM/iOS Simulator schedule records match, covering DST, quarter-hour/date-line offsets, skipped dates and polar unavailable events. Host-model checks cover late lookup/manual-edit races and selected-zone today. The Rust suite passes with 106 tests, 1 intentionally ignored, plus 1 documentation test; format, Clippy and web-package build pass. Native control/accessibility and physical-device acceptance remain open. Linked Rust panic-symbolication retains a file-metadata API without an established Apple required reason, so Store privacy review is blocked and the manifest remains a research draft.
 
 The whole operating idea is recorded in the [offline product contract](offline-product-contract.md). Valid coordinates now feed the embedded Rust boundary map automatically. A single timezone suggestion fills the field, with one confirmation because the current map is approximate; several/no suggestions require a choice. The device supplies a UTC epoch instant, and Rust fills today's date in that selected location's zone. The device's displayed timezone is not used. The clock source stays visible, and manual coordinates, zone, and date remain available.
 
@@ -18,7 +22,7 @@ The earlier named-zone CLI remains available. Direct manual zone choice bypasses
 
 **Evidence so far:** cache-only browser use calculated Minneapolis automatically and London on the 2026 spring DST transition day; the real timezone select and native typed/calendar date control were exercised. Minneapolis prayer labels matched AlAdhan's minute labels. London Hanafi Asr differs from its minute-only AlAdhan label (Salah 17:27:18, AlAdhan 17:26); the cause is unresolved and recorded in the [offline setup evidence](../specification/offline-setup-contract-v0.1.md). The suite passes with 100 tests, 1 intentionally ignored, and 1 documentation test; format, warning-free Clippy, WASM/package build, JavaScript syntax, and diff checks pass. The full reference comparison is a spot-check, not certification. Reaching the embedded boundary map increases the module size; the generated inventory reports exact sizes. The earlier F3-W1 approximately 726 KB WASM and direct Node.js operation are historical evidence. Browser visual/interaction beyond the tested flows, offline eviction/update lifecycle, accessibility, real-device acquisition, physical airplane-mode and cross-target acceptance remain open. Phase 1 and Phase 2 remain open.
 
-**Next pieces:** investigate the unresolved Asr comparison with source-level vectors before any formula change; broader browser offline/permission/clock acceptance; and a bounded native location spike. That spike should measure a one-shot Android `GPS_PROVIDER` attempt and a separate Apple Core Location request, record provider/accuracy/fix-age outcomes, then repeat physically outdoors and indoors with airplane mode plus Wi-Fi/Bluetooth off. No native client exists yet, so do not claim this has been tested. Local saved-place/settings design follows. An offline place directory needs sourced data and size/licensing decisions. Next-prayer/reminder state, mobile bindings, and signed-pack platform integration remain separate work. Independent scientific and methodology review continues.
+**Next pieces:** native form/permission/accessibility acceptance, resolution of the Apple metadata/privacy blocker before distribution, then physical iPhone manual calculation and one-shot location with airplane mode plus Wi-Fi/Bluetooth off. Record device/OS, permission, indoors/outdoors, wait, fix timestamp and accuracy. The Apple client now exists; physical offline positioning has not been tested. A separate Android `GPS_PROVIDER` adapter remains future work. Investigate the unresolved Asr comparison with sourced vectors before formula changes; broaden browser lifecycle acceptance. Local saved places/settings, sourced offline place directories, next-prayer/reminders and signed-pack platform integration remain separate pieces. Independent scientific and methodology review continues.
 
 ## Names of the main parts
 
@@ -31,7 +35,10 @@ The earlier named-zone CLI remains available. Direct manual zone choice bypasses
 | Update Authentication | `salah-update` | Verifies signed packages, exact hashes/inventory, and compatibility before parsing their payloads. P2a is implemented. |
 | Update Storage and Recovery | `salah-update-store` | Archives signed packages and manages trial, confirmation, restart recovery, and counter preservation. P2b.1 is implemented; runtime selection and trial confirmation remain explicit caller actions. |
 | Calculation Lab Command | `salah-cli` | Runs named-zone local schedules, emits shared JSON, lists supported zones, and retains the historical fixed-offset interface. Stored packages are still Rust-API-only. |
-| Browser Engine Bridge | `salah-wasm` | Validates bounded requests, exposes shared schedules/inventory, and derives zone suggestions and selected-zone dates from supplied inputs. |
+| Shared Engine Bridge | `salah-bridge` | Strict bounded JSON operations used unchanged by native and browser adapters. |
+| Browser Engine Bridge | `salah-wasm` | Thin WASM exports of shared schedule, lookup and selected-zone clock operations. |
+| Apple Engine Bridge | `salah-ffi` | C ABI 1: borrowed bounded UTF-8 input, opaque Rust-owned responses, exact release function. |
+| Apple Schedule Screen | `apps/apple` | Native SwiftUI research app with embedded Rust/data and optional one-shot Core Location. Simulator evidence recorded; physical/Store acceptance open. |
 | First Schedule Screen | `apps/web` | Local worker calculation, automatic setup, explicit choice, provenance download, and opt-in saved public app package; browser acceptance pending. |
 
 ## How to name work
@@ -49,10 +56,12 @@ Use **phase → workstream → piece**, followed by a plain name in every handof
 | F3-C1 | Named-Timezone Command and Schedule Document | Implemented; native build/static checks; focused acceptance evidence remains open. |
 | F3-W1 | WebAssembly Bridge and First Schedule Screen | Implemented; native/WASM builds and direct module use; browser acceptance pending. |
 | F3-W2 | Browser Reliability and Offline Loading | Hash-checked saved public package implemented; browser restart/update/eviction, accessibility, and interaction acceptance open. |
+| F3-A1 | Apple Native Foundation | Device/Simulator builds and six complete cross-target records pass; global portability gate remains open. |
+| F4-A1 | One-Shot Apple Location | Foreground adapter and native form implemented; physical radio-off and native accessibility/interaction acceptance open. Draft privacy manifest has a linked-Rust metadata blocker. |
 | F4-C1 | Location and Choice Clarity | Implemented; JavaScript syntax, diff, and contract wording checked. Browser interaction/accessibility and real-device location review remain open. No phase gate is advanced. |
 | F4-C2 | Offline Setup: Timezone Suggestion and Device Date | Implemented additive Rust operations and automatic filling; confirmation/manual correction retained. Native/WASM static build evidence, with browser/device acceptance open. |
 
-Phase 1 (accuracy and method integrity) and Phase 2 remain open. High-latitude alternatives, Qibla, broader independent comparisons, portable bindings, and user apps remain on the roadmap. A working update subsystem does not settle those other gates.
+Phase 1 (accuracy and method integrity) and Phase 2 remain open. High-latitude alternatives, Qibla, broader independent comparisons, Android and consumer app acceptance remain on the roadmap. A working update subsystem or native shell does not settle those other gates.
 
 ## Source discipline
 

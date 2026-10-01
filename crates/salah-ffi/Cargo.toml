@@ -1,0 +1,13 @@
+[package]
+name = "salah-ffi"
+version = "0.1.0"
+edition.workspace = true
+rust-version = "1.88"
+description = "Owned C ABI for the offline Salah JSON bridge"
+publish = false
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+salah-bridge = { path = "../salah-bridge" }

@@ -20,7 +20,7 @@
 
 | Choice | Current position | Revisit when |
 | --- | --- | --- |
-| Mobile interface | Flutter is a candidate, not a dependency of the Rust engine. | After a small Rust binding probe and accessibility review. |
+| Apple interface | [F3-A1/F4-A1](../specification/apple-foundation-v0.1.md) uses native SwiftUI, iOS 17+, with a static Rust C ABI/XCFramework. One shared strict JSON bridge serves Swift and WASM; no UI prayer mathematics. | Native controls/accessibility and physical offline positioning acceptance; Android UI remains undecided. |
 | Web interface | Rust-to-WASM with a responsive client is the leading approach. | After checking offline, browser, and deployment behavior. |
 | First time input | Explicit fixed UTC offset for the initial research CLI; IANA zone support is required before claiming global civil-time accuracy. | At the Phase 2 civil-time milestone (see roadmap.md Phase 2). |
 | First method profile | `research-15` uses 15° Fajr and Isha angles with zero adjustments. It carries no institutional attribution. | Replace or supplement only after source and scholarly review. |

@@ -24,9 +24,9 @@ Our hope is to offer something useful with care: prayer times people can underst
 
 ## Where we are today
 
-**As of 1 October 2026: the Rust research engine and local web preview are being built and checked.** The preview now suggests a timezone from its embedded map, fills today's date in the confirmed location zone, and offers a saved browser package for offline reopening. Optional device location and plain-language calculation choices remain. Mobile applications and a consumer web release are still ahead. Phase 1 accuracy/methodology and Phase 2 civil-time gates remain open.
+**As of 1 October 2026: the Rust research engine, local web preview, and first native iPhone/iPad development app are built.** They use the same engine and bundled data. The Apple app compiles for device and Simulator; six complete schedule records match the CLI and WebAssembly. Physical iPhone offline-location testing, native usability and consumer releases remain ahead. Phase 1 accuracy/methodology and Phase 2 civil-time gates remain open.
 
-**Latest pieces:** Phase 4 → **F4-C2: Offline Setup — Timezone Suggestion and Device Date**; Phase 3 → **F3-W2: Saved App Package**. Browser/device and offline lifecycle acceptance remain pending.
+**Latest pieces:** Phase 3 → **F3-A1: Apple Native Foundation**; Phase 4 → **F4-A1: One-Shot Apple Location**. [Build the Apple preview](apps/apple/README.md). The web preview's offline setup and saved package remain available.
 
 The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
 
@@ -36,7 +36,7 @@ That same engine builds into WebAssembly. The local browser screen is a quiet pl
 
 If you choose device location, the browser asks once and displays the provider's uncertainty. A compass supplies direction, not coordinates. A GNSS receiver can work without internet, but hardware and platform access differ; this browser API cannot certify which source was used or that no network was involved. Salah calls no remote prayer or location service. Browser/device review remains ahead.
 
-The whole operating idea is kept in the [offline product contract](docs/offline-product-contract.md): one local engine, bundled essential data, automatic setup where readings are usable, and clear correction when they are missing or uncertain. A saved browser copy can reopen with its engine files offline; a native package and GNSS adapter remain planned. We want daily use to stay available when a server disappears.
+The whole operating idea is kept in the [offline product contract](docs/offline-product-contract.md): one local engine, bundled essential data, automatic setup where readings are usable, and clear correction when they are missing or uncertain. A saved browser copy can reopen with its engine files offline; the new Apple binary bundles them at installation. Optional Apple location is bounded and shows uncertainty, while manual inputs remain usable. We want daily use to stay available when a server disappears.
 
 We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
 
@@ -57,12 +57,21 @@ We have built signed timezone-update storage with restart recovery. The new runt
 | **Calculation Lab Command** | Named-zone local schedules, optional versioned JSON, supported-zone listing, and the earlier fixed-offset research interface. |
 | **Browser Bridge and First Screen** | A strict JSON-to-Rust WebAssembly boundary, worker-based local schedule preview, event explanations, and JSON download. Browser acceptance remains pending. |
 | **Offline Setup and Saved Package** | Embedded coordinate-to-zone suggestions, selected-zone date from the device UTC clock, and opt-in hash-checked public app caching. Browser restart/update/eviction acceptance remains pending. |
+| **Apple App and Native Bridge** | SwiftUI iPhone/iPad research app, static Rust C ABI, bundled engine/data, searchable zones, native date control and optional one-shot location. Six cross-target records match; physical-device/Store acceptance remains open. |
 
 Published checkpoint [1be80bc](https://github.com/ShoaibsProjects/Salah/commit/1be80bc) passed **100 Rust tests**, six pack-validator tests, formatting/lint checks, and GitHub CI. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test.
 
 The runtime and new interface slices have local build and static checks. No new tests were added or run locally for the interface, as requested for this build. Focused acceptance cases for the interface and alternative snapshots remain open; the earlier checkpoint's counts are prior evidence. See the [runtime contract](specification/runtime-rule-snapshot-v0.1.md) and [interface contract](specification/named-zone-interface-contract-v0.1.md).
 
 These checks are engineering evidence. Independent scientific and Islamic-methodology review remain necessary.
+
+The Apple foundation adds four shared-boundary checks and two C ABI checks;
+the current suite passes 106 Rust tests plus one documentation test, with the
+same intentionally ignored subprocess helper. Unsigned iPhone/Simulator builds
+and six CLI/WASM/iOS Simulator record comparisons pass. The linked Rust panic
+diagnostics leave an Apple metadata/privacy declaration unresolved, so the
+manifest is a development draft and Store distribution is blocked. See the
+[Apple evidence and next steps](apps/apple/README.md).
 
 The original WebAssembly slice built with the pinned compiler/binding generator and had one direct module use in Node.js. Its earlier approximately 726 KB WASM did not expose the boundary lookup. The new offline setup build includes that global geometry: WASM is about 4.9 MB and the public saved inventory about 5.7 MB before compression. Native builds/lints, WASM generation, and JavaScript syntax checks are recorded. No new tests were added or run locally. Build evidence does not complete browser/device or offline lifecycle acceptance. See the [bridge](specification/wasm-bridge-contract-v0.1.md) and [offline setup](specification/offline-setup-contract-v0.1.md) contracts.
 
@@ -89,7 +98,7 @@ This repository is a **research preview**, with no institutionally endorsed or p
 
 - Known questions remain around near-grazing horizon comparisons, Asr model/solver differences, and polar-night Asr policy. [The Phase 1 gate report](specification/phase-1-gate-report-v0.1.md) records the evidence and open questions.
 - The kernel currently uses a sea-level horizon model, UTC as a practical approximation to UT1, and dates from 1900–2100. Terrain, elevation, and local atmospheric conditions are not modeled.
-- High-latitude alternatives, Qibla, Islamic calendar features, mobile interfaces/bindings, notifications, and a consumer web release remain ahead. The first WASM bridge/local screen is a research preview.
+- High-latitude alternatives, Qibla, Islamic calendar features, Android, notifications, and consumer releases remain ahead. The Apple and web clients are research previews; physical radio-off Apple positioning and Store/privacy acceptance are open.
 - Available profiles are `research-15` and `mwl-angles-18-17`. The first is an engineering profile; the second records a published secondary parameter set. Neither is a universal default or institutional endorsement. See the [method register](specification/method-register-v1.md).
 - Timezone boundary data is approximate. Independent transition checks cover selected locations; a large zone inventory does not establish accuracy everywhere.
 - Signed update storage is a Unix prototype. The explicit runtime path is implemented with acceptance evidence pending. Production signing stewardship, platform integration, and automatic activation remain unfinished.

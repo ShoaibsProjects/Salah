@@ -6,7 +6,6 @@ use salah_location::{CandidateCardinality, lookup_timezone_candidates};
 use salah_time::RuntimeZone;
 use serde::Deserialize;
 use serde_json::{Value, json};
-use wasm_bindgen::prelude::*;
 
 use crate::{BridgeError, MAX_REQUEST_BYTES, error};
 
@@ -49,7 +48,6 @@ fn envelope(schema: &str, field: &str, result: Result<Value, BridgeError>) -> St
 
 /// Return every bundled-map suggestion. A unique match still needs explicit
 /// confirmation, and does not certify the receiver's accuracy footprint.
-#[wasm_bindgen]
 pub fn lookup_timezone_json(request_json: &str) -> String {
     let result = (|| {
         let request: LookupRequest = parse(request_json)?;
@@ -89,7 +87,6 @@ pub fn lookup_timezone_json(request_json: &str) -> String {
 
 /// Derive the selected zone's Gregorian date from a supplied UTC instant using
 /// the pinned Rust rules. Caller clock accuracy is neither inferred nor proved.
-#[wasm_bindgen]
 pub fn local_clock_json(request_json: &str) -> String {
     let result = (|| {
         let request: ClockRequest = parse(request_json)?;
