@@ -24,13 +24,15 @@ Our hope is to offer something useful with care: prayer times people can underst
 
 ## Where we are today
 
-**As of 30 September 2026: the Rust research engine is being built and checked.** Mobile and web applications are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
+**As of 30 September 2026: the Rust research engine and first local web preview are being built and checked.** Mobile applications and a consumer web release are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
 
-**Latest build:** Phase 3: Portable Calculation Platform → Engine Interface → **F3-C1: Named-Timezone Command and Schedule Document**.
+**Latest build:** Phase 3: Portable Calculation Platform → Browser Bridge → **F3-W1: WebAssembly Engine and First Schedule Screen**.
 
 The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
 
 You can now use that local schedule from the terminal: choose a location, date, timezone, method, and Asr setting. The command prints the times with their local dates and UTC instants. It can also return a shared JSON document for the apps we build next. Your explicit timezone choice works without consulting the boundary map.
+
+That same engine now builds into WebAssembly. The first local browser screen is a quiet place to make your choices, read the returned schedule, and open an event to see why that time was calculated. The module has produced a schedule through its generated JavaScript bridge; browser visual/interaction review and durable offline installation remain ahead.
 
 We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
 
@@ -49,12 +51,15 @@ We have built signed timezone-update storage with restart recovery. The new runt
 | **Update Authentication** | Signature, integrity, inventory, and compatibility checks for candidate timezone packs under a pinned public key. |
 | **Update Storage and Recovery** | A Unix prototype for signed archives, trial selection, confirmation, restart recovery, and update replay/downgrade checks. |
 | **Calculation Lab Command** | Named-zone local schedules, optional versioned JSON, supported-zone listing, and the earlier fixed-offset research interface. |
+| **Browser Bridge and First Screen** | A strict JSON-to-Rust WebAssembly boundary, worker-based local schedule preview, event explanations, and JSON download. Browser acceptance remains pending. |
 
 Published checkpoint [1be80bc](https://github.com/ShoaibsProjects/Salah/commit/1be80bc) passed **100 Rust tests**, six pack-validator tests, formatting/lint checks, and GitHub CI. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test.
 
 The runtime and new interface slices have local build and static checks. No new tests were added or run locally for the interface, as requested for this build. Focused acceptance cases for the interface and alternative snapshots remain open; the earlier checkpoint's counts are prior evidence. See the [runtime contract](specification/runtime-rule-snapshot-v0.1.md) and [interface contract](specification/named-zone-interface-contract-v0.1.md).
 
 These checks are engineering evidence. Independent scientific and Islamic-methodology review remain necessary.
+
+The new WebAssembly slice builds with the pinned compiler and binding generator; its generated WASM was about 726 KB before compression. One direct module use in Node.js produced a schedule. Native builds/lints and JavaScript syntax checks are recorded. No new tests were added or run locally. The in-app browser timed out while opening the local server, so this is not a completed browser or cross-target acceptance review. See the [bridge contract](specification/wasm-bridge-contract-v0.1.md).
 
 </details>
 
@@ -78,7 +83,7 @@ This repository is a **research preview**, with no institutionally endorsed or p
 
 - Known questions remain around near-grazing horizon comparisons, Asr model/solver differences, and polar-night Asr policy. [The Phase 1 gate report](specification/phase-1-gate-report-v0.1.md) records the evidence and open questions.
 - The kernel currently uses a sea-level horizon model, UTC as a practical approximation to UT1, and dates from 1900–2100. Terrain, elevation, and local atmospheric conditions are not modeled.
-- High-latitude alternatives, Qibla, Islamic calendar features, mobile/web interfaces, notifications, and portable bindings remain ahead.
+- High-latitude alternatives, Qibla, Islamic calendar features, mobile interfaces/bindings, notifications, and a consumer web release remain ahead. The first WASM bridge/local screen is a research preview.
 - Available profiles are `research-15` and `mwl-angles-18-17`. The first is an engineering profile; the second records a published secondary parameter set. Neither is a universal default or institutional endorsement. See the [method register](specification/method-register-v1.md).
 - Timezone boundary data is approximate. Independent transition checks cover selected locations; a large zone inventory does not establish accuracy everywhere.
 - Signed update storage is a Unix prototype. The explicit runtime path is implemented with acceptance evidence pending. Production signing stewardship, platform integration, and automatic activation remain unfinished.
@@ -123,6 +128,22 @@ Supported Asr criteria are `standard` and `hanafi`. Add `--display-minute` for t
 
 </details>
 
+### Open the local browser preview
+
+Build tools are needed once; calculation then runs in the local Rust/WASM module. Use Python 3.11+:
+
+```bash
+rustup target add wasm32-unknown-unknown --toolchain 1.98.1
+cargo fetch --locked
+cargo install --locked wasm-bindgen-cli --version 0.2.129
+python3 tools/build_web.py
+python3 -m http.server 8080 --bind 127.0.0.1 --directory apps/web
+```
+
+Open **http://127.0.0.1:8080** in a current browser. Choose your settings, or explicitly fill the labeled research example, then calculate. No coordinates are uploaded and no remote prayer API is called. Every time displayed comes from the Rust document; local dates are preserved.
+
+This preview needs its local HTTP server for initial asset loading. Installable offline startup and cache updates are future work. GitHub Actions also builds a downloadable `salah-web-research-preview` archive; preserve its data and library notices. The project source license and production release review remain open.
+
 ### Run the checks
 
 ```bash
@@ -147,6 +168,8 @@ salah-engine        schedule composition, data notices, shared JSON
 salah-update        signed candidate verification
 salah-update-store  local archives, trial selection, and recovery
 salah-cli           named-zone schedules, JSON, fixed-offset lab
+salah-wasm          bounded explicit JSON bridge to the same engine
+apps/web            local worker-based schedule preview
 ```
 
 Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and the [accuracy budget](specification/accuracy-budget.md). Preserve historical contracts and reference evidence when changing behavior.
@@ -169,6 +192,7 @@ Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and
 - [Local repository and recovery](specification/rule-pack-repository-v0.1.md)
 - [Verified runtime snapshot](specification/runtime-rule-snapshot-v0.1.md)
 - [Named-zone command and schedule document](specification/named-zone-interface-contract-v0.1.md)
+- [WebAssembly bridge and first browser screen](specification/wasm-bridge-contract-v0.1.md)
 
 </details>
 

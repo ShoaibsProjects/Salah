@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Salah — Prayer, with clarity and care</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <a class="wordmark" href="./" aria-label="Salah home"><span class="mark" aria-hidden="true">✳</span> salah<span class="wordmark-dot">.</span></a>
+      <span class="edition">ENGINE PREVIEW <span aria-hidden="true">/</span> 01</span>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">ASSALAMU ALAIKUM. YOU ARE WELCOME HERE.</p>
+          <h1 id="page-title">Make space<br>for <em>salah.</em></h1>
+          <p class="intro-copy">A quiet beginning. Prayer times calculated on your device, with the choices behind each time kept clear.</p>
+        </div>
+        <aside class="intention">
+          <div class="orbit" aria-hidden="true"><span></span></div>
+          <p>Wherever life takes you,<br>may you find time to return.</p>
+          <span class="small-label">PRIVATE CALCULATION · NO ACCOUNT</span>
+        </aside>
+      </section>
+      <div class="workspace">
+        <section class="selection" aria-labelledby="selection-title">
+          <p class="eyebrow">01 / YOUR CHOICES</p>
+          <h2 id="selection-title">A place.<br>A day. A method.</h2>
+          <p class="muted">Choose each setting explicitly. Your timezone is a manual choice; we do not infer it from your device.</p>
+          <form id="schedule-form">
+            <div class="field-pair">
+              <label>Latitude <span class="field-unit">degrees</span><input name="latitude_degrees" type="number" step="any" min="-90" max="90" placeholder="44.9778" required></label>
+              <label>Longitude <span class="field-unit">degrees</span><input name="longitude_degrees" type="number" step="any" min="-180" max="180" placeholder="−93.2650" required></label>
+            </div>
+            <label>Gregorian date<input name="local_date" type="date" min="1900-01-01" max="2100-12-31" required></label>
+            <label>Time zone<input name="zone_id" list="zone-list" placeholder="America/Chicago" autocomplete="off" maxlength="255" aria-describedby="zone-help" required></label>
+            <datalist id="zone-list"></datalist>
+            <p id="zone-help" class="field-help">Choose a supported IANA name for this location.</p>
+            <label>Calculation profile<select name="method_id" required aria-describedby="method-help"><option value="">Choose a profile</option><option value="mwl-angles-18-17">MWL angles · 18° / 17°</option><option value="research-15">Research 15° · engineering only</option></select></label>
+            <p id="method-help" class="field-help">These are research parameter sets. No regional default or institutional endorsement is implied.</p>
+            <label>Asr criterion<select name="asr" required><option value="">Choose a criterion</option><option value="standard">Standard · shadow factor 1</option><option value="hanafi">Hanafi · shadow factor 2</option></select></label>
+            <button id="calculate" class="primary-button" type="submit" disabled>Calculate my schedule <span aria-hidden="true">↗</span></button>
+            <button id="example" class="text-button" type="button">Fill a Minneapolis research example</button>
+            <p id="example-note" class="field-help" hidden>Example: 30 September 2026, MWL angles and Hanafi Asr. This is an explicit research configuration, not a recommended local default.</p>
+          </form>
+          <p id="engine-state" class="engine-state" role="status">Loading the local Rust engine…</p>
+        </section>
+        <section class="schedule" aria-labelledby="schedule-title">
+          <div class="schedule-heading"><p class="eyebrow">02 / YOUR SCHEDULE</p><span class="preview-tag">RESEARCH PREVIEW</span></div>
+          <h2 id="schedule-title">Your day,<br>with clarity.</h2>
+          <p id="schedule-context" class="muted">Your calculated schedule will appear here.</p>
+          <p id="notice" class="notice" role="status" hidden></p>
+          <p id="error" class="error" role="alert" hidden></p>
+          <div id="empty" class="empty-state"><span class="empty-sun" aria-hidden="true">☼</span><p>Begin with your choices.<br>We will keep the details close.</p><span class="small-label">NO LOCATION IS UPLOADED</span></div>
+          <div id="results"></div>
+          <details id="provenance" class="provenance" hidden><summary>The choices behind this schedule</summary><div id="provenance-body"></div><button id="download" class="text-button" type="button">Download the complete JSON record ↓</button></details>
+          <p class="research-note">This engine is under development. Independent accuracy and Islamic-methodology review remain open. Calculated beginnings, mosque timetables, and iqamah are distinct; high-latitude alternatives are not applied in this preview.</p>
+        </section>
+      </div>
+    </main>
+    <footer><span>Prayer, with clarity and care. <a href="./THIRD-PARTY.md">Data &amp; library notices</a></span><span>Built with intention. May Allah place barakah in this work.</span></footer>
+  </div>
+  <noscript>This preview needs JavaScript and WebAssembly to run the Rust engine locally. The offline command-line engine is also available in the Salah repository.</noscript>
+</body>
+</html>

@@ -17,3 +17,22 @@ jobs:
         run: cargo clippy --locked --offline --workspace --all-targets -- -D warnings
       - name: Check reference cases
         run: cargo test --locked --offline --workspace
+
+  web-build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install WebAssembly target
+        run: rustup target add wasm32-unknown-unknown
+      - name: Fetch locked build dependencies
+        run: cargo fetch --locked
+      - name: Install matching binding generator
+        run: cargo install --locked wasm-bindgen-cli --version 0.2.129
+      - name: Build local browser artifact
+        run: python3 tools/build_web.py
+      - name: Archive the research preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: salah-web-research-preview
+          path: apps/web/
+          retention-days: 14
