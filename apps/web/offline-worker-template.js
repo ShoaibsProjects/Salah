@@ -24,7 +24,7 @@ async function fillCache() {
   let total = 0;
   const paths = new Set();
   for (const entry of manifest.entries) {
-    if (typeof entry.path !== "string" || !/^[A-Za-z0-9._/-]+$/.test(entry.path)
+    if (typeof entry.path !== "string" || !/^[A-Za-z0-9._+/-]+$/.test(entry.path)
         || entry.path.startsWith("/") || entry.path.split("/").some(part => !part || part === "." || part === "..")
         || !/^[a-f0-9]{64}$/.test(entry.sha256) || !Number.isSafeInteger(entry.bytes) || entry.bytes < 0
         || paths.has(entry.path)) throw new Error("Invalid offline package inventory.");

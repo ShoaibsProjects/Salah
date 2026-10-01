@@ -44,13 +44,12 @@
               <label>Latitude <span class="field-unit">degrees</span><input name="latitude_degrees" type="number" step="any" min="-90" max="90" placeholder="44.9778" required></label>
               <label>Longitude <span class="field-unit">degrees</span><input name="longitude_degrees" type="number" step="any" min="-180" max="180" placeholder="−93.2650" required></label>
             </div>
-            <label>Time zone<input name="zone_id" list="zone-list" placeholder="America/Chicago" autocomplete="off" maxlength="255" aria-describedby="zone-help" required></label>
-            <datalist id="zone-list"></datalist>
-            <p id="zone-help" class="field-help" role="status">Timezone suggestions use bundled data and require no lookup service.</p>
+            <label>Time zone<select name="zone_id" aria-describedby="zone-help" required><option value="">Choose a time zone</option></select></label>
+            <p id="zone-help" class="field-help" role="status">Open the list to choose from the embedded time zones. Type the first letters to jump to a name. Coordinates can suggest one automatically.</p>
             <label class="check-label"><input id="zone-confirmed" type="checkbox" required> This timezone applies to my selected location.</label>
-            <label class="check-label"><input id="device-today" type="checkbox" checked> Use today's date from my device clock.</label>
+            <label class="check-label"><input id="device-today" type="checkbox" checked> Use today's date automatically.</label>
             <label>Gregorian date<input name="local_date" type="date" min="1900-01-01" max="2100-12-31" aria-describedby="date-help" required></label>
-            <p id="date-help" class="field-help" role="status">Confirm the timezone first. Today's date is then derived by the Rust engine; you can also choose a date manually.</p>
+            <p id="date-help" class="field-help" role="status">Confirm the timezone first. The Rust engine fills today in that zone. Pick or type another date here to switch to manual date.</p>
             <label>Fajr and Isha calculation<select name="method_id" required aria-describedby="method-help"><option value="">Choose a profile</option><option value="mwl-angles-18-17">Published sun angles · 18° / 17° (MWL table)</option><option value="research-15">15° / 15° · engineering comparison</option></select></label>
             <p id="method-help" class="field-help" aria-live="polite">Choose the calculation convention used by your community. The Sun-angle choices give estimated Fajr and Isha beginnings; there is no universal selection here.</p>
             <label>Asr calculation<select name="asr" required aria-describedby="asr-help"><option value="">Choose an Asr criterion</option><option value="standard">Standard · one extra object-height</option><option value="hanafi">Hanafi · two extra object-heights</option></select></label>

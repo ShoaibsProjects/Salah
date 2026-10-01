@@ -14,11 +14,10 @@ export class OfflineSetup {
     this.lookupWhenReady = false;
     this.candidates = null;
     this.dateCapture = { source: "not_selected" };
-    this.date.readOnly = true;
     for (const name of ["latitude_degrees", "longitude_degrees"]) {
       form.elements.namedItem(name).addEventListener("input", () => this.coordinatesChanged());
     }
-    this.zone.addEventListener("input", () => {
+    this.zone.addEventListener("change", () => {
       clearTimeout(this.lookupTimer);
       this.lookupWhenReady = false;
       this.revision++;
@@ -35,11 +34,15 @@ export class OfflineSetup {
     this.todayMode.addEventListener("change", () => {
       this.revision++;
       this.invalidate();
-      this.date.readOnly = this.todayMode.checked;
       if (this.todayMode.checked) this.previewToday(); else this.manualDate();
     });
     this.date.addEventListener("input", () => {
-      if (!this.todayMode.checked) this.manualDate();
+      if (this.todayMode.checked) {
+        this.todayMode.checked = false;
+        this.revision++;
+        this.invalidate();
+      }
+      this.manualDate();
     });
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden && this.todayMode.checked && this.confirm.checked) this.previewToday();
@@ -180,7 +183,6 @@ export class OfflineSetup {
     this.candidates = null;
     this.confirm.checked = true;
     this.todayMode.checked = false;
-    this.date.readOnly = false;
     this.dateCapture = { source: "example_date", local_date: this.date.value };
     this.dateHelp.textContent = "Using the labeled research example date. Enable today's date to use your device clock.";
     this.zoneHelp.textContent = "Timezone explicitly selected by the labeled research example. This is not a regional method recommendation.";
