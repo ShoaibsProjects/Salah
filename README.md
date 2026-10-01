@@ -1,153 +1,172 @@
-<div align="center">
+<p align="center">
+  <img src="docs/assets/salah-welcome.svg" alt="Salah — prayer, with clarity and care. Assalamu alaikum." width="1000">
+</p>
 
-# Salah
+<p align="center">
+  <a href="#a-place-for-salah-in-everyday-life">Everyday life</a> ·
+  <a href="#the-care-we-want-to-offer">Our intention</a> ·
+  <a href="#being-built-with-care">Our progress</a> ·
+  <a href="#technical-details">Technical details</a>
+</p>
 
-*Prayer, with clarity and care.*
+## You are welcome here
 
-Assalamu alaikum — you are welcome here.
+Assalamu alaikum wa rahmatullah.
 
-[Our intention](#our-intention) · [Our progress](#where-we-are-today) · [For builders](#try-the-engine)
+Perhaps you are at home, planning the day ahead. Perhaps you have just arrived in a city where everything feels unfamiliar. Perhaps you are somewhere peaceful, with no signal, and would simply like to know the prayer times for the place you have chosen.
 
-</div>
+Salah is being built with these ordinary moments in mind: a gentle way to find prayer-time information, understand the choices behind it, and carry it with you.
 
-## Welcome
-
-Thank you for stopping by. Salah is a small effort to make prayer-time information clear, private, and available wherever life takes you.
-
-At home or on a journey, we hope it becomes a quiet, useful companion. You do not need to understand the technology to be part of this work. Your questions, experience, and care for your community are welcome too.
+We hope to make the practical part a little easier, leaving you more space for what matters to you in prayer. You are welcome whether you know your local timetable well or are still learning how to read one.
 
 > I am God; there is no god but Me. So worship Me and keep up the prayer so that you remember Me.
 >
 > — Qur’an [20:14](https://quran.com/20/14), translation by Muhammad A. S. Abdel Haleem
 
-Our hope is to offer something useful with care: prayer times people can understand, privacy they can keep, and room for the different scholarly practices of their communities.
+<p align="center"><img src="docs/assets/salah-divider.svg" alt="" width="1000"></p>
 
-## Where we are today
+## A place for salah in everyday life
 
-**As of 1 October 2026: the Rust research engine, local web preview, and first native iPhone/iPad development app are built.** They use the same engine and bundled data. The Apple app compiles for device and Simulator; six complete schedule records match the CLI and WebAssembly. Physical iPhone offline-location testing, native usability and consumer releases remain ahead. Phase 1 accuracy/methodology and Phase 2 civil-time gates remain open.
+These are the situations we are designing for. **Salah is currently a development preview, with independent review still ahead.** The sections below describe the experience we hope to offer; they are not a claim that every feature or situation is ready today.
 
-**Latest pieces:** Phase 3 → **F3-A1: Apple Native Foundation**; Phase 4 → **F4-A2: Offline Places and iPhone 12 Compatibility**. [Build the Apple preview](apps/apple/README.md). The web preview's offline setup and saved package remain available.
+### At home, before the day becomes busy
 
-The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
+A morning with family. A day of study. A shift at work. Knowing the day's prayer times can help you make room for prayer among your responsibilities.
 
-You can now use that local schedule from the terminal: choose a location, date, timezone, method, and Asr setting. The command prints the times with their local dates and UTC instants. It can also return a shared JSON document for the apps we build next. Your explicit timezone choice works without consulting the boundary map.
+In the Apple preview, you can save a place and your chosen settings after calculating a schedule. When you return, it uses that saved place to calculate the new day. There is no need to repeat the location search each time. If you have travelled, choose your new place so the displayed schedule follows your intended location.
 
-That same engine builds into WebAssembly. The local browser screen is a quiet place to read a schedule and see why each time was calculated. Coordinates feed the embedded timezone map; a single suggestion fills automatically, with one confirmation because the map is approximate. Rust converts the device's UTC clock into today's date for that location. Manual correction is always available, and method/Asr choices remain yours.
+### Arriving somewhere unfamiliar
 
-If you choose device location, the browser asks once and displays the provider's uncertainty. A compass supplies direction, not coordinates. A GNSS receiver can work without internet, but hardware and platform access differ; this browser API cannot certify which source was used or that no network was involved. Salah calls no remote prayer or location service. Browser/device review remains ahead.
+After a long journey, even a simple task can feel like one more thing to figure out. We want choosing your destination to be straightforward.
 
-The whole operating idea is kept in the [offline product contract](docs/offline-product-contract.md): one local engine, bundled essential data, automatic setup where readings are usable, and clear correction when they are missing or uncertain. A saved browser copy can reopen with its engine files offline; the new Apple binary bundles them at installation. On iPhone 12 and newer with iOS 17+, choose a city offline or save a place for a quieter next visit. Optional device location is bounded and shows uncertainty; manual inputs remain available. City points are approximate and travel needs a new location choice. We want daily use to stay available when a server disappears.
+The Apple preview includes city search that works without internet. You can choose a city by name and check its timezone. A city point is approximate; where a usable device location is available, it can help refine your position. You can also correct the location yourself.
 
-We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
+A destination's daily schedule is useful for planning your stay. Prayer while aboard an aircraft or ship can involve different circumstances; this preview does not yet offer an in-transit prayer mode or determine the religious rulings for your journey.
 
-[See what we are building now](docs/current-work.md) · [Follow the roadmap](docs/roadmap.md)
+### When there is no connection
+
+A rural visit, a walk away from town, a weak signal, or simply a day with mobile data switched off: access should remain possible.
+
+Once the complete Apple app is installed, its city search, saved places and calculations work without an internet connection. Prepare your place before leaving when you can. A new device location may still be unavailable, particularly indoors; a saved place is useful when it still matches where you are.
+
+Offline availability does not remove the need for a correct device date, an appropriate location or occasional updates. We will keep those limits visible and make correction as simple as we can.
+
+### Learning what the times mean
+
+It is reasonable to ask why two timetables differ. A calculation setting, a different Asr practice, or a mosque's congregation time can change what you see.
+
+Salah explains the selected calculation and Asr choices in ordinary language. We want you to be able to ask, **“Why this time?”**, and find an understandable answer, with more detail available if you want it.
+
+The choice belongs to you and the guidance you follow. We welcome questions without assuming that everyone begins with the same knowledge.
+
+### Alongside your mosque and community
+
+A mosque may publish a prayer timetable and separate congregation times. Those serve a different purpose from a calculated prayer beginning.
+
+Salah aims to make that distinction clear and respect the established practices of different communities. If you follow a trusted local mosque, its guidance remains important—especially where local conditions or differing scholarly practices need explanation. Mosque timetable integration is planned; it is not available in the present preview.
+
+### Helping someone you love
+
+Perhaps you are helping a parent set up a phone, showing a friend how to choose a city, or making the screen easier to read together.
+
+We want a small number of clear choices, legible words and explanations that can be read patiently. Older users, people using screen readers and people reading in different languages deserve the same care. Accessibility and language work remain part of the journey ahead, and your experience can help us improve them.
+
+## The care we want to offer
+
+**A quiet experience.** We want the useful information to be easy to find, with room to read and without pressure to keep opening the app.
+
+**Privacy you can choose.** You can choose a place without requesting device location. Salah sends no coordinates to a prayer or location server. In the Apple preview, saving a place is your choice, and saved copies can be deleted.
+
+**Everyday access without a subscription.** Free core use is our intention. No account or paid prayer-time service is required by the current calculation. Keeping the project useful for years will still need people, responsible maintenance and sustainable support.
+
+**Respect for your practice.** A place does not decide your calculation method or Asr choice. Different communities deserve clear explanations and qualified review, without one setting being presented as the only religious truth.
+
+**Honesty when something is uncertain.** If a selected solar condition does not occur, the preview explains that a time is unavailable. It does not quietly substitute a guess. Some regions need qualified local guidance and a separately reviewed approach.
+
+**Care that can continue.** Our ambition reaches toward 2050 and beyond: useful prayer-time information that people can keep using and maintaining. That is a commitment to ongoing work, not a promise that today's unchanged application will remain correct forever.
+
+<p align="center"><img src="docs/assets/salah-divider.svg" alt="" width="1000"></p>
+
+## Being built with care
+
+**As of 1 October 2026, Salah has working development previews for Apple devices and the browser.** The Apple preview includes offline city search, optional device location, saved places, date selection, prayer calculations and explanations of the choices behind them.
+
+It is **not yet an App Store release or an independently approved prayer timetable**. Real-phone checks, accessibility work and independent astronomical and Islamic-methodology review remain open. Please continue using trusted prayer-time guidance while this work is being reviewed.
+
+Qibla guidance, reminders and adhan, mosque timetables, an Islamic calendar, more languages and Android are still ahead. We will describe them as available when they are actually built and reviewed.
+
+If you would like to help, you do not need to arrive with a perfect answer. Tell us where an explanation was unclear, what was difficult to read, or what a person in your community would need. Careful questions are valuable. Qualified reviewers, translators, accessibility specialists and engineers are welcome too.
+
+[Share a question or experience](https://github.com/ShoaibsProjects/Salah/issues)
+
+## Technical details
+
+The engineering material lives here so the welcome above can stay focused on people. **Current piece: Phase 4 → F4-A2, Offline Places and iPhone 12 Compatibility.** The [roadmap](docs/roadmap.md) owns phase gates; the [current-work record](docs/current-work.md) explains implemented scope and next steps.
 
 <details>
-<summary>The engine pieces and recorded checks</summary>
+<summary><strong>Explore the engineering, evidence and build instructions</strong></summary>
 
+### Architecture and supported targets
 
-| Part | What exists |
+| Component | Implemented research scope |
 | --- | --- |
-| **Prayer Kernel** | Dependency-free Rust calculations for Fajr, sunrise, Dhuhr, Asr, Maghrib, Isha, and sunset; UTC results and explicit unavailable events. |
-| **Civil Clock** | An embedded IANA 2026d pack with 598 named zones; DST, date changes, skipped dates, and local schedule conversion. |
-| **Location and Zone Choice** | Approximate offline timezone suggestions, with explicit confirmation or manual choice. |
-| **Schedule Composer** | A Rust API combining an explicit location, selected zone, date, method, and Asr criterion. |
-| **Update Authentication** | Signature, integrity, inventory, and compatibility checks for candidate timezone packs under a pinned public key. |
-| **Update Storage and Recovery** | A Unix prototype for signed archives, trial selection, confirmation, restart recovery, and update replay/downgrade checks. |
-| **Calculation Lab Command** | Named-zone local schedules, optional versioned JSON, supported-zone listing, and the earlier fixed-offset research interface. |
-| **Browser Bridge and First Screen** | A strict JSON-to-Rust WebAssembly boundary, worker-based local schedule preview, event explanations, and JSON download. Browser acceptance remains pending. |
-| **Offline Setup and Saved Package** | Embedded coordinate-to-zone suggestions, selected-zone date from the device UTC clock, and opt-in hash-checked public app caching. Browser restart/update/eviction acceptance remains pending. |
-| **Apple App and Native Bridge** | SwiftUI iPhone/iPad research app, static Rust C ABI, bundled engine/data, searchable zones, native date control, optional one-shot location, offline city search and opt-in saved places. Six cross-target records match; physical-device/Store acceptance remains open. |
+| `salah-core` | Dependency-free Rust solar/prayer kernel; typed UTC events and explicit unavailable states. No AI-generated times. |
+| `salah-time` | Bundled IANA 2026d rules for 598 named zones; local-date cycles, skipped dates, DST and event conversion. |
+| `salah-location` / `salah-engine` | Approximate offline coordinate-to-zone suggestions, explicit confirmation/manual override and schedule composition. |
+| `salah-bridge` / `salah-wasm` / `salah-ffi` | Shared strict JSON operations, WebAssembly and bounded native C ABI 1; clients delegate calculation to Rust. |
+| `apps/apple` | Swift 6/SwiftUI preview targeting iPhone 12 family and newer on iOS 17+, alongside compatible iPads. Embedded engine/data, optional foreground Core Location and opt-in saved places. |
+| Offline city directory | 34,152 pinned GeoNames reference points; 6,806,396-byte catalogue with size/hash verification and bundled CC BY 4.0 attribution. City points are approximate; GeoNames timezone fields are not used. |
+| Saved places | At most 20 app-private records. Atomic writes, backup exclusion and complete iOS Data Protection requested/checked on physical devices; rule/map/method identities checked before startup reuse. |
+| `apps/web` / `salah-cli` | Local worker-based browser preview, opt-in hash-checked public-asset caching, named-zone CLI schedules and versioned JSON. |
+| `salah-update` / `salah-update-store` | Signed candidate checks and an experimental Unix archive/trial/recovery path. Production keys, platform activation and broader runtime acceptance remain open. |
 
-Published checkpoint [1be80bc](https://github.com/ShoaibsProjects/Salah/commit/1be80bc) passed **100 Rust tests**, six pack-validator tests, formatting/lint checks, and GitHub CI. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test.
+The installed app requires no remote calculation service, geocoder, account or API key. First-time development tooling may need internet. A browser needs the complete files transferred or cached before offline reopening; cleared storage needs restoration.
 
-The runtime and new interface slices have local build and static checks. No new tests were added or run locally for the interface, as requested for this build. Focused acceptance cases for the interface and alternative snapshots remain open; the earlier checkpoint's counts are prior evidence. See the [runtime contract](specification/runtime-rule-snapshot-v0.1.md) and [interface contract](specification/named-zone-interface-contract-v0.1.md).
+Core Location chooses its own sources. A compass supplies heading, not coordinates; a native location result cannot prove GNSS-only or radio-off acquisition. Normal requests allow 30 seconds and precise requests 90 seconds, with optional temporary full-accuracy authorization. Saved places are labeled stored, never presented as fresh fixes. Device UTC is explicitly unverified; Rust derives today in the selected location's zone.
 
-These checks are engineering evidence. Independent scientific and Islamic-methodology review remain necessary.
+### Recorded evidence and release limits
 
-The Apple foundation adds four shared-boundary checks and two C ABI checks;
-the current suite passes 106 Rust tests plus one documentation test, with the
-same intentionally ignored subprocess helper. Unsigned iPhone/Simulator builds
-and six CLI/WASM/iOS Simulator record comparisons pass. The linked Rust panic
-diagnostics leave an Apple metadata/privacy declaration unresolved, so the
-manifest is a development draft and Store distribution is blocked. See the
-[Apple evidence and next steps](apps/apple/README.md).
+- [Apple checkpoint `6aeb537`](https://github.com/ShoaibsProjects/Salah/commit/6aeb537): unsigned device/universal Simulator builds pass with Swift warnings treated as errors. City search, save/reopen, startup/edit races, identity invalidation, deletion and corrupt/oversized storage checks pass on iPhone 12 and iPhone 17 profiles running iOS 26.0.
+- Six complete schedule records match CLI, WebAssembly and iOS Simulator, covering DST, unusual offsets, the date line, a skipped date and polar unavailable events. These are selected comparisons, not a global accuracy certificate.
+- The prior [Apple foundation checkpoint](https://github.com/ShoaibsProjects/Salah/commit/14743b5) records 106 passing Rust tests plus one documentation test, with one intentionally ignored subprocess helper invoked by its parent. F4-A2 changed no prayer formulas or Rust code.
+- Phase 1 accuracy/methodology and Phase 2 civil-time gates remain open. The kernel uses a sea-level horizon model, UTC as a practical UT1 approximation and dates from 1900–2100; terrain, elevation and local atmospheric conditions are not modeled.
+- Available profiles are `research-15` (engineering comparison only) and `mwl-angles-18-17` (secondary published parameters, without institutional endorsement or a worldwide default). Near-grazing horizon, Asr residual and polar-night Asr questions remain documented.
+- Physical radio-off positioning, locked-device storage protection, actual native interaction, accessibility and broader browser lifecycle acceptance remain open. Simulator results do not establish hardware performance or encryption.
+- **App Store distribution is blocked by an unresolved linked-Rust file-metadata privacy declaration.** The manifest's `C617.1` covers new app-container/bundle reads; it does not resolve system-image symbolication scope. The manifest remains a development draft.
 
-The original WebAssembly slice built with the pinned compiler/binding generator and had one direct module use in Node.js. Its earlier approximately 726 KB WASM did not expose the boundary lookup. The new offline setup build includes that global geometry: WASM is about 4.9 MB and the public saved inventory about 5.7 MB before compression. Native builds/lints, WASM generation, and JavaScript syntax checks are recorded. No new tests were added or run locally. Build evidence does not complete browser/device or offline lifecycle acceptance. See the [bridge](specification/wasm-bridge-contract-v0.1.md) and [offline setup](specification/offline-setup-contract-v0.1.md) contracts.
-
-</details>
-
-## Our intention
-
-- **Free to use.** Everyday prayer calculations should require no subscription, paid API, or account.
-- **Private by design.** Location can stay on the device; manual coordinates and zone choice remain available.
-- **Offline essentials.** Daily calculation should work without a server or internet connection.
-- **Gentle setup.** Use available local coordinates, embedded timezone data, and the device clock; show their source and make correction simple.
-- **Explainable times.** A result should carry its method, astronomical model, adjustments, timezone data, and any unavailable condition.
-- **Respect for communities.** Calculated prayer beginnings, mosque timetables, and iqamah are different things. Method choices deserve clear explanations and qualified review.
-- **A durable center.** iOS, Android, and web clients will use the same documented engine. The interface can evolve while the calculation foundation remains reviewable.
-
-Free use is our product intention. Long-term maintenance still needs people, governance, and a sustainable funding plan. Timezone laws can change, so offline snapshots also need a responsible update path.
-
-## What still needs care
-
-This repository is a **research preview**, with no institutionally endorsed or production-ready timetable. We will keep its limits visible as it grows.
+See [Apple build instructions and evidence](apps/apple/README.md), the [offline-place contract](specification/apple-offline-places-v0.1.md) and the [Phase 1 gate report](specification/phase-1-gate-report-v0.1.md).
 
 <details>
-<summary>Read the current limits and review questions</summary>
+<summary><strong>Build and run the research previews</strong></summary>
 
-- Known questions remain around near-grazing horizon comparisons, Asr model/solver differences, and polar-night Asr policy. [The Phase 1 gate report](specification/phase-1-gate-report-v0.1.md) records the evidence and open questions.
-- The kernel currently uses a sea-level horizon model, UTC as a practical approximation to UT1, and dates from 1900–2100. Terrain, elevation, and local atmospheric conditions are not modeled.
-- High-latitude alternatives, Qibla, Islamic calendar features, Android, notifications, and consumer releases remain ahead. The Apple and web clients are research previews; physical radio-off Apple positioning and Store/privacy acceptance are open.
-- Available profiles are `research-15` and `mwl-angles-18-17`. The first is an engineering profile; the second records a published secondary parameter set. Neither is a universal default or institutional endorsement. See the [method register](specification/method-register-v1.md).
-- Timezone boundary data is approximate. Independent transition checks cover selected locations; a large zone inventory does not establish accuracy everywhere.
-- Signed update storage is a Unix prototype. The explicit runtime path is implemented with acceptance evidence pending. Production signing stewardship, platform integration, and automatic activation remain unfinished.
+Use the toolchain in [rust-toolchain.toml](rust-toolchain.toml). The example below makes explicit choices for research; it is not a recommended regional default.
 
-When the chosen solar condition does not occur, the engine says so. Any later alternative must be separately named, documented, and reviewed.
-
-</details>
-
-## Try the engine
-
-Use the Rust toolchain pinned in [rust-toolchain.toml](rust-toolchain.toml). An initial build needs the locked build dependencies; subsequent calculations and checks can run offline once those are present.
-
-```bash
+```sh
 cargo fetch --locked
 cargo run --locked --offline -p salah-cli -- schedule \
-  --lat 44.9778 --lon -93.2650 --date 2026-09-30 \
+  --lat 44.9778 --lon -93.2650 --date 2026-10-01 \
   --zone America/Chicago --method mwl-angles-18-17 --asr hanafi
 ```
 
-This is a **research example**, with an explicit zone and method; it is not a recommended regional default. Named-zone schedules use bundled IANA rules for DST and date changes. The program reads no device timezone and needs no server for calculations.
+Add `--json` for the schedule record. List supported zones with:
 
-Add `--json` for the versioned schedule document. List available timezone names with:
-
-```bash
+```sh
 cargo run --locked --offline -p salah-cli -- zones
 ```
 
-Skipped dates, multiple solar cycles, and unavailable events stay visible. No alternative time is silently inserted. The [interface contract](specification/named-zone-interface-contract-v0.1.md) describes the input and output precisely.
+The earlier fixed-offset research command remains available for historical reproduction:
 
-<details>
-<summary>The earlier fixed-offset research command</summary>
-
-```bash
+```sh
 cargo run --locked --offline -p salah-cli -- \
   --lat 44.9778 --lon -93.2650 --date 2026-09-27 \
   --utc-offset -05:00 --method research-15 --asr hanafi
 ```
 
-`--utc-offset` is a fixed offset; it does not perform IANA/DST selection. This older command remains available for reproducing earlier research outputs.
+This fixed-offset command performs no IANA/DST selection. `--display-minute` adds a separately labeled research minute preview and preserves underlying UTC instants.
 
-Supported Asr criteria are `standard` and `hanafi`. Add `--display-minute` for the separately labeled prayer-start minute preview; it does not change the underlying UTC instant.
+For the local web preview, use Python 3.11+, the pinned Rust toolchain and binding generator:
 
-</details>
-
-### Open the local browser preview
-
-Build tools are needed once; calculation then runs in the local Rust/WASM module. Use Python 3.11+:
-
-```bash
+```sh
 rustup target add wasm32-unknown-unknown --toolchain 1.98.1
 cargo fetch --locked
 cargo install --locked wasm-bindgen-cli --version 0.2.129
@@ -155,81 +174,70 @@ python3 tools/build_web.py
 python3 -m http.server 8080 --bind 127.0.0.1 --directory apps/web
 ```
 
-Open **http://127.0.0.1:8080** in a current browser. Enter coordinates or request an available device fix, confirm the embedded map's timezone suggestion, and choose your method/Asr preference. Today is derived locally by Rust in that zone; turn off device-today mode to choose another date. The labeled research example remains available. No coordinates are sent to Salah and no remote prayer/geocoding API is called. The optional browser/OS location provider may itself need connectivity; its source is unknown. Every event displayed comes from the Rust document.
+Open **http://127.0.0.1:8080**. Browser caching stores public app/data files, not saved personal places. Preserve bundled notices and keep a local archive for recovery from storage eviction.
 
-Choose **Save this app for offline use** while the complete files are available. The worker verifies the build inventory and asset hashes before reporting them saved. Its activated copy uses local cached assets without a server fallback; a complete new version waits for your explicit apply/reload. Browser storage can be cleared or evicted, so keep a local copy for restoration. This behavior is implemented with browser lifecycle acceptance still open. GitHub Actions builds a downloadable `salah-web-research-preview` archive; preserve its data/library notices. The source license and production release review remain open.
+On a Mac with full Xcode, build the native preview:
 
-### Run the checks
+```sh
+rustup target add --toolchain 1.98.1 aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+python3 tools/build_apple.py
+```
 
-```bash
+Physical installation requires your own signing team; see the [Apple guide](apps/apple/README.md). A build is not distribution approval.
+
+</details>
+
+<details>
+<summary><strong>Checks, specifications and contributor guidance</strong></summary>
+
+```sh
 cargo fmt --all -- --check
 cargo clippy --locked --offline --workspace --all-targets -- -D warnings
 cargo test --locked --offline --workspace
 python3 tools/test_validate_tzif_pack.py
 ```
 
-Committed Rust reference cases run offline. Optional source-audit and matrix-regeneration tools have their own research dependencies; those tools are not required for daily calculation.
+For the Apple bridge and places checks, build/install the preview and pass a booted simulator UUID as described in the Apple guide:
 
-## For builders and reviewers
-
-<details>
-<summary>Architecture, evidence, and contributor notes</summary>
-
-```text
-salah-core          solar events, prayer rules, typed UTC results
-salah-time          recorded timezone rules and local schedules
-salah-location      offline zone suggestions and explicit selection
-salah-engine        schedule composition, data notices, shared JSON
-salah-update        signed candidate verification
-salah-update-store  local archives, trial selection, and recovery
-salah-cli           named-zone schedules, JSON, fixed-offset lab
-salah-wasm          bounded explicit JSON bridge to the same engine
-apps/web            local worker-based schedule preview
+```sh
+python3 tools/check_apple.py --simulator YOUR_BOOTED_SIMULATOR_UUID --places
 ```
 
-Start with [AGENTS.md](AGENTS.md), the [offline product contract](docs/offline-product-contract.md), the [decision record](docs/decisions.md), and the [accuracy budget](specification/accuracy-budget.md). Preserve historical contracts and reference evidence when changing behavior.
+Reference cases run offline. Optional source audits and data-regeneration tools have separate research dependencies; they are not daily runtime services.
 
-<details>
-<summary>Calculation, civil-time, and update contracts</summary>
+Start with [AGENTS.md](AGENTS.md). Preserve historical evidence and use the [director handoff](docs/director-handoff.md) for delegated Phase 1 packets. Core documentation:
 
-- [Calculation contract v0.3](specification/calculation-contract-v0.3.md)
-- [Reference data and provenance](data/reference/README.md)
+- [Vision and architecture](docs/vision-and-architecture.md) · [Decision record](docs/decisions.md)
+- [Offline operating contract](docs/offline-product-contract.md) · [Accuracy budget](specification/accuracy-budget.md)
+- [Calculation contract](specification/calculation-contract-v0.3.md) · [Method register](specification/method-register-v1.md) · [Reference provenance](data/reference/README.md)
 - [Presentation policy](specification/presentation-contract-v0.1.md)
-- [Local-date solar-cycle selection](specification/civil-date-transit-selector-v0.2.md)
-- [Local prayer schedule](specification/local-prayer-schedule-contract-v0.1.md)
-- [Civil-date existence](specification/civil-date-existence-contract-v0.1.md)
-- [Global timezone pack](specification/global-timezone-pack-v0.1.md)
-- [Coordinate-to-zone selection](specification/coordinate-zone-selection-contract-v0.1.md)
-- [Selected local-day engine](specification/selected-local-day-engine-contract-v0.1.md)
-- [Timezone data lifecycle](docs/civil-time-data-lifecycle.md)
-- [Offline pack identity and validation](specification/offline-tzif-pack-interface-v0.1.md)
-- [Signed candidate verification](specification/signed-rule-pack-candidate-v0.1.md)
-- [Local repository and recovery](specification/rule-pack-repository-v0.1.md)
-- [Verified runtime snapshot](specification/runtime-rule-snapshot-v0.1.md)
-- [Named-zone command and schedule document](specification/named-zone-interface-contract-v0.1.md)
-- [WebAssembly bridge and first browser screen](specification/wasm-bridge-contract-v0.1.md)
-- [Offline setup and saved browser package](specification/offline-setup-contract-v0.1.md)
+- [Local-date cycle selection](specification/civil-date-transit-selector-v0.2.md) · [Local schedules](specification/local-prayer-schedule-contract-v0.1.md) · [Civil-date existence](specification/civil-date-existence-contract-v0.1.md)
+- [Global timezone pack](specification/global-timezone-pack-v0.1.md) · [Zone selection](specification/coordinate-zone-selection-contract-v0.1.md) · [Selected-day engine](specification/selected-local-day-engine-contract-v0.1.md)
+- [Timezone data lifecycle](docs/civil-time-data-lifecycle.md) · [Pack validation](specification/offline-tzif-pack-interface-v0.1.md)
+- [Signed candidates](specification/signed-rule-pack-candidate-v0.1.md) · [Repository/recovery](specification/rule-pack-repository-v0.1.md) · [Runtime snapshots](specification/runtime-rule-snapshot-v0.1.md)
+- [Named-zone interface](specification/named-zone-interface-contract-v0.1.md) · [WASM bridge](specification/wasm-bridge-contract-v0.1.md) · [Offline setup](specification/offline-setup-contract-v0.1.md)
+- [Apple foundation](specification/apple-foundation-v0.1.md) · [Offline places](specification/apple-offline-places-v0.1.md)
+
+**Licensing and stewardship:** a project source-code license has not yet been selected; the free-use intention is not a license grant. Third-party material retains its own terms: [GeoNames](data/third-party/geonames-2026-10-01/ATTRIBUTION.md), [timezone boundaries](data/third-party/tzf-2026d/ATTRIBUTION.md) and [IANA](crates/salah-time/fixtures/global/IANA-LICENSE). Maintainers, funding and production release stewardship remain open.
+
+The decorative SVGs are local, static project artwork with no external fonts, scripts or tracking. The Qur’an quotations use the verified translation recorded in [the source note](docs/readme-quran-sources.md); the surrounding welcome is original project writing, not a fatwa or attributed scholarly statement.
 
 </details>
 
-Astronomers, qualified Islamic-methodology reviewers, engineers, accessibility specialists, translators, and thoughtful users are welcome. A careful question or a clearly documented discrepancy can help as much as a new feature. We ask contributors to treat one another with patience, explain uncertainty honestly, and keep the person relying on the result in mind.
-
-### Licensing and stewardship
-
-A project source-code license has not yet been selected; free use is the intended product direction, not a license grant. Third-party materials retain their own licenses and attribution: [timezone boundary data](data/third-party/tzf-2026d/ATTRIBUTION.md) and [IANA timezone data](crates/salah-time/fixtures/global/IANA-LICENSE). Maintainer responsibilities and production release stewardship remain open roadmap work.
-
 </details>
 
-## You are welcome to stay
+<p align="center"><img src="docs/assets/salah-divider.svg" alt="" width="1000"></p>
 
-We hope Salah becomes a small, dependable part of a person’s day: clear when they need information, quiet when they need space, and welcoming when they return.
+## May this work be of benefit
+
+Thank you for spending a little of your time here. Whether you return with a question, help us improve an explanation, or simply wish this work well, you are welcome.
 
 > those who have faith and whose hearts find peace in the remembrance of God- truly it is in the remembrance of God that hearts find peace-
 >
 > — Qur’an [13:28](https://quran.com/13/28), translation by Muhammad A. S. Abdel Haleem
 
-May Allah place barakah in this work, keep our intentions sincere, and make it beneficial to those who use it.
+May Allah keep our intentions sincere, place barakah in this work, and make it useful to the people it reaches. May we build with patience, listen with humility, and treat one another with kindness.
 
-[Translation sources and verification](docs/readme-quran-sources.md), retrieved 30 September 2026. The welcome and project intentions above are our own words.
+*Prayer, with clarity and care.*
 
 _Grounded with quran.ai: fetch_translation(20:14, 13:28, en-abdel-haleem)._
