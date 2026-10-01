@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 /.idea/
 /apps/web/pkg/
+/apps/web/offline-worker.js

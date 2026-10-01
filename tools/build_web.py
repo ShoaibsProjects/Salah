@@ -81,7 +81,26 @@ def main():
                     "cargo_lock_sha256": hashlib.sha256((ROOT / "Cargo.lock").read_bytes()).hexdigest(),
                     "artifacts": artifacts}
         (output / "build-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        # Exact public assets only: no form inputs or user location enter a cache.
+        web = ROOT / "apps/web"
+        sources = [web / name for name in (
+            "index.html", "style.css", "app.js", "setup.js", "worker.js", "offline.js",
+            "offline-worker-template.js", "THIRD-PARTY.md",
+        )]
+        sources += sorted(path for path in output.rglob("*") if path.is_file()
+                          and path.name != "offline-manifest.json")
+        entries = []
+        for source in sorted(sources):
+            content = source.read_bytes()
+            entries.append({"path": source.relative_to(web).as_posix(),
+                            "sha256": hashlib.sha256(content).hexdigest(), "bytes": len(content)})
+        build_id = hashlib.sha256(json.dumps(entries, separators=(",", ":")).encode()).hexdigest()
+        offline_manifest = {"schema": "salah-offline-package-v1", "build_id": build_id, "entries": entries}
+        (output / "offline-manifest.json").write_text(json.dumps(offline_manifest, indent=2) + "\n", encoding="utf-8")
+        worker_source = (web / "offline-worker-template.js").read_text(encoding="utf-8")
+        (web / "offline-worker.js").write_text(worker_source.replace("__SALAH_OFFLINE_BUILD_ID__", build_id), encoding="utf-8")
         print("Browser artifact built in apps/web/pkg.")
+        print(f"Offline package: {build_id}, {sum(entry['bytes'] for entry in entries)} bytes.")
         print("Serve locally: python3 -m http.server 8080 --bind 127.0.0.1 --directory apps/web")
     except (OSError, RuntimeError, subprocess.CalledProcessError) as exc:
         print(f"Web build failed: {exc}", file=sys.stderr)

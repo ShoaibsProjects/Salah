@@ -36,6 +36,18 @@
 
 | Explicit runtime snapshot | The [P2b.2a runtime contract](../specification/runtime-rule-snapshot-v0.1.md) uses immutable bundled or verified snapshots, one parsed zone per schedule, and owned exact identities. Signature authentication precedes shared payload validation. | Focused runtime acceptance evidence, target builds, storage integration, and trial-health policy remain open. |
 
+## Offline operating decision — 2026-10-01
+
+The maintainer requested essential use without online dependencies, automatic device input where available, and manual correction when automation is missing or uncertain. The [offline product contract](offline-product-contract.md) is the canonical operating vision alongside the original architecture; the roadmap still owns gates.
+
+- Coordinates feed bundled boundary geometry and IANA rules locally. Civil timezone law is never inferred from longitude/15, solar position, or a device's displayed zone.
+- The current approximate point map may fill a unique suggestion, but explicit confirmation remains required. The full location-error footprint is not checked. Multiple/no-coverage results require a choice; manual selection always remains possible.
+- Today's Gregorian date is the caller's UTC epoch instant converted by Rust in the confirmed location zone. The device wall clock is labeled unverified; plausible clock error cannot be universally detected offline. Manual date correction remains available.
+- A browser Geolocation result remains an optional source-agnostic reading. No portable GNSS-only/no-network guarantee exists in that API. Strict offline sensor acquisition needs native/embedded capability evidence; a compass gives no coordinates. No IP or cloud-geocoding fallback is permitted.
+- F4-C2 adds bounded lookup/clock/selection exports and the automatic setup flow. F3-W2 adds opt-in, hash-checked public app caching with explicit updates; browser cache eviction and offline restart acceptance remain open. Neither artifact hashing nor a successful build is publisher authentication or a passed accuracy/portability/religious gate.
+
+See the [offline setup contract](../specification/offline-setup-contract-v0.1.md). No astronomy, method, tolerance, reference, or phase-gate decision changes. No tests were added or run locally in these pieces, following the user's instruction.
+
 ## Unresolved decisions
 
 - First calculation profile and authoritative parameter sources.

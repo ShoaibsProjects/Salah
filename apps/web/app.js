@@ -1,3 +1,5 @@
+import { OfflineSetup } from "./setup.js";
+
 const form = document.querySelector("#schedule-form");
 const calculateButton = document.querySelector("#calculate");
 const deviceLocationButton = document.querySelector("#device-location");
@@ -11,6 +13,9 @@ const provenance = document.querySelector("#provenance");
 let sequence = 0;
 let activeId = null;
 let lastDocument = null;
+let lastSetupMetadata = null;
+let pendingSetupMetadata = null;
+const workerJobs = new Map();
 let worker;
 let watchdog;
 let loaded = false;
@@ -24,8 +29,25 @@ const methods = {
   "research-15": "A technical comparison profile: it uses a 15° Sun angle for both Fajr and Isha. It is here to compare calculations, not as a community method or mosque recommendation.",
 };
 
+const setup = new OfflineSetup(form, sendSetupRequest, () => invalidateChoices());
+
+function sendSetupRequest(kind, request) {
+  if (!loaded) return Promise.reject(new Error("The local Rust engine is not ready yet."));
+  return new Promise((resolve, reject) => {
+    const id = ++sequence;
+    const timer = setTimeout(() => {
+      workerJobs.delete(id);
+      reject(new Error("The offline setup operation took too long; no replacement was inferred."));
+    }, 15000);
+    workerJobs.set(id, { resolve, reject, timer });
+    try { worker.postMessage({ kind, id, request: JSON.stringify(request) }); }
+    catch (error) { clearTimeout(timer); workerJobs.delete(id); reject(error); }
+  });
+}
+
 function clearResult() {
   lastDocument = null;
+  lastSetupMetadata = null;
   results.replaceChildren();
   provenance.hidden = true;
   errorBox.hidden = true;
@@ -40,7 +62,11 @@ function failure(message, fatal = false) {
   clearResult();
   errorBox.textContent = message;
   errorBox.hidden = false;
-  if (fatal) { loaded = false; terminated = true; worker?.terminate(); }
+  if (fatal) {
+    loaded = false; terminated = true; worker?.terminate();
+    for (const job of workerJobs.values()) { clearTimeout(job.timer); job.reject(new Error(message)); }
+    workerJobs.clear();
+  }
   calculateButton.disabled = !loaded;
   calculateButton.removeAttribute("aria-busy");
   engineState.textContent = fatal ? "Engine unavailable. Reload after rebuilding the local artifact." : "Ready for another explicit calculation.";
@@ -129,12 +155,15 @@ function useDeviceLocation({ highAccuracy = false } = {}) {
       locationCapture = {
         source: "device_geolocation",
         reportedAccuracyMeters: Number.isFinite(accuracy) && accuracy >= 0 ? accuracy : null,
+        reportedFixTimestampMs: Number.isFinite(position.timestamp) ? position.timestamp : null,
+        providerOfflineCapability: "unknown_browser_provider",
       };
+      setup.coordinatesChanged();
       preciseLocationButton.hidden = true;
       const accuracyText = locationCapture.reportedAccuracyMeters === null
         ? "The device did not provide an accuracy estimate."
         : `The device estimates its accuracy radius at about ${Math.ceil(locationCapture.reportedAccuracyMeters)} m.`;
-      setLocationMessage(`Coordinates filled. ${accuracyText} Review them and choose the timezone for this location.`);
+      setLocationMessage(`Coordinates filled. ${accuracyText} The engine is checking its offline timezone map; review and confirm its suggestion.`);
     }, error => {
       if (!finish()) return;
       const message = error.code === error.PERMISSION_DENIED
@@ -257,8 +286,15 @@ try {
       document.querySelector("#zone-list").replaceChildren(...options);
       loaded = true;
       calculateButton.disabled = false;
-      deviceLocationButton.disabled = false;
+      deviceLocationButton.disabled = locationRequestId !== 0;
+      setup.engineReady();
       engineState.textContent = `Rust engine ready · ${options.length} named zones · IANA ${data.inventory.rule_pack.tzdb_version}`;
+    } else if (data?.kind === "setup_result") {
+      const job = workerJobs.get(data.id);
+      if (!job) return;
+      clearTimeout(job.timer);
+      workerJobs.delete(data.id);
+      job.resolve(data.response);
     } else if (data?.kind === "fatal") {
       failure(data.message, true);
     } else if (data?.kind === "result" && data.id === activeId) {
@@ -271,13 +307,14 @@ try {
       if (response.status === "error") return failure(response.error.message);
       if (response.status !== "ok") return failure("The engine returned an unknown status.", true);
       try { render(response.schedule); } catch { return failure("This schedule could not be displayed safely. No replacement times were generated.", true); }
+      lastSetupMetadata = pendingSetupMetadata;
       engineState.textContent = "Calculated locally. Open any event to see why this time was returned.";
     }
   };
   worker.onerror = () => failure("The local engine could not start or stopped unexpectedly. Rebuild the web artifact and reload.", true);
 } catch { failure("This browser could not start the WebAssembly worker. Use a current browser and serve the page over HTTP.", true); }
 
-form.addEventListener("submit", event => {
+form.addEventListener("submit", async event => {
   event.preventDefault();
   if (!loaded || activeId !== null) return;
   const values = new FormData(form);
@@ -286,27 +323,31 @@ form.addEventListener("submit", event => {
   const longitude = Number(values.get("longitude_degrees"));
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return failure("Enter finite latitude and longitude values.");
   clearResult();
-  activeId = ++sequence;
+  const requestId = ++sequence;
+  activeId = requestId;
   calculateButton.disabled = true;
   calculateButton.setAttribute("aria-busy", "true");
   engineState.textContent = "Calculating on your device…";
   watchdog = setTimeout(() => failure("The engine took too long. No replacement schedule was generated. Reload to start again.", true), 30000);
-  worker.postMessage({ kind: "calculate", id: activeId, request: JSON.stringify({
-    schema: "salah-schedule-request-v1", latitude_degrees: latitude, longitude_degrees: longitude,
-    local_date: values.get("local_date"), zone_id: values.get("zone_id"),
-    method_id: values.get("method_id"), asr: values.get("asr"),
-  }) });
+  try {
+    const prepared = await setup.prepare();
+    if (activeId !== requestId) return;
+    pendingSetupMetadata = JSON.parse(JSON.stringify({ location_input: locationCapture, ...setup.metadata() }));
+    worker.postMessage({ kind: "calculate", id: requestId, selection: true, request: JSON.stringify({
+      schema: "salah-schedule-request-v2", latitude_degrees: latitude, longitude_degrees: longitude,
+      local_date: prepared.local_date, zone_id: values.get("zone_id"), zone_choice: prepared.zone_choice,
+      method_id: values.get("method_id"), asr: values.get("asr"),
+    }) });
+  } catch (error) { if (activeId === requestId) failure(error.message); }
 });
 
 // Editing a setting invalidates the old display and any in-flight response.
 function invalidateChoices(event) {
   if (["latitude_degrees", "longitude_degrees"].includes(event?.target?.name)) {
     preciseLocationButton.hidden = true;
-    if (locationCapture.source !== "manual_coordinates") {
-      cancelLocationRequest("Your coordinates were edited. They are now treated as manually entered.");
-      locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
-    }
-    setLocationMessage("Using manually entered coordinates. Confirm that the timezone matches this location.");
+    cancelLocationRequest("Your coordinates were edited. They are now treated as manually entered.");
+    locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
+    setLocationMessage("Using manually entered coordinates. The engine suggests a timezone offline; please confirm it.");
   }
   if (activeId !== null) { activeId = null; clearTimeout(watchdog); calculateButton.disabled = !loaded; calculateButton.removeAttribute("aria-busy"); }
   clearResult();
@@ -326,6 +367,8 @@ document.querySelector("#example").addEventListener("click", () => {
   locationCapture = { source: "example_coordinates", reportedAccuracyMeters: null };
   clearResult();
   for (const [key, value] of Object.entries({ latitude_degrees: "44.9778", longitude_degrees: "-93.2650", local_date: "2026-10-01", zone_id: "America/Chicago", method_id: "mwl-angles-18-17", asr: "hanafi" })) form.elements.namedItem(key).value = value;
+  setup.useExample();
+  explainMethod();
   document.querySelector("#example-note").hidden = false;
   setLocationMessage("Using the labeled Minneapolis example coordinates. Choose device location or enter your own coordinates for your location.");
 });
@@ -333,12 +376,13 @@ document.querySelector("#example").addEventListener("click", () => {
 document.querySelector("#download").addEventListener("click", () => {
   if (!lastDocument) return;
   const exportRecord = {
-    schema: "salah-web-schedule-export-v1",
+    schema: "salah-web-schedule-export-v2",
     schedule: lastDocument,
     location_input: {
       source: locationCapture.source,
       reported_accuracy_radius_meters: locationCapture.reportedAccuracyMeters,
     },
+    setup_input: lastSetupMetadata,
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(exportRecord, null, 2) + "\n"], { type: "application/json" }));
   const link = node("a"); link.href = url; link.download = `salah-${lastDocument.requested_local_date}.json`;
