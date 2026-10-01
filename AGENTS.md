@@ -27,6 +27,7 @@ This repository is the canonical workspace for Salah. Read these files before ch
 23. `specification/runtime-rule-snapshot-v0.1.md` — immutable bundled/authenticated runtime selection, owned identities, shared payload validation, and acceptance gaps.
 24. `docs/current-work.md` — plain-language component names and the current phase/workstream/piece; roadmap gate authority is unchanged.
 25. `specification/named-zone-interface-contract-v0.1.md` — explicit manual zone without lookup, named-zone CLI, and shared schedule JSON; no display-minute or notification rule.
+26. `specification/wasm-bridge-contract-v0.1.md` — bounded explicit JSON bridge, Web Worker/browser preview, reproducible package build, and pending browser/cross-target acceptance.
 
 ## Project intent
 
@@ -58,6 +59,8 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 - Update the specification and relevant documentation when behavior changes. Report what was verified and any remaining limitations.
 
 ## Current state
+
+F3-W1 adds `salah-wasm`, a bounded explicit JSON bridge, and `apps/web`, the first local worker-based schedule screen. No JavaScript prayer calculation, local-time reinterpretation, defaults, signed activation, or new tests are introduced. Native/WASM builds and one direct module use are recorded; browser acceptance remains pending. Read the bridge contract and current-work map before extending this client.
 
 F3-C1 adds `salah-cli schedule`, `salah-cli zones`, and `salah_engine::schedule_document` under the named-zone interface contract. Direct manual selection records an unperformed map lookup separately from no coverage. Native build/static checks are recorded; the user requested no new tests, and no tests were run locally in this slice. The next build is a portable binding probe, with all earlier phase gates still open.
 

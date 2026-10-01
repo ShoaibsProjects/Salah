@@ -4,15 +4,15 @@
 
 ## Current piece
 
-**Phase 3: Portable Calculation Platform → F3-C1: Engine Interface → Named-Timezone Command and Schedule Document.**
+**Phase 3: Portable Calculation Platform → F3-W1: Browser Bridge → WebAssembly Engine and First Schedule Screen.**
 
-You can now ask the command-line program for a local schedule with coordinates, a Gregorian date, a named IANA timezone, a method, and an Asr choice. The command uses the existing Prayer Kernel, Civil Clock, and Schedule Composer. DST and date-line rules come from the bundled snapshot. It prints full local dates and seconds, UTC, and exact data identity. Add `--json` to obtain the reusable, versioned document for future clients. See the [interface contract](../specification/named-zone-interface-contract-v0.1.md).
+The same Rust engine now builds into WebAssembly. A strict JSON bridge accepts explicit coordinates, date, zone, method, and Asr settings and returns the existing shared schedule. The first browser screen runs that module in a worker, displays each event, explains its rule, and offers a local JSON download. It performs no prayer mathematics in JavaScript. See the [bridge contract](../specification/wasm-bridge-contract-v0.1.md).
 
-An explicit zone can now be chosen without loading the approximate boundary map. The result says that no map lookup occurred. Skipped dates, zero/multiple solar cycles, and unavailable events remain visible. No formula, method profile, solver threshold, or historical reference result was changed.
+The earlier named-zone CLI remains available. Direct manual zone choice bypasses polygon lookup, and skipped dates, zero/multiple cycles, and unavailable events remain visible in the bridge. No formula, method profile, solver threshold, or historical reference result was changed.
 
-**Evidence so far:** local locked offline workspace build, formatting, all-target lint checks, and diff inspection. The user requested implementation without adding tests; none were added or run locally. One existing location test fixture was updated for the new private provenance field so it still compiles. Earlier checkpoint `1be80bc` has 100 passing Rust tests and six validator tests; those are prior evidence. New interface and verified-snapshot acceptance cases remain open. Phase 1, Phase 2, and the Phase 3 cross-target gate remain open.
+**Evidence so far:** native build/static checks, pinned-compiler WASM release build and binding generation, JavaScript syntax checks, and one direct use of the generated module in Node.js. The observed WASM is about 726 KB before compression. The local server serves the files; the in-app browser timed out and the Mac was reported locked, so browser visual/interaction review remains pending. No tests were added or run locally. Earlier test counts and GitHub's existing-suite runs are prior/unchanged-suite evidence; they do not cover the new bridge. Phase 1, Phase 2, and the Phase 3 cross-target gate remain open.
 
-**Next build:** F3-W1: Portable Binding Probe. Expose the same explicit engine inputs and schedule document to a browser/WASM client, assess target dependencies, and keep the app free of prayer mathematics. A simple daily schedule screen follows the working boundary. Signed-pack platform integration and trial-health policy continue as separate open work.
+**Next piece:** F3-W2: Browser Reliability and Offline Loading. Complete browser visual/interaction review and durable offline startup before adding next-prayer state or reminders. Mobile binding and signed-pack platform integration remain separate open work.
 
 ## Names of the main parts
 
@@ -25,6 +25,8 @@ An explicit zone can now be chosen without loading the approximate boundary map.
 | Update Authentication | `salah-update` | Verifies signed packages, exact hashes/inventory, and compatibility before parsing their payloads. P2a is implemented. |
 | Update Storage and Recovery | `salah-update-store` | Archives signed packages and manages trial, confirmation, restart recovery, and counter preservation. P2b.1 is implemented; runtime selection and trial confirmation remain explicit caller actions. |
 | Calculation Lab Command | `salah-cli` | Runs named-zone local schedules, emits shared JSON, lists supported zones, and retains the historical fixed-offset interface. Stored packages are still Rust-API-only. |
+| Browser Engine Bridge | `salah-wasm` | Validates bounded explicit JSON requests and exposes the same schedule document and bundled zone inventory. |
+| First Schedule Screen | `apps/web` | Static local browser preview with worker calculation, event explanations, and JSON download; browser acceptance pending. |
 
 ## How to name work
 
@@ -39,7 +41,8 @@ Use **phase → workstream → piece**, followed by a plain name in every handof
 | F2-TZ9-P2b.2b | Platform Integration and Trial Health Policy | Open: mobile/WASM builds, platform persistence, and application-level startup/confirmation policy. |
 | F2-TZ9-P2b.3 | Production Signing Stewardship | Open: maintainers, key custody/rotation/revocation, release pipeline, retention, and distribution policy. |
 | F3-C1 | Named-Timezone Command and Schedule Document | Implemented; native build/static checks; focused acceptance evidence remains open. |
-| F3-W1 | Portable Binding Probe | Next: reuse the engine and versioned document across the browser/WASM boundary. |
+| F3-W1 | WebAssembly Bridge and First Schedule Screen | Implemented; native/WASM builds and direct module use; browser acceptance pending. |
+| F3-W2 | Browser Reliability and Offline Loading | Next: browser review and durable offline startup. |
 
 Phase 1 (accuracy and method integrity) and Phase 2 remain open. High-latitude alternatives, Qibla, broader independent comparisons, portable bindings, and user apps remain on the roadmap. A working update subsystem does not settle those other gates.
 

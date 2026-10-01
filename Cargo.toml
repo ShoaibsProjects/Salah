@@ -7,6 +7,7 @@ members = [
     "crates/salah-engine",
     "crates/salah-update",
     "crates/salah-update-store",
+    "crates/salah-wasm",
 ]
 resolver = "2"
 
