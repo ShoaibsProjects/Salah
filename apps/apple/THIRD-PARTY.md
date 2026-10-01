@@ -20,3 +20,10 @@ approval follows from this development package.
 
 The project's own source license and release stewardship remain undecided;
 copied third-party notices do not grant a project license.
+
+The offline city directory contains modified GeoNames `cities15000` and country
+data retrieved 1 October 2026, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+The builder bundles provider attribution and readme in `Notices`; exact source
+pins and transformations are in
+[ATTRIBUTION.md](../../data/third-party/geonames-2026-10-01/ATTRIBUTION.md).
+City points are approximate reference locations, not live device fixes.

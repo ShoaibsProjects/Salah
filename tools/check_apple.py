@@ -10,8 +10,10 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
 import subprocess
 import tomllib
+import uuid
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -23,6 +25,7 @@ def run(command, **kwargs):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--simulator", required=True, help="UUID of an already booted iOS simulator")
+    parser.add_argument("--places", action="store_true", help="Check offline cities/private storage in the installed app's disposable test folder")
     args = parser.parse_args()
     arm = platform.machine() == "arm64"
     target = "aarch64-apple-ios-sim" if arm else "x86_64-apple-ios"
@@ -72,6 +75,25 @@ for (const [name, record] of Object.entries(fixtures)) {
     console.log(name + ': complete CLI / WASM / iOS Simulator record equality');
 }
 ''', text=True)
+    if args.places:
+        bundle = subprocess.check_output(["xcrun", "simctl", "get_app_container", args.simulator,
+                                         "org.shoaibsprojects.salah.preview", "app"], text=True).strip()
+        container = subprocess.check_output(["xcrun", "simctl", "get_app_container", args.simulator,
+                                            "org.shoaibsprojects.salah.preview", "data"], text=True).strip()
+        scratch = Path(container) / "Library/Caches" / f"SalahAcceptance-{uuid.uuid4()}"
+        places_probe = ROOT / "target/check-apple-places"
+        run(["xcrun", "swiftc", "-swift-version", "6", "-warnings-as-errors", "-sdk", sdk,
+             "-target", swift_target, "-import-objc-header", "apps/apple/Salah/NativeBridge.h",
+             "-Xcc", "-Icrates/salah-ffi/include", "apps/apple/Salah/RustEngine.swift",
+             "apps/apple/Salah/EngineDocuments.swift", "apps/apple/Salah/SetupModel.swift",
+             "apps/apple/Salah/DeviceLocation.swift", "apps/apple/Salah/SavedPlaces.swift",
+             "apps/apple/Salah/CityDirectory.swift", "tools/check_apple_places.swift",
+             str(ROOT / f"target/{target}/release/libsalah_ffi.a"), "-o", str(places_probe)], env=swift_environment)
+        try:
+            run(["xcrun", "simctl", "spawn", args.simulator, str(places_probe), bundle, str(scratch)])
+        finally:
+            if scratch.exists():
+                shutil.rmtree(scratch) # Only this newly named disposable acceptance folder.
     return 0
 
 

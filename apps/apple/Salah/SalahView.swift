@@ -4,6 +4,9 @@ struct SalahView: View {
     @StateObject private var model = SetupModel()
     @Environment(\.scenePhase) private var scenePhase
     @State private var showZones = false
+    @State private var showCities = false
+    @State private var showSavePlace = false
+    @State private var clearPlaces = false
 
     private let accent = Color(red: 0.16, green: 0.39, blue: 0.31)
 
@@ -16,13 +19,14 @@ struct SalahView: View {
                             .font(.title2.weight(.semibold))
                         Text("Prayer calculations stay on your device. Installed data works without an internet connection.")
                             .foregroundStyle(.secondary)
-                        Label(model.inventory == nil ? "Starting the bundled engine…" : "Local Rust engine ready", systemImage: "leaf")
+                        Label(model.inventory == nil ? "Preparing offline calculation…" : "Offline calculation ready", systemImage: "leaf")
                             .font(.subheadline)
                             .foregroundStyle(accent)
                     }.padding(.vertical, 6)
                 }
 
                 locationSection
+                savedPlacesSection
                 timezoneSection
                 dateSection
                 practiceSection
@@ -38,7 +42,7 @@ struct SalahView: View {
                         }.padding(.vertical, 6)
                     }.disabled(!model.canCalculate)
                     if !model.canCalculate && !model.isCalculating {
-                        Text("Enter coordinates, confirm the timezone, and choose both a calculation profile and an Asr practice.")
+                        Text("Choose a city, saved place or device location; confirm the timezone and choose your calculation and Asr practice.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     if let error = model.errorMessage {
@@ -50,6 +54,14 @@ struct SalahView: View {
                 }
 
                 if let schedule = model.schedule { scheduleSection(schedule) }
+
+                Section {
+                    Button { showSavePlace = true } label: {
+                        Label("Save this place for offline use", systemImage: "bookmark")
+                    }.disabled(!model.canSavePlace)
+                    Text("Calculate once, then save the place and your choices for easy use next time.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
 
                 Section {
                     Text("Research preview. Independent astronomy and Islamic-methodology review remain open. These are calculated beginnings under selected rules; a mosque's timetable and iqamah are separate.")
@@ -69,6 +81,19 @@ struct SalahView: View {
                     showZones = false
                 }
             }
+            .sheet(isPresented: $showCities) {
+                CityPicker { choice in model.chooseCity(choice); showCities = false }
+            }
+            .sheet(isPresented: $showSavePlace) {
+                SavePlaceForm(initialName: model.locationName.isEmpty ? "Home" : model.locationName) { name, startup in
+                    model.savePlace(name: name, useOnStartup: startup)
+                    showSavePlace = false
+                }
+            }
+            .alert("Clear all saved places?", isPresented: $clearPlaces) {
+                Button("Clear saved places", role: .destructive, action: model.clearSavedPlaces)
+                Button("Cancel", role: .cancel) { }
+            } message: { Text("This removes the saved copies and startup choice from this app. You can add places again later.") }
             .task { model.start() }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { model.active() }
@@ -79,28 +104,31 @@ struct SalahView: View {
 
     private var locationSection: some View {
         Section("Your location") {
-            TextField("Latitude, e.g. 44.9778", text: Binding(get: { model.latitude }, set: model.editLatitude))
-                .keyboardType(.numbersAndPunctuation)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .accessibilityLabel("Latitude in degrees")
-            TextField("Longitude, e.g. −93.2650", text: Binding(get: { model.longitude }, set: model.editLongitude))
-                .keyboardType(.numbersAndPunctuation)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .accessibilityLabel("Longitude in degrees")
             if model.isLocating {
                 HStack { ProgressView(); Text("Waiting for a device estimate…") }
                 Button("Cancel location request") { model.cancelLocation() }
             } else {
                 Button { model.requestLocation() } label: {
-                    Label("Fill coordinates from this device", systemImage: "location")
+                    Label("Use device location", systemImage: "location")
                 }
                 DisclosureGroup("If the first location request fails") {
-                    Text("Try near a window or outdoors. This optional, more precise one-shot request can use more power. Apple chooses the location sources; this app cannot demand GPS alone.")
+                    Text("Try outdoors. A more precise request can wait up to 90 seconds and may ask for temporary precise permission. It can use more power; Apple chooses the location sources. You can cancel and choose a city offline instead.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Button("Request a more precise estimate once") { model.requestLocation(precise: true) }
                 }
+            }
+            Button { model.cancelLocation(); showCities = true } label: {
+                Label("Choose a city offline", systemImage: "building.2")
+            }
+            DisclosureGroup("Enter or adjust coordinates") {
+                TextField("Latitude, e.g. 44.9778", text: Binding(get: { model.latitude }, set: model.editLatitude))
+                    .keyboardType(.numbersAndPunctuation).textInputAutocapitalization(.never).autocorrectionDisabled()
+                    .accessibilityLabel("Latitude in degrees")
+                TextField("Longitude, e.g. −93.2650", text: Binding(get: { model.longitude }, set: model.editLongitude))
+                    .keyboardType(.numbersAndPunctuation).textInputAutocapitalization(.never).autocorrectionDisabled()
+                    .accessibilityLabel("Longitude in degrees")
+                Text("Use this if you already have coordinates, or to refine an approximate city point.")
+                    .font(.footnote).foregroundStyle(.secondary)
             }
             Text(model.locationMessage).font(.footnote).foregroundStyle(.secondary)
             if let fix = model.deviceFix {
@@ -110,6 +138,34 @@ struct SalahView: View {
                     if fix.simulated == true { Text("Apple marks this reading as simulated by software.") }
                     if fix.accessoryProduced == true { Text("Apple marks this reading as accessory-produced.") }
                 }.font(.footnote).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var savedPlacesSection: some View {
+        Section("Saved on this device") {
+            ForEach(model.places.places) { place in
+                Button { model.useSavedPlace(place) } label: {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(place.name)
+                            Text(place.zoneID + (model.places.startupID == place.id ? " · used on startup" : ""))
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if model.selectedPlaceID == place.id { Image(systemName: "checkmark") }
+                    }
+                }.disabled(model.inventory == nil)
+                .deleteDisabled(model.isSavingPlace)
+            }.onDelete { offsets in model.removeSavedPlaces(Set(offsets.map { model.places.places[$0].id })) }
+            if model.places.places.isEmpty {
+                Text("A saved place works without a new location fix. Choose your location and calculate once, then save it.")
+                    .font(.footnote).foregroundStyle(.secondary)
+            }
+            if let message = model.placeMessage { Text(message).font(.footnote) }
+            if !model.places.places.isEmpty || model.placeMessage != nil {
+                Button("Clear saved places…", role: .destructive) { clearPlaces = true }
+                    .disabled(model.isSavingPlace)
             }
         }
     }
@@ -228,6 +284,31 @@ struct SalahView: View {
                     .textSelection(.enabled)
                 Text("Second-precision research output. Local terrain/weather, approved high-latitude alternatives, notifications, and institutional certification are not supplied by this preview.")
             }.font(.footnote)
+        }
+    }
+}
+
+struct SavePlaceForm: View {
+    let initialName: String
+    let save: (String, Bool) -> Void
+    @State private var name = ""
+    @State private var startup = true
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                TextField("Place name, e.g. Home", text: $name)
+                Toggle("Use this place when Salah opens", isOn: $startup)
+                Text("Saves the chosen location, timezone and calculation practice on this device. It can be reused without internet or a fresh fix. Saved copies are excluded from backup; removing the app removes them. You can delete them here.")
+                    .font(.footnote).foregroundStyle(.secondary)
+                Button("Save place") { save(name, startup) }
+                    .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || name.count > 80)
+            }
+            .navigationTitle("Save for offline use")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+            .onAppear { name = String(initialName.prefix(80)) }
         }
     }
 }
