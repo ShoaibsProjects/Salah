@@ -1,16 +1,18 @@
 # Salah: what we are building now
 
-**Updated:** 30 September 2026. The [roadmap](roadmap.md) owns phase gates; this page is the plain-language map. “Implemented” means code exists and has the stated checks, not that it is approved for consumer use.
+**Updated:** 1 October 2026. The [roadmap](roadmap.md) owns phase gates; this page is the plain-language map. “Implemented” means code exists and has the stated checks, not that it is approved for consumer use.
 
 ## Current piece
 
-**Phase 3: Portable Calculation Platform → F3-W1: Browser Bridge → WebAssembly Engine and First Schedule Screen.**
+**Phase 4 exploratory experience → F4-C1: Location and Choice Clarity → One-shot device location, method guidance, and Asr explanation.** This is a bounded prototype improvement; it does not pass the Phase 3 portability gate or any accuracy/religious review gate.
 
-The same Rust engine now builds into WebAssembly. A strict JSON bridge accepts explicit coordinates, date, zone, method, and Asr settings and returns the existing shared schedule. The first browser screen runs that module in a worker, displays each event, explains its rule, and offers a local JSON download. It performs no prayer mathematics in JavaScript. See the [bridge contract](../specification/wasm-bridge-contract-v0.1.md).
+The browser screen can now ask for a one-time device location estimate after the person taps the button. This uses the browser's built-in geolocation interface, makes no Salah server lookup, starts no continuous sensor watch, and prefers an energy-conscious provider request. The page displays the reported accuracy radius and keeps coordinates editable. The operating system may use GPS, Wi-Fi, cellular, or a cached fix; some providers may need connectivity, so an offline fix is not guaranteed. The compass is not a location source. Timezone remains a separate explicit selection.
+
+The same Rust engine builds into WebAssembly. A strict JSON bridge accepts explicit coordinates, date, zone, method, and Asr settings and returns the existing shared schedule. The first browser screen runs that module in a worker, displays each event, explains its rule, and offers a local JSON download. It performs no prayer mathematics in JavaScript. The method selector now explains the Sun-angle choices in everyday language, preserves the engineering-only status of `research-15`, and gives a plain-language account of the Standard/Hanafi shadow ratios without choosing a religious practice. See the [bridge contract](../specification/wasm-bridge-contract-v0.1.md).
 
 The earlier named-zone CLI remains available. Direct manual zone choice bypasses polygon lookup, and skipped dates, zero/multiple cycles, and unavailable events remain visible in the bridge. No formula, method profile, solver threshold, or historical reference result was changed.
 
-**Evidence so far:** native build/static checks, pinned-compiler WASM release build and binding generation, JavaScript syntax checks, and one direct use of the generated module in Node.js. The observed WASM is about 726 KB before compression. The local server serves the files; the in-app browser timed out and the Mac was reported locked, so browser visual/interaction review remains pending. No tests were added or run locally. Earlier test counts and GitHub's existing-suite runs are prior/unchanged-suite evidence; they do not cover the new bridge. Phase 1, Phase 2, and the Phase 3 cross-target gate remain open.
+**Evidence so far:** native build/static checks, pinned-compiler WASM release build and binding generation, JavaScript syntax checks, and one direct use of the generated module in Node.js. The observed WASM is about 726 KB before compression. This location and wording update has not yet received browser visual/interaction or real-device location review. No tests were added or run locally. Earlier test counts and GitHub's existing-suite runs are prior/unchanged-suite evidence; they do not cover the new bridge. Phase 1, Phase 2, and the Phase 3 cross-target gate remain open.
 
 **Next piece:** F3-W2: Browser Reliability and Offline Loading. Complete browser visual/interaction review and durable offline startup before adding next-prayer state or reminders. Mobile binding and signed-pack platform integration remain separate open work.
 
@@ -43,6 +45,7 @@ Use **phase → workstream → piece**, followed by a plain name in every handof
 | F3-C1 | Named-Timezone Command and Schedule Document | Implemented; native build/static checks; focused acceptance evidence remains open. |
 | F3-W1 | WebAssembly Bridge and First Schedule Screen | Implemented; native/WASM builds and direct module use; browser acceptance pending. |
 | F3-W2 | Browser Reliability and Offline Loading | Next: browser review and durable offline startup. |
+| F4-C1 | Location and Choice Clarity | Implemented; JavaScript syntax, diff, and contract wording checked. Browser interaction/accessibility and real-device location review remain open. No phase gate is advanced. |
 
 Phase 1 (accuracy and method integrity) and Phase 2 remain open. High-latitude alternatives, Qibla, broader independent comparisons, portable bindings, and user apps remain on the roadmap. A working update subsystem does not settle those other gates.
 

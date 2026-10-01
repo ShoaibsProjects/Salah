@@ -33,8 +33,11 @@
         <section class="selection" aria-labelledby="selection-title">
           <p class="eyebrow">01 / YOUR CHOICES</p>
           <h2 id="selection-title">A place.<br>A day. A method.</h2>
-          <p class="muted">Choose each setting explicitly. Your timezone is a manual choice; we do not infer it from your device.</p>
+          <p class="muted">Choose each setting explicitly. Device location can fill coordinates; your timezone remains a separate choice.</p>
           <form id="schedule-form">
+            <button id="device-location" class="location-button" type="button">Fill coordinates from device location <span aria-hidden="true">⌖</span></button>
+            <p class="field-help location-help">A compass tells direction, not location. This makes one energy-conscious request through your browser to fill latitude and longitude. This page does not send coordinates to Salah or call an online lookup. Your device may use GPS, Wi-Fi, cellular, or a recent fix; some sources need internet. The result is an estimate, not exact. You can enter coordinates yourself.</p>
+            <p id="location-status" class="location-status" role="status" aria-live="polite">Location permission is not requested unless you choose the button.</p>
             <div class="field-pair">
               <label>Latitude <span class="field-unit">degrees</span><input name="latitude_degrees" type="number" step="any" min="-90" max="90" placeholder="44.9778" required></label>
               <label>Longitude <span class="field-unit">degrees</span><input name="longitude_degrees" type="number" step="any" min="-180" max="180" placeholder="−93.2650" required></label>
@@ -43,12 +46,13 @@
             <label>Time zone<input name="zone_id" list="zone-list" placeholder="America/Chicago" autocomplete="off" maxlength="255" aria-describedby="zone-help" required></label>
             <datalist id="zone-list"></datalist>
             <p id="zone-help" class="field-help">Choose a supported IANA name for this location.</p>
-            <label>Calculation profile<select name="method_id" required aria-describedby="method-help"><option value="">Choose a profile</option><option value="mwl-angles-18-17">MWL angles · 18° / 17°</option><option value="research-15">Research 15° · engineering only</option></select></label>
-            <p id="method-help" class="field-help">These are research parameter sets. No regional default or institutional endorsement is implied.</p>
-            <label>Asr criterion<select name="asr" required><option value="">Choose a criterion</option><option value="standard">Standard · shadow factor 1</option><option value="hanafi">Hanafi · shadow factor 2</option></select></label>
+            <label>Fajr and Isha calculation<select name="method_id" required aria-describedby="method-help"><option value="">Choose a profile</option><option value="mwl-angles-18-17">Published sun angles · 18° / 17° (MWL table)</option><option value="research-15">15° / 15° · engineering comparison</option></select></label>
+            <p id="method-help" class="field-help" aria-live="polite">Choose the calculation convention used by your community. The Sun-angle choices give estimated Fajr and Isha beginnings; there is no universal selection here.</p>
+            <label>Asr calculation<select name="asr" required aria-describedby="asr-help"><option value="">Choose an Asr criterion</option><option value="standard">Standard · one extra object-height</option><option value="hanafi">Hanafi · two extra object-heights</option></select></label>
+            <p id="asr-help" class="field-help">After the Sun passes its highest point, the engine checks how much an object's shadow has grown beyond its shadow at noon. Standard uses one object-height of extra shadow; Hanafi uses two. Their calculated times can differ. Follow the practice your mosque or trusted scholar recommends.</p>
             <button id="calculate" class="primary-button" type="submit" disabled>Calculate my schedule <span aria-hidden="true">↗</span></button>
             <button id="example" class="text-button" type="button">Fill a Minneapolis research example</button>
-            <p id="example-note" class="field-help" hidden>Example: 30 September 2026, MWL angles and Hanafi Asr. This is an explicit research configuration, not a recommended local default.</p>
+            <p id="example-note" class="field-help" hidden>Example: 1 October 2026, published MWL angle parameters and Hanafi Asr. This is an explicit research configuration, not a recommended local default.</p>
           </form>
           <p id="engine-state" class="engine-state" role="status">Loading the local Rust engine…</p>
         </section>
@@ -58,10 +62,10 @@
           <p id="schedule-context" class="muted">Your calculated schedule will appear here.</p>
           <p id="notice" class="notice" role="status" hidden></p>
           <p id="error" class="error" role="alert" hidden></p>
-          <div id="empty" class="empty-state"><span class="empty-sun" aria-hidden="true">☼</span><p>Begin with your choices.<br>We will keep the details close.</p><span class="small-label">NO LOCATION IS UPLOADED</span></div>
+          <div id="empty" class="empty-state"><span class="empty-sun" aria-hidden="true">☼</span><p>Begin with your choices.<br>We will keep the details close.</p><span class="small-label">THIS PAGE SENDS NO COORDINATES TO SALAH</span></div>
           <div id="results"></div>
           <details id="provenance" class="provenance" hidden><summary>The choices behind this schedule</summary><div id="provenance-body"></div><button id="download" class="text-button" type="button">Download the complete JSON record ↓</button></details>
-          <p class="research-note">This engine is under development. Independent accuracy and Islamic-methodology review remain open. Calculated beginnings, mosque timetables, and iqamah are distinct; high-latitude alternatives are not applied in this preview.</p>
+          <p class="research-note">This engine is under development. Independent accuracy and Islamic-methodology review remain open. These are calculated beginnings; your mosque's timetable and iqamah may differ. High-latitude alternatives are not applied in this preview.</p>
         </section>
       </div>
     </main>

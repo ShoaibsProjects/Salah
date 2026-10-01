@@ -24,15 +24,15 @@ Our hope is to offer something useful with care: prayer times people can underst
 
 ## Where we are today
 
-**As of 30 September 2026: the Rust research engine and first local web preview are being built and checked.** Mobile applications and a consumer web release are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
+**As of 1 October 2026: the Rust research engine and first local web preview are being built and checked.** The preview now has an optional one-time device-location request and plain-language calculation choices. Mobile applications and a consumer web release are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
 
-**Latest build:** Phase 3: Portable Calculation Platform → Browser Bridge → **F3-W1: WebAssembly Engine and First Schedule Screen**.
+**Latest interface work:** Phase 4 exploratory experience → **F4-C1: Location and Choice Clarity**. The Phase 3 WebAssembly bridge remains a research preview with browser acceptance pending.
 
 The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
 
 You can now use that local schedule from the terminal: choose a location, date, timezone, method, and Asr setting. The command prints the times with their local dates and UTC instants. It can also return a shared JSON document for the apps we build next. Your explicit timezone choice works without consulting the boundary map.
 
-That same engine now builds into WebAssembly. The first local browser screen is a quiet place to make your choices, read the returned schedule, and open an event to see why that time was calculated. The module has produced a schedule through its generated JavaScript bridge; browser visual/interaction review and durable offline installation remain ahead.
+That same engine now builds into WebAssembly. The first local browser screen is a quiet place to make your choices, read the returned schedule, and open an event to see why that time was calculated. If you choose, one tap asks the browser for a single location estimate; the app shows the device-reported uncertainty and never watches location in the background. A compass shows direction, not coordinates. Your device may need connectivity for its location provider, and the timezone remains your explicit choice. The page itself makes no lookup or sends coordinates to Salah. Browser visual/interaction review, real-device location review, and durable offline installation remain ahead.
 
 We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
 
@@ -140,7 +140,7 @@ python3 tools/build_web.py
 python3 -m http.server 8080 --bind 127.0.0.1 --directory apps/web
 ```
 
-Open **http://127.0.0.1:8080** in a current browser. Choose your settings, or explicitly fill the labeled research example, then calculate. No coordinates are uploaded and no remote prayer API is called. Every time displayed comes from the Rust document; local dates are preserved.
+Open **http://127.0.0.1:8080** in a current browser. Choose your settings, or explicitly fill the labeled research example, then calculate. The page makes no location lookup, sends no coordinates to Salah, and calls no remote prayer API. If you choose device location, the browser/operating-system provider may use its own available sources and may need connectivity; the page displays its reported accuracy estimate. Every time displayed comes from the Rust document; local dates are preserved.
 
 This preview needs its local HTTP server for initial asset loading. Installable offline startup and cache updates are future work. GitHub Actions also builds a downloadable `salah-web-research-preview` archive; preserve its data and library notices. The project source license and production release review remain open.
 

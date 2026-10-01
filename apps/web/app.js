@@ -1,5 +1,7 @@
 const form = document.querySelector("#schedule-form");
 const calculateButton = document.querySelector("#calculate");
+const deviceLocationButton = document.querySelector("#device-location");
+const locationStatus = document.querySelector("#location-status");
 const engineState = document.querySelector("#engine-state");
 const errorBox = document.querySelector("#error");
 const notice = document.querySelector("#notice");
@@ -12,6 +14,14 @@ let worker;
 let watchdog;
 let loaded = false;
 let terminated = false;
+let locationRequestId = 0;
+let locationRequestTimer;
+let locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
+
+const methods = {
+  "mwl-angles-18-17": "MWL means Muslim World League. This uses the published parameter set of 18° for Fajr and 17° for Isha. The angles describe how far the Sun is below the horizon in the calculation. Our source is a secondary table; it is not an official League timetable or endorsement. Your mosque may use different settings.",
+  "research-15": "A technical comparison profile: it uses a 15° Sun angle for both Fajr and Isha. It is here to compare calculations, not as a community method or mosque recommendation.",
+};
 
 function clearResult() {
   lastDocument = null;
@@ -33,6 +43,100 @@ function failure(message, fatal = false) {
   calculateButton.disabled = !loaded;
   calculateButton.removeAttribute("aria-busy");
   engineState.textContent = fatal ? "Engine unavailable. Reload after rebuilding the local artifact." : "Ready for another explicit calculation.";
+}
+
+function setLocationMessage(message, problem = false) {
+  locationStatus.textContent = message;
+  locationStatus.classList.toggle("problem", problem);
+}
+
+function cancelLocationRequest(message) {
+  if (locationRequestId === 0) return;
+  locationRequestId = 0;
+  clearTimeout(locationRequestTimer);
+  deviceLocationButton.disabled = false;
+  deviceLocationButton.removeAttribute("aria-busy");
+  setLocationMessage(message);
+}
+
+function explainMethod() {
+  const selected = form.elements.namedItem("method_id").value;
+  document.querySelector("#method-help").textContent = methods[selected]
+    ?? "Choose the calculation convention used by your community. The Sun-angle choices give estimated Fajr and Isha beginnings; there is no universal selection here.";
+}
+
+function useDeviceLocation() {
+  if (locationRequestId !== 0) return;
+  if (!window.isSecureContext) {
+    setLocationMessage("Device location is available on a secure page or localhost. You can enter coordinates yourself here.", true);
+    return;
+  }
+  if (!navigator.geolocation) {
+    setLocationMessage("This browser does not provide device location. You can enter coordinates yourself.", true);
+    return;
+  }
+
+  if (activeId !== null) invalidateChoices();
+  const requestId = ++sequence;
+  locationRequestId = requestId;
+  deviceLocationButton.disabled = true;
+  deviceLocationButton.setAttribute("aria-busy", "true");
+  setLocationMessage("Asking your device for one location estimate… You can still enter coordinates yourself.");
+
+  const finish = () => {
+    if (locationRequestId !== requestId) return false;
+    locationRequestId = 0;
+    clearTimeout(locationRequestTimer);
+    deviceLocationButton.disabled = false;
+    deviceLocationButton.removeAttribute("aria-busy");
+    return true;
+  };
+
+  locationRequestTimer = setTimeout(() => {
+    if (!finish()) return;
+    setLocationMessage("No location fix arrived in time. GPS can take longer indoors; enter coordinates or try again.", true);
+  }, 25000);
+
+  try {
+    navigator.geolocation.getCurrentPosition(position => {
+      if (!finish()) return;
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)
+          || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+        setLocationMessage("Your device returned coordinates outside the valid range. Enter the coordinates yourself.", true);
+        return;
+      }
+
+      // Do not silently reuse an earlier schedule under newly filled coordinates.
+      invalidateChoices();
+      // Seven decimal places preserve centimeter-scale coordinate resolution;
+      // the separately displayed device estimate communicates measurement error.
+      form.elements.namedItem("latitude_degrees").value = latitude.toFixed(7);
+      form.elements.namedItem("longitude_degrees").value = longitude.toFixed(7);
+      locationCapture = {
+        source: "device_geolocation",
+        reportedAccuracyMeters: Number.isFinite(accuracy) && accuracy >= 0 ? accuracy : null,
+      };
+      const accuracyText = locationCapture.reportedAccuracyMeters === null
+        ? "The device did not provide an accuracy estimate."
+        : `The device estimates its accuracy radius at about ${Math.ceil(locationCapture.reportedAccuracyMeters)} m.`;
+      setLocationMessage(`Coordinates filled. ${accuracyText} Review them and choose the timezone for this location.`);
+    }, error => {
+      if (!finish()) return;
+      const message = error.code === error.PERMISSION_DENIED
+        ? "Location access was declined. Enter coordinates yourself, or allow it for this page in your browser settings if you choose."
+        : error.code === error.POSITION_UNAVAILABLE
+          ? "Your device cannot provide a location right now. Check its location setting, or enter coordinates yourself."
+          : "No location fix arrived in time. GPS can take longer indoors; enter coordinates or try again.";
+      setLocationMessage(message, true);
+  // Prefer the platform's efficient location source first. A single request
+  // avoids ongoing sensor use; the reported radius makes uncertainty visible.
+  }, { enableHighAccuracy: false, maximumAge: 30_000, timeout: 20_000 });
+  } catch {
+    if (finish()) setLocationMessage("The browser could not start a location request. You can enter coordinates yourself.", true);
+  }
 }
 
 function node(tag, text, className) {
@@ -97,9 +201,17 @@ function render(schedule) {
     results.append(section);
   }
   const list = node("dl");
+  const methodLabel = schedule.method.id === "mwl-angles-18-17"
+    ? "Published angles · Fajr 18° / Isha 17° (MWL parameters)"
+    : "Engineering comparison · Fajr and Isha 15°";
+  const asrLabel = schedule.method.asr === "hanafi"
+    ? "Hanafi calculation · extra shadow ratio 2"
+    : "Standard calculation · extra shadow ratio 1";
   for (const [label, value] of [
     ["Location", `${schedule.coordinates.latitude_degrees}°, ${schedule.coordinates.longitude_degrees}°`],
-    ["Method", `${schedule.method.id} v${schedule.method.revision}`], ["Asr", schedule.method.asr],
+    ["Location source", locationCapture.source === "device_geolocation" ? "One-time device location estimate" : locationCapture.source === "example_coordinates" ? "Example coordinates" : "Manually entered coordinates"],
+    ...(locationCapture.reportedAccuracyMeters === null ? [] : [["Reported accuracy", `about ${Math.ceil(locationCapture.reportedAccuracyMeters)} m`]]),
+    ["Fajr and Isha profile", methodLabel], ["Asr calculation", asrLabel],
     ["Source", schedule.method.source], ["Kernel", `${schedule.kernel.version} · ${schedule.kernel.astronomy_model}`],
     ["Rules", `IANA ${schedule.rule_pack.tzdb_version} · ${schedule.runtime_source.kind}`],
     ["Pack hash", schedule.rule_pack.sha256], ["Inventory", schedule.rule_pack.inventory_sha256],
@@ -121,6 +233,7 @@ try {
       document.querySelector("#zone-list").replaceChildren(...options);
       loaded = true;
       calculateButton.disabled = false;
+      deviceLocationButton.disabled = false;
       engineState.textContent = `Rust engine ready · ${options.length} named zones · IANA ${data.inventory.rule_pack.tzdb_version}`;
     } else if (data?.kind === "fatal") {
       failure(data.message, true);
@@ -162,7 +275,12 @@ form.addEventListener("submit", event => {
 });
 
 // Editing a setting invalidates the old display and any in-flight response.
-function invalidateChoices() {
+function invalidateChoices(event) {
+  if (["latitude_degrees", "longitude_degrees"].includes(event?.target?.name)
+      && locationCapture.source !== "manual_coordinates") {
+    cancelLocationRequest("Your coordinates were edited. They are now treated as manually entered.");
+    locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
+  }
   if (activeId !== null) { activeId = null; clearTimeout(watchdog); calculateButton.disabled = !loaded; calculateButton.removeAttribute("aria-busy"); }
   clearResult();
   document.querySelector("#example-note").hidden = true;
@@ -170,17 +288,30 @@ function invalidateChoices() {
 }
 form.addEventListener("input", invalidateChoices);
 form.addEventListener("change", invalidateChoices);
+form.elements.namedItem("method_id").addEventListener("change", explainMethod);
+deviceLocationButton.addEventListener("click", useDeviceLocation);
 
 document.querySelector("#example").addEventListener("click", () => {
   if (activeId !== null) return;
+  cancelLocationRequest("Using the labeled example coordinates. Choose device location or enter your own coordinates when ready.");
+  locationCapture = { source: "example_coordinates", reportedAccuracyMeters: null };
   clearResult();
-  for (const [key, value] of Object.entries({ latitude_degrees: "44.9778", longitude_degrees: "-93.2650", local_date: "2026-09-30", zone_id: "America/Chicago", method_id: "mwl-angles-18-17", asr: "hanafi" })) form.elements.namedItem(key).value = value;
+  for (const [key, value] of Object.entries({ latitude_degrees: "44.9778", longitude_degrees: "-93.2650", local_date: "2026-10-01", zone_id: "America/Chicago", method_id: "mwl-angles-18-17", asr: "hanafi" })) form.elements.namedItem(key).value = value;
   document.querySelector("#example-note").hidden = false;
+  setLocationMessage("Using the labeled Minneapolis example coordinates. Choose device location or enter your own coordinates for your location.");
 });
 
 document.querySelector("#download").addEventListener("click", () => {
   if (!lastDocument) return;
-  const url = URL.createObjectURL(new Blob([JSON.stringify(lastDocument, null, 2) + "\n"], { type: "application/json" }));
+  const exportRecord = {
+    schema: "salah-web-schedule-export-v1",
+    schedule: lastDocument,
+    location_input: {
+      source: locationCapture.source,
+      reported_accuracy_radius_meters: locationCapture.reportedAccuracyMeters,
+    },
+  };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(exportRecord, null, 2) + "\n"], { type: "application/json" }));
   const link = node("a"); link.href = url; link.download = `salah-${lastDocument.requested_local_date}.json`;
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
