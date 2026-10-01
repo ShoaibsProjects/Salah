@@ -1,6 +1,6 @@
 # Qur’an passages in the Salah welcome
 
-**Retrieved:** 30 September 2026.
+**Retrieved:** 30 September 2026; both passages independently re-fetched and confirmed verbatim on 1 October 2026 for the revised welcome.
 
 **Tool:** quran.ai `fetch_translation`.
 

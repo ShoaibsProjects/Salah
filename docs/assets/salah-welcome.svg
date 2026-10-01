@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="300" viewBox="0 0 1000 300" role="img" aria-labelledby="title description">
+  <title id="title">Salah — prayer, with clarity and care</title>
+  <desc id="description">An ivory welcome with deep green lettering, fine gold lines and a quiet geometric border.</desc>
+  <rect width="1000" height="300" rx="22" fill="#f7f3e9"/>
+  <rect x="14" y="14" width="972" height="272" rx="14" fill="none" stroke="#d8c8a4"/>
+  <g fill="none" stroke="#b9a276" stroke-width="1.25" opacity="0.7">
+    <path d="M58 88V58h30M912 58h30v30M58 212v30h30M912 242h30v-30"/>
+    <path d="M100 110v80M900 110v80M70 150h60M870 150h60"/>
+    <path d="M100 112l27 38-27 38-27-38zM900 112l27 38-27 38-27-38z"/>
+    <path d="M81 131h38v38H81zM881 131h38v38h-38z"/>
+    <path d="M170 248h260M570 248h260"/>
+  </g>
+  <g text-anchor="middle" fill="#24483c">
+    <text x="500" y="76" font-family="Georgia, 'Times New Roman', serif" font-size="18" letter-spacing="3">ASSALAMU ALAIKUM</text>
+    <text x="500" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="92">Salah</text>
+    <text x="500" y="216" font-family="Georgia, 'Times New Roman', serif" font-size="27">Prayer, with clarity and care.</text>
+  </g>
+  <path d="M500 240l8 8-8 8-8-8z" fill="none" stroke="#b9a276" stroke-width="1.25"/>
+</svg>
