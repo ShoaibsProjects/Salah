@@ -10,10 +10,5 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-salah-core = { path = "../salah-core" }
-salah-engine = { path = "../salah-engine" }
-salah-location = { path = "../salah-location" }
-salah-time = { path = "../salah-time" }
-serde = { version = "=1.0.229", features = ["derive"] }
-serde_json = "=1.0.151"
+salah-bridge = { path = "../salah-bridge" }
 wasm-bindgen = "=0.2.129"

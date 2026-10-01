@@ -6,7 +6,9 @@
 
 ## Architecture
 
-`apps/web` → module Web Worker → generated wasm-bindgen boundary → `salah-wasm` → existing `salah-engine`, `salah-location`, `salah-time`, and `salah-core`.
+`apps/web` → module Web Worker → generated wasm-bindgen boundary → `salah-wasm` → `salah-bridge` → existing `salah-engine`, `salah-location`, `salah-time`, and `salah-core`.
+
+F3-A1 extracts the existing operation bodies into `salah-bridge` for reuse by the [Apple C ABI](apple-foundation-v0.1.md). WASM exports, request schemas and calculations remain unchanged. Six complete schedule records match the CLI and iOS Simulator; this selected evidence does not pass the global portability gate.
 
 The browser sends explicit inputs and displays the [shared schedule document](named-zone-interface-contract-v0.1.md). Rust owns input validation, solar calculations, local-date selection, timezone conversion, event rules, and unavailable statuses. JavaScript contains no prayer mathematics and performs no `Date` conversion of returned labels. The original v1 calculation uses bundled IANA 2026d and direct manual zone selection. The additive [offline setup contract](offline-setup-contract-v0.1.md) adds map lookup, selected-zone date conversion from a caller clock, provenance-preserving v2 calculation, and saved public app assets. Signed-pack activation/storage remain outside this bridge.
 

@@ -8,6 +8,8 @@ members = [
     "crates/salah-update",
     "crates/salah-update-store",
     "crates/salah-wasm",
+    "crates/salah-bridge",
+    "crates/salah-ffi",
 ]
 resolver = "2"
 

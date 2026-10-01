@@ -348,6 +348,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 
 [[package]]
+name = "salah-bridge"
+version = "0.1.0"
+dependencies = [
+ "salah-core",
+ "salah-engine",
+ "salah-location",
+ "salah-time",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "salah-cli"
 version = "0.3.0"
 dependencies = [
@@ -371,6 +383,13 @@ dependencies = [
  "salah-time",
  "salah-update",
  "serde_json",
+]
+
+[[package]]
+name = "salah-ffi"
+version = "0.1.0"
+dependencies = [
+ "salah-bridge",
 ]
 
 [[package]]
@@ -420,12 +439,7 @@ dependencies = [
 name = "salah-wasm"
 version = "0.1.0"
 dependencies = [
- "salah-core",
- "salah-engine",
- "salah-location",
- "salah-time",
- "serde",
- "serde_json",
+ "salah-bridge",
  "wasm-bindgen",
 ]
 

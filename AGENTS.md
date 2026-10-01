@@ -30,6 +30,7 @@ This repository is the canonical workspace for Salah. Read these files before ch
 26. `specification/wasm-bridge-contract-v0.1.md` — bounded explicit JSON bridge, Web Worker/browser preview, reproducible package build, and pending browser/cross-target acceptance.
 27. `docs/offline-product-contract.md` — canonical offline operating vision, hardware/clock limits, automatic setup, manual fallback, and long-term direction. Read this before extending device inputs or app startup.
 28. `specification/offline-setup-contract-v0.1.md` — additive zone lookup/clock/selection bridge, selected-zone device date, explicit confirmation, and hash-checked public browser package.
+29. `specification/apple-foundation-v0.1.md` and `apps/apple/README.md` — researched Apple platform boundary, native C ABI ownership, build/bridge evidence, one-shot location policy, and unresolved Store/privacy and physical-device acceptance.
 
 ## Project intent
 
@@ -63,6 +64,8 @@ The [offline product contract](docs/offline-product-contract.md) records the acc
 - Update the specification and relevant documentation when behavior changes. Report what was verified and any remaining limitations.
 
 ## Current state
+
+F3-A1/F4-A1 adds the native iPhone/iPad research app. `salah-bridge` owns the existing strict JSON operations, `salah-wasm` re-exports them, and `salah-ffi` exposes bounded borrowed input and Rust-owned output through C ABI 1. Swift copies then frees each response, uses explicit profile/Asr/zone selection, and delegates schedule/lookup/today to Rust. Device and Simulator builds pass; six complete records match CLI/WASM/iOS Simulator. Core Location remains optional and source-agnostic with a bounded foreground request; no physical radio-off gate has passed. Setup is memory-only. Rust panic-symbolication metadata access leaves Store privacy review blocked; never describe the draft manifest as approved or publish this preview as consumer-ready.
 
 F3-W1 adds `salah-wasm`, a bounded explicit JSON bridge, and `apps/web`, the first local worker-based schedule screen. No JavaScript prayer calculation, local-time reinterpretation, defaults, signed activation, or new tests are introduced. Native/WASM builds and one direct module use are recorded; browser acceptance remains pending. Read the bridge contract and current-work map before extending this client.
 
