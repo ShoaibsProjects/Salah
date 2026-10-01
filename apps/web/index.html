@@ -9,6 +9,7 @@
   <title>Salah — Prayer, with clarity and care</title>
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./app.js"></script>
+  <script type="module" src="./offline.js"></script>
 </head>
 <body>
   <div class="page">
@@ -33,7 +34,7 @@
         <section class="selection" aria-labelledby="selection-title">
           <p class="eyebrow">01 / YOUR CHOICES</p>
           <h2 id="selection-title">A place.<br>A day. A method.</h2>
-          <p class="muted">Choose each setting explicitly. Device location can fill coordinates; your timezone remains a separate choice.</p>
+          <p class="muted">Use an available location fix or enter coordinates. The embedded map suggests a timezone; after you confirm it, the engine fills today's date.</p>
           <form id="schedule-form">
             <button id="device-location" class="location-button" type="button">Fill coordinates from device location <span aria-hidden="true">⌖</span></button>
             <button id="precise-location" class="location-retry-button" type="button" hidden>Retry once with a more precise location request</button>
@@ -43,10 +44,13 @@
               <label>Latitude <span class="field-unit">degrees</span><input name="latitude_degrees" type="number" step="any" min="-90" max="90" placeholder="44.9778" required></label>
               <label>Longitude <span class="field-unit">degrees</span><input name="longitude_degrees" type="number" step="any" min="-180" max="180" placeholder="−93.2650" required></label>
             </div>
-            <label>Gregorian date<input name="local_date" type="date" min="1900-01-01" max="2100-12-31" required></label>
             <label>Time zone<input name="zone_id" list="zone-list" placeholder="America/Chicago" autocomplete="off" maxlength="255" aria-describedby="zone-help" required></label>
             <datalist id="zone-list"></datalist>
-            <p id="zone-help" class="field-help">Choose a supported IANA name for this location.</p>
+            <p id="zone-help" class="field-help" role="status">Timezone suggestions use bundled data and require no lookup service.</p>
+            <label class="check-label"><input id="zone-confirmed" type="checkbox" required> This timezone applies to my selected location.</label>
+            <label class="check-label"><input id="device-today" type="checkbox" checked> Use today's date from my device clock.</label>
+            <label>Gregorian date<input name="local_date" type="date" min="1900-01-01" max="2100-12-31" aria-describedby="date-help" required></label>
+            <p id="date-help" class="field-help" role="status">Confirm the timezone first. Today's date is then derived by the Rust engine; you can also choose a date manually.</p>
             <label>Fajr and Isha calculation<select name="method_id" required aria-describedby="method-help"><option value="">Choose a profile</option><option value="mwl-angles-18-17">Published sun angles · 18° / 17° (MWL table)</option><option value="research-15">15° / 15° · engineering comparison</option></select></label>
             <p id="method-help" class="field-help" aria-live="polite">Choose the calculation convention used by your community. The Sun-angle choices give estimated Fajr and Isha beginnings; there is no universal selection here.</p>
             <label>Asr calculation<select name="asr" required aria-describedby="asr-help"><option value="">Choose an Asr criterion</option><option value="standard">Standard · one extra object-height</option><option value="hanafi">Hanafi · two extra object-heights</option></select></label>
@@ -56,6 +60,7 @@
             <p id="example-note" class="field-help" hidden>Example: 1 October 2026, published MWL angle parameters and Hanafi Asr. This is an explicit research configuration, not a recommended local default.</p>
           </form>
           <p id="engine-state" class="engine-state" role="status">Loading the local Rust engine…</p>
+          <div class="offline-note"><button id="prepare-offline" class="text-button" type="button">Save this app for offline use</button><p id="offline-status" class="field-help" role="status">Calculation is local. Save the complete app package to reopen it without the server; location hardware availability is separate.</p></div>
         </section>
         <section class="schedule" aria-labelledby="schedule-title">
           <div class="schedule-heading"><p class="eyebrow">02 / YOUR SCHEDULE</p><span class="preview-tag">RESEARCH PREVIEW</span></div>

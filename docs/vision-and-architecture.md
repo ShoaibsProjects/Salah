@@ -7,6 +7,8 @@
 
 **Execution:** the active [delivery roadmap](roadmap.md) governs phases and release gates
 
+**Accepted operating direction, 1 October 2026:** the [offline product contract](offline-product-contract.md) complements this original vision and is the canonical guide for device inputs, automatic timezone/date setup, manual fallback, installed app files, and hardware limits. It separates implemented pieces from future capabilities.
+
 ## 1. Executive summary
 
 Salah 2050 should make daily prayer times understandable, available offline, and respectful of established differences in calculation and practice. The first product serves Muslims on iOS, Android, and the web. It shows Fajr, sunrise, Dhuhr, Asr, Maghrib, and Isha; the next prayer; a Qibla bearing; and the settings that produced each time.

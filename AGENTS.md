@@ -28,10 +28,14 @@ This repository is the canonical workspace for Salah. Read these files before ch
 24. `docs/current-work.md` — plain-language component names and the current phase/workstream/piece; roadmap gate authority is unchanged.
 25. `specification/named-zone-interface-contract-v0.1.md` — explicit manual zone without lookup, named-zone CLI, and shared schedule JSON; no display-minute or notification rule.
 26. `specification/wasm-bridge-contract-v0.1.md` — bounded explicit JSON bridge, Web Worker/browser preview, reproducible package build, and pending browser/cross-target acceptance.
+27. `docs/offline-product-contract.md` — canonical offline operating vision, hardware/clock limits, automatic setup, manual fallback, and long-term direction. Read this before extending device inputs or app startup.
+28. `specification/offline-setup-contract-v0.1.md` — additive zone lookup/clock/selection bridge, selected-zone device date, explicit confirmation, and hash-checked public browser package.
 
 ## Project intent
 
 Build a free-to-use, private, offline-capable prayer-time system for Earth. The durable center is a documented Rust calculation core, versioned method definitions, reference cases, and clear explanations. iOS, Android, web, and later clients consume the core. No account, cloud service, paid API, or internet connection may be required to calculate prayer times or the Qibla bearing.
+
+The [offline product contract](docs/offline-product-contract.md) records the accepted operating model: fill routine inputs from usable local readings and embedded data, preserve uncertainty and choice, and offer manual correction. A compass cannot supply coordinates; a source-agnostic browser location provider cannot be declared GNSS-only or guaranteed offline. Use the caller's UTC instant and the selected location's Rust timezone rules to derive today, with an explicitly unverified device clock.
 
 ## Rules for implementation
 
@@ -63,6 +67,8 @@ Build a free-to-use, private, offline-capable prayer-time system for Earth. The 
 F3-W1 adds `salah-wasm`, a bounded explicit JSON bridge, and `apps/web`, the first local worker-based schedule screen. No JavaScript prayer calculation, local-time reinterpretation, defaults, signed activation, or new tests are introduced. Native/WASM builds and one direct module use are recorded; browser acceptance remains pending. Read the bridge contract and current-work map before extending this client.
 
 F4-C1 refines the browser research preview with an opt-in energy-conscious Geolocation API request, a user-selected higher-accuracy retry after failure, and plain-language profile/Asr explanations. The browser/OS may need connectivity; do not describe the result as compass-derived, exact, or guaranteed offline. Keep timezone selection separate, preserve manual coordinate entry, and do not add continuous location tracking or collect coordinates remotely. Browser and real-device review remain pending; no tests were added or run locally in this piece.
+
+F4-C2 now fills coordinate-derived timezone suggestions through the embedded Rust map and derives today from a caller-supplied UTC clock instant in the confirmed location zone. One suggestion still requires confirmation because point geometry is approximate and the fix error footprint is unchecked. v1 schedule input remains available; additive v2 records manual versus confirmed-map choice. F3-W2 adds opt-in, hash-checked public-asset caching and explicit browser package updates. Browser restart/update/eviction and native sensor acceptance remain open; no tests were added or run locally. Follow the offline setup contract rather than inferring a universal device capability.
 
 F3-C1 adds `salah-cli schedule`, `salah-cli zones`, and `salah_engine::schedule_document` under the named-zone interface contract. Direct manual selection records an unperformed map lookup separately from no coverage. Native build/static checks are recorded; the user requested no new tests, and no tests were run locally in this slice. The next build is a portable binding probe, with all earlier phase gates still open.
 

@@ -1,14 +1,18 @@
 //! Thin explicit-input WebAssembly boundary. All astronomical, local-date,
 //! and civil-time calculations remain in the existing Rust engine.
-//! No device clock, location API, network, storage, or JavaScript Date is used.
+//! No device clock, location API, network, storage, or JavaScript Date is read
+//! by Rust. Setup operations accept explicit caller readings and bundled data.
 
 use salah_core::{AsrCriterion, CivilDate, Coordinates, MethodProfile};
 use salah_engine::{calculate_selected_local_day_schedule, schedule_document};
-use salah_location::select_manual_zone;
+use salah_location::{lookup_timezone_candidates, select_manual_zone};
 use salah_time::{BUNDLED_RULE_PACK_IDENTITY, SUPPORTED_ZONE_IDS};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use wasm_bindgen::prelude::*;
+
+mod setup;
+pub use setup::{local_clock_json, lookup_timezone_json};
 
 pub const REQUEST_SCHEMA: &str = "salah-schedule-request-v1";
 pub const RESPONSE_SCHEMA: &str = "salah-schedule-response-v1";
@@ -24,6 +28,26 @@ struct Request {
     zone_id: String,
     method_id: String,
     asr: String,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct SelectionRequest {
+    schema: String,
+    latitude_degrees: f64,
+    longitude_degrees: f64,
+    local_date: String,
+    zone_id: String,
+    method_id: String,
+    asr: String,
+    zone_choice: ZoneChoice,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum ZoneChoice {
+    Manual,
+    ConfirmedSuggestion,
 }
 
 struct BridgeError {
@@ -77,6 +101,10 @@ fn calculate(input: &str) -> Result<Value, BridgeError> {
             format!("Expected {REQUEST_SCHEMA}."),
         ));
     }
+    calculate_request(request, ZoneChoice::Manual)
+}
+
+fn calculate_request(request: Request, choice: ZoneChoice) -> Result<Value, BridgeError> {
     let coordinates = Coordinates::new(request.latitude_degrees, request.longitude_degrees)
         .map_err(|e| error("invalid_coordinates", e))?;
     let requested_date = date(&request.local_date)?;
@@ -100,11 +128,56 @@ fn calculate(input: &str) -> Result<Value, BridgeError> {
             ));
         }
     };
-    let selection = select_manual_zone(coordinates, &request.zone_id)
-        .map_err(|e| error("unsupported_zone", e))?;
+    let selection = match choice {
+        ZoneChoice::Manual => select_manual_zone(coordinates, &request.zone_id)
+            .map_err(|e| error("unsupported_zone", e))?,
+        ZoneChoice::ConfirmedSuggestion => lookup_timezone_candidates(coordinates)
+            .map_err(|e| error("zone_lookup_failed", e))?
+            .confirm_suggestion(&request.zone_id)
+            .map_err(|e| error("invalid_zone_confirmation", e))?,
+    };
     let selected = calculate_selected_local_day_schedule(&selection, requested_date, method, asr)
         .map_err(|e| error("calculation_failed", e))?;
     schedule_document(&selected).map_err(|e| error("encoding_failed", e))
+}
+
+/// Additive v2 request preserving whether the person explicitly confirmed a
+/// bundled-map suggestion. Recheck the coordinates and candidate in Rust;
+/// client-provided candidate arrays are never accepted as evidence.
+#[wasm_bindgen]
+pub fn calculate_schedule_with_selection_json(request_json: &str) -> String {
+    let result = (|| {
+        if request_json.len() > MAX_REQUEST_BYTES {
+            return Err(error(
+                "request_too_large",
+                "The request exceeds 8192 UTF-8 bytes.",
+            ));
+        }
+        let request: SelectionRequest =
+            serde_json::from_str(request_json).map_err(|e| error("invalid_request", e))?;
+        if request.schema != "salah-schedule-request-v2" {
+            return Err(error(
+                "unsupported_schema",
+                "Expected salah-schedule-request-v2.",
+            ));
+        }
+        calculate_request(
+            Request {
+                schema: REQUEST_SCHEMA.to_owned(),
+                latitude_degrees: request.latitude_degrees,
+                longitude_degrees: request.longitude_degrees,
+                local_date: request.local_date,
+                zone_id: request.zone_id,
+                method_id: request.method_id,
+                asr: request.asr,
+            },
+            request.zone_choice,
+        )
+    })();
+    match result {
+        Ok(schedule) => json!({"schema": RESPONSE_SCHEMA, "status": "ok", "schedule": schedule}),
+        Err(e) => json!({"schema": RESPONSE_SCHEMA, "status": "error", "error": {"code": e.code, "message": e.message}}),
+    }.to_string()
 }
 
 /// One bounded JSON request, one JSON envelope. Handled failures return

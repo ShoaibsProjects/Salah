@@ -33,6 +33,8 @@ label { display: block; font-size: 12px; font-weight: 600; margin-top: 19px; }
 .field-unit { font-size: 10px; color: var(--muted); font-weight: 400; }
 input, select { width: 100%; min-height: 46px; border: 1px solid #c7cebe; border-radius: 3px; background: var(--white); color: var(--ink); padding: 10px; margin-top: 7px; font-size: 14px; }
 input::placeholder { color: #7b877b; }
+.check-label { display: flex; align-items: flex-start; gap: 9px; font-size: 12px; font-weight: 400; line-height: 1.6; }
+.check-label input { width: 17px; min-height: 17px; height: 17px; flex: 0 0 17px; margin: 2px 0 0; padding: 0; accent-color: var(--olive); }
 .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .field-pair label { margin-top: 0; }
 .field-help { color: var(--muted); font-size: 12px; margin: 7px 0 0; line-height: 1.65; }

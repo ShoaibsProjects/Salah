@@ -24,15 +24,19 @@ Our hope is to offer something useful with care: prayer times people can underst
 
 ## Where we are today
 
-**As of 1 October 2026: the Rust research engine and first local web preview are being built and checked.** The preview now has an optional one-time device-location request and plain-language calculation choices. Mobile applications and a consumer web release are still ahead. Phase 1 accuracy and methodology review and Phase 2 civil-time gates remain open.
+**As of 1 October 2026: the Rust research engine and local web preview are being built and checked.** The preview now suggests a timezone from its embedded map, fills today's date in the confirmed location zone, and offers a saved browser package for offline reopening. Optional device location and plain-language calculation choices remain. Mobile applications and a consumer web release are still ahead. Phase 1 accuracy/methodology and Phase 2 civil-time gates remain open.
 
-**Latest interface work:** Phase 4 exploratory experience → **F4-C1: Location and Choice Clarity**. The Phase 3 WebAssembly bridge remains a research preview with browser acceptance pending.
+**Latest pieces:** Phase 4 → **F4-C2: Offline Setup — Timezone Suggestion and Device Date**; Phase 3 → **F3-W2: Saved App Package**. Browser/device and offline lifecycle acceptance remain pending.
 
 The engine is already here: it calculates solar and prayer events offline and converts them into local clock readings. It keeps the choices and data behind each result, so someone can later understand why a time was shown.
 
 You can now use that local schedule from the terminal: choose a location, date, timezone, method, and Asr setting. The command prints the times with their local dates and UTC instants. It can also return a shared JSON document for the apps we build next. Your explicit timezone choice works without consulting the boundary map.
 
-That same engine now builds into WebAssembly. The first local browser screen is a quiet place to make your choices, read the returned schedule, and open an event to see why that time was calculated. If you choose, one tap asks the browser for an energy-conscious location estimate; after a failure you may explicitly request one more precise fix. The app shows the device-reported uncertainty and never watches location in the background. A compass shows direction, not coordinates. Your device may need connectivity for its location provider, and the timezone remains your explicit choice. The page itself makes no lookup or sends coordinates to Salah. Browser visual/interaction review, real-device location review, and durable offline installation remain ahead.
+That same engine builds into WebAssembly. The local browser screen is a quiet place to read a schedule and see why each time was calculated. Coordinates feed the embedded timezone map; a single suggestion fills automatically, with one confirmation because the map is approximate. Rust converts the device's UTC clock into today's date for that location. Manual correction is always available, and method/Asr choices remain yours.
+
+If you choose device location, the browser asks once and displays the provider's uncertainty. A compass supplies direction, not coordinates. A GNSS receiver can work without internet, but hardware and platform access differ; this browser API cannot certify which source was used or that no network was involved. Salah calls no remote prayer or location service. Browser/device review remains ahead.
+
+The whole operating idea is kept in the [offline product contract](docs/offline-product-contract.md): one local engine, bundled essential data, automatic setup where readings are usable, and clear correction when they are missing or uncertain. A saved browser copy can reopen with its engine files offline; a native package and GNSS adapter remain planned. We want daily use to stay available when a server disappears.
 
 We have built signed timezone-update storage with restart recovery. The new runtime slice connects a verified snapshot to calculations and records its exact identity. Its focused acceptance evidence is still ahead; production keys and automatic update activation remain unfinished.
 
@@ -52,6 +56,7 @@ We have built signed timezone-update storage with restart recovery. The new runt
 | **Update Storage and Recovery** | A Unix prototype for signed archives, trial selection, confirmation, restart recovery, and update replay/downgrade checks. |
 | **Calculation Lab Command** | Named-zone local schedules, optional versioned JSON, supported-zone listing, and the earlier fixed-offset research interface. |
 | **Browser Bridge and First Screen** | A strict JSON-to-Rust WebAssembly boundary, worker-based local schedule preview, event explanations, and JSON download. Browser acceptance remains pending. |
+| **Offline Setup and Saved Package** | Embedded coordinate-to-zone suggestions, selected-zone date from the device UTC clock, and opt-in hash-checked public app caching. Browser restart/update/eviction acceptance remains pending. |
 
 Published checkpoint [1be80bc](https://github.com/ShoaibsProjects/Salah/commit/1be80bc) passed **100 Rust tests**, six pack-validator tests, formatting/lint checks, and GitHub CI. One subprocess helper is intentionally ignored by the ordinary runner and invoked by its parent recovery test.
 
@@ -59,7 +64,7 @@ The runtime and new interface slices have local build and static checks. No new 
 
 These checks are engineering evidence. Independent scientific and Islamic-methodology review remain necessary.
 
-The new WebAssembly slice builds with the pinned compiler and binding generator; its generated WASM was about 726 KB before compression. One direct module use in Node.js produced a schedule. Native builds/lints and JavaScript syntax checks are recorded. No new tests were added or run locally. The in-app browser timed out while opening the local server, so this is not a completed browser or cross-target acceptance review. See the [bridge contract](specification/wasm-bridge-contract-v0.1.md).
+The original WebAssembly slice built with the pinned compiler/binding generator and had one direct module use in Node.js. Its earlier approximately 726 KB WASM did not expose the boundary lookup. The new offline setup build includes that global geometry: WASM is about 4.9 MB and the public saved inventory about 5.7 MB before compression. Native builds/lints, WASM generation, and JavaScript syntax checks are recorded. No new tests were added or run locally. Build evidence does not complete browser/device or offline lifecycle acceptance. See the [bridge](specification/wasm-bridge-contract-v0.1.md) and [offline setup](specification/offline-setup-contract-v0.1.md) contracts.
 
 </details>
 
@@ -68,6 +73,7 @@ The new WebAssembly slice builds with the pinned compiler and binding generator;
 - **Free to use.** Everyday prayer calculations should require no subscription, paid API, or account.
 - **Private by design.** Location can stay on the device; manual coordinates and zone choice remain available.
 - **Offline essentials.** Daily calculation should work without a server or internet connection.
+- **Gentle setup.** Use available local coordinates, embedded timezone data, and the device clock; show their source and make correction simple.
 - **Explainable times.** A result should carry its method, astronomical model, adjustments, timezone data, and any unavailable condition.
 - **Respect for communities.** Calculated prayer beginnings, mosque timetables, and iqamah are different things. Method choices deserve clear explanations and qualified review.
 - **A durable center.** iOS, Android, and web clients will use the same documented engine. The interface can evolve while the calculation foundation remains reviewable.
@@ -140,9 +146,9 @@ python3 tools/build_web.py
 python3 -m http.server 8080 --bind 127.0.0.1 --directory apps/web
 ```
 
-Open **http://127.0.0.1:8080** in a current browser. Choose your settings, or explicitly fill the labeled research example, then calculate. The page makes no location lookup, sends no coordinates to Salah, and calls no remote prayer API. If you choose device location, the browser/operating-system provider may use its own available sources and may need connectivity; the page displays its reported accuracy estimate. Every time displayed comes from the Rust document; local dates are preserved.
+Open **http://127.0.0.1:8080** in a current browser. Enter coordinates or request an available device fix, confirm the embedded map's timezone suggestion, and choose your method/Asr preference. Today is derived locally by Rust in that zone; turn off device-today mode to choose another date. The labeled research example remains available. No coordinates are sent to Salah and no remote prayer/geocoding API is called. The optional browser/OS location provider may itself need connectivity; its source is unknown. Every event displayed comes from the Rust document.
 
-This preview needs its local HTTP server for initial asset loading. Installable offline startup and cache updates are future work. GitHub Actions also builds a downloadable `salah-web-research-preview` archive; preserve its data and library notices. The project source license and production release review remain open.
+Choose **Save this app for offline use** while the complete files are available. The worker verifies the build inventory and asset hashes before reporting them saved. Its activated copy uses local cached assets without a server fallback; a complete new version waits for your explicit apply/reload. Browser storage can be cleared or evicted, so keep a local copy for restoration. This behavior is implemented with browser lifecycle acceptance still open. GitHub Actions builds a downloadable `salah-web-research-preview` archive; preserve its data/library notices. The source license and production release review remain open.
 
 ### Run the checks
 
@@ -172,7 +178,7 @@ salah-wasm          bounded explicit JSON bridge to the same engine
 apps/web            local worker-based schedule preview
 ```
 
-Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and the [accuracy budget](specification/accuracy-budget.md). Preserve historical contracts and reference evidence when changing behavior.
+Start with [AGENTS.md](AGENTS.md), the [offline product contract](docs/offline-product-contract.md), the [decision record](docs/decisions.md), and the [accuracy budget](specification/accuracy-budget.md). Preserve historical contracts and reference evidence when changing behavior.
 
 <details>
 <summary>Calculation, civil-time, and update contracts</summary>
@@ -193,6 +199,7 @@ Start with [AGENTS.md](AGENTS.md), the [decision record](docs/decisions.md), and
 - [Verified runtime snapshot](specification/runtime-rule-snapshot-v0.1.md)
 - [Named-zone command and schedule document](specification/named-zone-interface-contract-v0.1.md)
 - [WebAssembly bridge and first browser screen](specification/wasm-bridge-contract-v0.1.md)
+- [Offline setup and saved browser package](specification/offline-setup-contract-v0.1.md)
 
 </details>
 
