@@ -35,7 +35,13 @@ input, select { width: 100%; min-height: 46px; border: 1px solid #c7cebe; border
 input::placeholder { color: #7b877b; }
 .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .field-pair label { margin-top: 0; }
-.field-help { color: var(--muted); font-size: 11px; margin: 7px 0 0; line-height: 1.6; }
+.field-help { color: var(--muted); font-size: 12px; margin: 7px 0 0; line-height: 1.65; }
+.location-button { display: flex; justify-content: space-between; align-items: center; width: 100%; border: 1px solid #8f9b84; background: transparent; color: var(--ink); padding: 12px; border-radius: 3px; text-align: left; font-size: 13px; }
+.location-button:hover:not(:disabled) { background: #e6e9dc; }
+.location-button:disabled { opacity: .55; cursor: wait; }
+.location-help { margin-bottom: 10px; }
+.location-status { min-height: 18px; margin: 8px 0 19px; color: var(--olive); font-size: 12px; line-height: 1.6; }
+.location-status.problem { color: #753c2d; }
 .primary-button { display: flex; justify-content: space-between; align-items: center; width: 100%; border: 1px solid var(--ink); background: var(--ink); color: white; padding: 14px 15px; border-radius: 3px; margin-top: 26px; font-size: 13px; }
 .primary-button:hover { background: #365249; }
 button:disabled { opacity: .55; cursor: wait; }
