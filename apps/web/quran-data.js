@@ -1,4 +1,26 @@
 // Arabic: quran.ai ar-uthmani-hafs. Translation: Muhammad A. S. Abdel Haleem. Retrieved 2026-10-11.
+// Evidence verses: ar-uthmani-hafs / en-sahih-international, quran.ai, retrieved 2026-10-12.
+export const evidenceVerses = [
+  {
+    "ayah": "13:28",
+    "text": "ٱلَّذِينَ ءَامَنُوا۟ وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ ٱللَّهِ ۗ أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ",
+    "citation_url": null,
+    "meaning": "Those who have believed and whose hearts are assured by the remembrance of Allāh. Unquestionably, by the remembrance of Allāh hearts are assured.\"",
+    "name": "Ar-Raʿd",
+    "href": "https://quran.com/13:28?translations=20",
+    "translator": "Sahih International",
+    "excerpt": "Unquestionably, by the remembrance of Allāh hearts are assured."
+  },
+  {
+    "ayah": "29:45",
+    "text": "ٱتْلُ مَآ أُوحِىَ إِلَيْكَ مِنَ ٱلْكِتَـٰبِ وَأَقِمِ ٱلصَّلَوٰةَ ۖ إِنَّ ٱلصَّلَوٰةَ تَنْهَىٰ عَنِ ٱلْفَحْشَآءِ وَٱلْمُنكَرِ ۗ وَلَذِكْرُ ٱللَّهِ أَكْبَرُ ۗ وَٱللَّهُ يَعْلَمُ مَا تَصْنَعُونَ",
+    "citation_url": null,
+    "meaning": "Recite, [O Muḥammad], what has been revealed to you of the Book and establish prayer. Indeed, prayer prohibits immorality and wrongdoing, and the remembrance of Allāh is greater. And Allāh knows that which you do.",
+    "name": "Al-ʿAnkabūt",
+    "href": "https://quran.com/29:45?translations=20",
+    "translator": "Sahih International"
+  }
+];
 export const quran = [
   {
     "ayah": "1:1",

@@ -29,8 +29,8 @@ let locationRequestTimer;
 let locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
 
 const methods = {
-  "mwl-angles-18-17": "This profile uses Fajr 18° and Isha 17° from a published table. I can compare my result with the timetable used by my local mosque.",
-  "research-15": "This is a technical comparison profile using 15° for both Fajr and Isha. I use it for testing, not as guidance from a mosque.",
+  "mwl-angles-18-17": "This profile uses Fajr 18° and Isha 17° from a published table. Results can be compared with the local mosque’s timetable.",
+  "research-15": "This is a technical comparison profile using 15° for both Fajr and Isha. It is intended for technical testing rather than mosque guidance.",
 };
 
 const setup = new OfflineSetup(form, sendSetupRequest, () => invalidateChoices());
@@ -95,7 +95,7 @@ function cancelLocationRequest(message) {
 function explainMethod() {
   const selected = form.elements.namedItem("method_id").value;
   document.querySelector("#method-help").textContent = methods[selected]
-    ?? "I choose the profile my local mosque uses. If I am unsure, I ask its imam.";
+    ?? "The local mosque’s profile is a useful starting point; its imam can help with the choice.";
 }
 
 function useDeviceLocation({ highAccuracy = false } = {}) {
