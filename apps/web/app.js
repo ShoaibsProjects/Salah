@@ -29,8 +29,8 @@ let locationRequestTimer;
 let locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
 
 const methods = {
-  "mwl-angles-18-17": "MWL means Muslim World League. This uses the published parameter set of 18° for Fajr and 17° for Isha. The angles describe how far the Sun is below the horizon in the calculation. Our source is a secondary table; it is not an official League timetable or endorsement. Your mosque may use different settings.",
-  "research-15": "A technical comparison profile: it uses a 15° Sun angle for both Fajr and Isha. It is here to compare calculations, not as a community method or mosque recommendation.",
+  "mwl-angles-18-17": "This profile uses Fajr 18° and Isha 17° from a published table. I can compare my result with the timetable used by my local mosque.",
+  "research-15": "This is a technical comparison profile using 15° for both Fajr and Isha. I use it for testing, not as guidance from a mosque.",
 };
 
 const setup = new OfflineSetup(form, sendSetupRequest, () => invalidateChoices());
@@ -95,7 +95,7 @@ function cancelLocationRequest(message) {
 function explainMethod() {
   const selected = form.elements.namedItem("method_id").value;
   document.querySelector("#method-help").textContent = methods[selected]
-    ?? "Choose the calculation convention used by your community. The Sun-angle choices give estimated Fajr and Isha beginnings; there is no universal selection here.";
+    ?? "I choose the profile my local mosque uses. If I am unsure, I ask its imam.";
 }
 
 function useDeviceLocation({ highAccuracy = false } = {}) {

@@ -11,7 +11,7 @@ const el = (tag, text, cls) => {
 const link = (label, href) => { const n = el('a', label); n.href = href; return n; };
 function citation(pages) {
   const first = Number.parseInt(pages, 10);
-  return link(`Guide · printed p. ${pages}`, `${BOOK}#page=${Number.isFinite(first) ? first + 3 : 4}`);
+  return link(`Read source · p. ${pages}`, `${BOOK}#page=${Number.isFinite(first) ? first + 3 : 4}`);
 }
 // All data is bundled and inserted as text, never as HTML or executable content.
 const normalized = text => text.normalize('NFKD').replace(/[\u0300-\u036f\u064b-\u065f\u0670]/g, '').replace(/[ʿʾ‘’']/g, '').toLowerCase();
@@ -62,8 +62,8 @@ const byId = id => recitations.find(w => w.id === id);
 function selectPrayer(prayer) {
   selectedPrayer = prayer;
   for (const button of $('#prayer-picker').children) button.setAttribute('aria-pressed', String(button.dataset.prayer === prayer.id));
-  $('#prayer-kicker').textContent = `${prayer.time} / ${prayer.units} obligatory units`;
-  $('#prayer-name').textContent = `${prayer.name}, with understanding.`;
+  $('#prayer-kicker').textContent = `${prayer.time} / ${prayer.units} rakʿahs`;
+  $('#prayer-name').textContent = `${prayer.name}, at my own pace.`;
   $('#prayer-description').textContent = prayer.voice;
 }
 for (const prayer of prayers) {
@@ -80,24 +80,24 @@ selectPrayer(selectedPrayer);
 function buildSteps() {
   const list = [];
   const add = (unit, title, body, recite, pages, topic) => list.push({ unit, title, body, recite, pages, topic });
-  add(0,'Before the opening takbīr','Confirm purification, covering, prayer time, direction and space. Know which prayer you intend in your heart. This walkthrough describes a complete individual prayer, following the guide’s sequence.', [], '6–8, 17–23','conditions');
+  add(0,'Before the opening takbīr','I take a breath and prepare as best I can: purification, covering, prayer time, direction and a clean space. I know in my heart which prayer I am offering for Allah. I do not need to feel perfect before I begin.', [], '6–8, 17–23','conditions');
   for (let unit = 1; unit <= selectedPrayer.units; unit++) {
-    if (unit === 1) add(unit,'Begin with the takbīr','Stand when able. Raise your hands to shoulder or ear level as you say the opening takbīr. Place the right hand over the left at the chest and look toward your place of prostration.', ['takbir'],'23–25','standing');
-    add(unit,unit === 1 ? 'The opening & recitation' : 'Stand and recite',unit === 1 ? 'Read an opening supplication, then seek refuge with Allah. Recite Al-Fātiḥah, with the basmalah, and then another portion of Qur’an you know. Al-Ikhlāṣ below is an example, not a required choice.' : unit === 2 ? 'Stand after the brief rest. Recite Al-Fātiḥah and another portion of Qur’an. Do not repeat the opening supplication. The guide describes this unit as shorter than the first.' : 'Rise for this unit and recite Al-Fātiḥah. The guide describes the later units with Al-Fātiḥah alone, more briefly than the first two.', [...(unit === 1 ? ['opening','refuge'] : []),'fatihah',...(unit <= 2 ? ['ikhlas'] : [])], '26–30, 38, 43','fatihah');
-    add(unit,'Bow · rukūʿ','Raise your hands with the takbīr, then bow. Place your palms on your knees with the back and head level as able. Settle in the posture and glorify Allah. Do not recite Qur’an here.',['takbir','ruku'],'30–32','bowing');
-    add(unit,'Rise & settle','Rise fully upright, raising your hands. Say the first phrase while rising, then praise Allah once upright. Remain still before moving on. The guide leaves the hands at the sides here; Ibn Bāz differs.',['rise','praise'],'32–33','bowing');
-    add(unit,'The first prostration','Say the takbīr and lower into sujūd. Forehead and nose, hands, knees and toes touch the ground; keep the forearms lifted. The guide places hands before knees; this is a documented point of difference. Settle, glorify Allah and make supplication.',['takbir','sujud'],'33–36','prostration');
-    add(unit,'Sit between the prostrations','Rise with the takbīr and sit calmly. The guide places the left foot beneath you and keeps the right foot upright with toes toward the Qiblah, as able. Ask Allah for forgiveness.',['takbir','forgive'],'36–37','prostration');
-    add(unit,'The second prostration','Say the takbīr and make a second prostration like the first, with the same remembrance. Give it time; there is no timed countdown to follow.',['takbir','sujud'],'37–38','prostration');
+    if (unit === 1) add(unit,'Begin with the takbīr','I stand as I am able. I raise my hands and say Allāhu akbar. I place my right hand over my left and bring my attention to the prayer. I am turning to Allah, just as I am.', ['takbir'],'23–25','standing');
+    add(unit,unit === 1 ? 'The opening & recitation' : 'Stand and recite',unit === 1 ? 'I begin with an opening supplication and seek refuge with Allah. I recite Al-Fātiḥah, then another passage of Qur’an I know. Al-Ikhlāṣ below is one example. I take the words at a steady pace.' : unit === 2 ? 'I stand after the brief rest and recite Al-Fātiḥah, followed by another passage of Qur’an I know. I let the familiar words bring my attention back.' : 'I rise for this unit and recite Al-Fātiḥah. I take a little more time if I need it; learning can happen one prayer at a time.', [...(unit === 1 ? ['opening','refuge'] : []),'fatihah',...(unit <= 2 ? ['ikhlas'] : [])], '26–30, 38, 43','fatihah');
+    add(unit,'Bow · rukūʿ','I say Allāhu akbar and bow, placing my hands on my knees as I am able. I settle and glorify Allah. I leave Qur’an recitation for standing, and let this bow remind me of the One who is greater than all.',['takbir','ruku'],'30–32','bowing');
+    add(unit,'Rise & settle','I rise fully upright and praise Allah. I pause until I am settled before moving on. Even this small pause can bring me back to the prayer.', ['rise','praise'],'32–33','bowing');
+    add(unit,'The first prostration','I say the takbīr and lower into sujūd. I place my forehead and nose, hands, knees and toes on the ground as I am able, keeping my forearms lifted. I settle, glorify Allah and make supplication.', ['takbir','sujud'],'33–36','prostration');
+    add(unit,'Sit between the prostrations','I rise with the takbīr and sit calmly, adapting the posture to my ability. I ask Allah to forgive me. I let the words be simple and sincere.', ['takbir','forgive'],'36–37','prostration');
+    add(unit,'The second prostration','I say the takbīr and make a second prostration. I glorify Allah and can make supplication. I give myself time; there is no countdown to follow.', ['takbir','sujud'],'37–38','prostration');
     if (unit === 2 || unit === selectedPrayer.units) {
       const final = unit === selectedPrayer.units;
-      add(unit,final ? 'The final sitting' : 'The first tashahhud',final ? `Rise with the takbīr and sit for tashahhud and blessings upon the Prophet. ${selectedPrayer.units > 2 ? 'The guide describes tawarruk in this final sitting when able, without crowding others.' : 'Keep the earlier sitting posture in this two-unit prayer.'} Point the right index finger; the guide describes moving it and looking at it.` : 'Rise with the takbīr and sit for tashahhud. Point the right index finger; the guide describes moving it and looking at it. It includes blessings upon the Prophet in this first sitting too. You will then rise with the takbīr for the third unit.', ['takbir','tashahhud','salawat'],'39–46','sittings');
+      add(unit,final ? 'The final sitting' : 'The first tashahhud',final ? 'I rise with the takbīr and sit for tashahhud and blessings upon the Prophet ﷺ. I ask Allah for protection and make the supplication I have learned. I sit as I am able, with care for those around me.' : 'I rise with the takbīr and sit for tashahhud and blessings upon the Prophet ﷺ. Then I rise for the third unit, if my prayer continues.', ['takbir','tashahhud','salawat'],'39–46','sittings');
     } else if (unit < selectedPrayer.units) {
-      add(unit,'A brief rest, then rise','After the second prostration, sit briefly until settled, then rise with the takbīr for the next unit. The guide describes supporting the rise on the hands in closed fists. Adapt to your ability.',['takbir'],'38, 42–43','sittings');
+      add(unit,'A brief rest, then rise','After the second prostration, I sit briefly until settled, then rise with the takbīr for the next unit. I use the support my body needs and move without rushing.', ['takbir'],'38, 42–43','sittings');
     }
   }
-  add(selectedPrayer.units,'Seek protection & supplicate','After the tashahhud and blessings, seek protection from the four trials. You may then make further supplication, using authentic supplications you know.',['protection'],'46–47','finish');
-  add(selectedPrayer.units,'Close with peace','Turn the head to the right and say the salutation, then turn to the left and say it again. This completes the prayer sequence.',['salam'],'47–49','finish');
+  add(selectedPrayer.units,'Seek protection & supplicate','In my final sitting, I ask Allah to protect me from the trials named in this supplication. I can add another supplication I know, speaking to Allah with humility and hope.', ['protection'],'46–47','finish');
+  add(selectedPrayer.units,'Close with peace','I turn my head to the right and offer the salutation, then turn to the left and say it again. I close my prayer with peace, and carry its remembrance with me.', ['salam'],'47–49','finish');
   return list;
 }
 function prepareWalk() {
@@ -120,11 +120,11 @@ function renderStep(focus = false) {
   $('#step-jump').value = String(Math.min(stepIndex, steps.length - 1));
   [...$('#step-list').children].forEach((li,i) => li.firstChild.setAttribute('aria-current', String(i === stepIndex ? 'step' : 'false')));
   if (complete) {
-    article.append(el('p', 'A LITTLE MORE FAMILIAR', 'eyebrow'), el('h2','Carry what you learned.'), el('p',`You have explored the ${selectedPrayer.units}-unit ${selectedPrayer.name} prayer. Revisit any words you want to practise and seek a teacher’s help with pronunciation. This completion records no worship.`),link('Revisit the words','#words'),el('p','May Allah accept your prayer and make learning easy.','closing-line'));
+    article.append(el('p', 'A LITTLE MORE FAMILIAR', 'eyebrow'), el('h2','Carry what I have learned.'), el('p',`I have explored the ${selectedPrayer.units}-unit ${selectedPrayer.name} prayer. I can revisit any words I want to practise and ask a teacher to help me with pronunciation. Learning here is only preparation; my worship belongs to Allah.`),link('Return to the words','#words'),el('p','May Allah accept my prayer and make learning easy.','closing-line'));
   } else {
     const step = steps[stepIndex];
     article.append(el('p', `${selectedPrayer.name.toUpperCase()} / ${step.unit ? `UNIT ${step.unit} OF ${selectedPrayer.units}` : 'PREPARATION'}`, 'eyebrow'),el('h2',step.title),el('p',step.body,'step-instruction'));
-    const source = el('p',undefined,'step-source');source.append(citation(step.pages),el('span',' · '),link('Context & differences',`#library/${step.topic}`));article.append(source);
+    const source = el('p',undefined,'step-source');source.append(citation(step.pages),el('span',' · '),link('Learn more',`#library/${step.topic}`));article.append(source);
     for (const id of step.recite) {
       const detail = el('details', undefined, 'step-recitation');
       // Short phrases stay open; longer recitations remain one tap away.
@@ -192,8 +192,8 @@ function route(initial=false) {
   document.querySelectorAll('.app-nav a').forEach(a=>{const active=a.hash===`#${name==='walk'?'learn':name}`;if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   document.title=`Salah — ${{learn:'Learn with care',walk:`Learn ${selectedPrayer.name}`,prepare:'Prepare for prayer',words:'The words',library:'Your questions',sources:'Sources & approach',times:'Prayer times'}[name]}`;
   if(name==='library'&&topicId) {
-    $('#topic-search').value='';category=topicId==='differences'?'Differences':'All';renderTopics(topicId);
-    const target=document.getElementById(`topic-${topicId}`);
+    $('#topic-search').value='';category='All';const selectedTopic=topicId==='differences'?'importance':topicId;renderTopics(selectedTopic);
+    const target=document.getElementById(`topic-${selectedTopic}`);
     if(target){target.scrollIntoView({block:'start'});target.querySelector('summary').focus({preventScroll:true});return;}
   }
   if(!initial){$('#main-content').focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}

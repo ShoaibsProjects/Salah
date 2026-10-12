@@ -101,7 +101,7 @@ If you would like to help, you do not need to arrive with a perfect answer. Tell
 
 ## Learn alongside Salah
 
-The [web companion](https://salah-prayer.pages.dev/) now offers preparation and wuḍū guidance, a walkthrough of each daily prayer, Arabic recitations with reading aids, and a searchable library. Original learning notes credit Abu Khadeejah’s 2021 prayer guide; source links and differences in scholarly guidance remain close to the explanation. Independent scholarly review is still open.
+The [web companion](https://salah-prayer.pages.dev/) offers a gentle path through preparation, each daily prayer, Arabic recitations and everyday questions. The original learning notes credit Abu Khadeejah’s 2021 prayer guide, with references close to the relevant topic. Independent scholarly review is still open.
 
 You can also choose from the existing offline city directory, confirm your timezone, and explore the research timetable. The learning material joins the public app package when you choose to save it for offline use.
 
