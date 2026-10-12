@@ -2,6 +2,10 @@
 
 **Updated:** 1 October 2026. The [roadmap](roadmap.md) owns phase gates; this page is the plain-language map. “Implemented” means code exists and has the stated checks, not that it is approved for consumer use.
 
+## Web learning companion · 11 October 2026
+
+Phase 4 → F4-C4: Sourced Prayer Learning. The browser adds original guide notes, resident-prayer learning sequences, wuḍū steps, recitation reading aids, searchable topics, source/rights notes and visible scholarly differences. It reuses the native hash-checked GeoNames catalogue for offline city search; Rust still suggests zones and requires confirmation. No prayer formulas or phase gates change. The guide is educational, not a live prayer counter or individualized ruling. Scholarly review remains open. Public learning and city assets join the opt-in offline manifest. The project’s Git metadata now follows the user-relocated checkout at Projects/Salah.
+
 ## Current piece
 
 **Phase 4 → F4-A2: Offline Places and iPhone 12 Compatibility.** Built on F3-A1 Apple Native Foundation and F4-A1 One-Shot Apple Location. The earlier offline web setup and saved browser package remain available. These are research adapters; no accuracy, civil-time or religious gate is passed.

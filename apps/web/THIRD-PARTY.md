@@ -20,3 +20,12 @@ Preserve these notices when copying the preview folder.
 The project source-code license remains undecided. Generated notices do not
 grant a project license or complete a legal/release review. See the repository's
 README and stewardship roadmap before public distribution.
+
+
+## Prayer learning companion
+
+Main reading reference: *A Simple Guide to the Prophet’s Prayer*, Abu Khadeejah Abdul-Wāhid Alam, Salafi Publications, third edition (November 2021), ISBN 9781902727585. Original explanatory notes cite printed page numbers. The publisher’s PDF and illustrations are not redistributed. See the in-app Sources section for copyright conditions and the original author link. No endorsement is claimed.
+
+Qur’an 1:1–7 and 112:1–4: ar-uthmani-hafs text and Muhammad A. S. Abdel Haleem’s English translation (en-abdel-haleem), retrieved through quran.ai on 2026-10-11. Short passages are attributed study excerpts. Transliteration and non-Qur’an English meanings are editorial reading aids.
+
+Offline city search reuses the native app’s adapted GeoNames snapshot, retrieved 2026-10-01, licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source: [GeoNames](https://www.geonames.org/), cities15000 and countryInfo. Selection, alias limits, and ordering are performed by tools/build_city_directory.py. Coordinates are approximate reference points, not device locations. GeoNames does not endorse Salah.

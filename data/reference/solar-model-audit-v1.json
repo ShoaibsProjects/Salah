@@ -1,0 +1,794 @@
+{
+  "schema": "salah-solar-validation-evidence-v1",
+  "audit_id": "solar-reference-audit-2026-10-01",
+  "as_of_date": "2026-10-01",
+  "review_status": "exploratory_engineering_audit_not_external_peer_review",
+  "production_model": "NOAA-MEEUS-SOLAR-2",
+  "question": "How closely do selected Salah Sunrise and Sunset outputs agree with independent solar references when altitude threshold, observer height and location are matched?",
+  "scope": {
+    "event_names": [
+      "sunrise",
+      "sunset"
+    ],
+    "selected_case_count": 15,
+    "event_status_count": 30,
+    "matching_event_status_count": 30,
+    "ordinary_timed_event_count": 20,
+    "ordinary_excluded_case_id": "usno-2026-6572-grazing",
+    "fixed_solar_center_altitude_degrees": -0.833,
+    "comparison_outputs": "Salah integer-second UTC outputs compared to independently calculated event instants; source rounding can contribute up to 0.5 second.",
+    "shared_observer_assumptions": "Geodetic coordinates, sea level, fixed solar-center altitude; no local terrain or measured atmosphere."
+  },
+  "comparisons": [
+    {
+      "id": "jpl-de440s-spice-itrf93",
+      "label": "JPL DE440s with SPICE / ITRF93",
+      "timed_event_count": 20,
+      "median_absolute_difference_seconds": 0.99,
+      "maximum_absolute_difference_seconds": 4.624,
+      "all_selected_event_statuses_match": true,
+      "source_artifact": "JPL DE440s short planetary ephemeris; SPICE 8.2.0; EOP binary PCK generated 2026-09-30."
+    },
+    {
+      "id": "nrel-spa-pvlib-0.16.1",
+      "label": "NREL Solar Position Algorithm (pvlib implementation)",
+      "timed_event_count": 20,
+      "median_absolute_difference_seconds": 1.025,
+      "maximum_absolute_difference_seconds": 4.661,
+      "all_selected_event_statuses_match": true,
+      "source_artifact": "pvlib-python 0.16.1 spa_python; pressure disabled; IERS finals2000A DUT1 used to derive TT−UT1."
+    }
+  ],
+  "grazing_case": {
+    "case_id": "usno-2026-6572-grazing",
+    "latitude_degrees": 65.72,
+    "longitude_degrees": 0.0,
+    "jpl_de440s_difference_seconds": {
+      "sunrise": 50.989,
+      "sunset": -50.008
+    },
+    "nrel_spa_difference_seconds": {
+      "sunrise": 51.509,
+      "sunset": -50.424
+    },
+    "event_status": "Both references and Salah found Sunrise and Sunset under the shared threshold.",
+    "interpretation": "Near a shallow horizon crossing, a small difference in modeled solar altitude can move the event time substantially. This is not a universal correction."
+  },
+  "additional_edge_cases": [
+    {
+      "case_id": "usno-2026-65735-grazing-disagreement",
+      "latitude_degrees": 65.735,
+      "status": "No threshold crossing in Salah, JPL DE440s or NREL SPA for this audit.",
+      "caveat": "Earlier JPL Horizons audit found only about 0.00206 degrees clearance above the threshold; classification is threshold-sensitive."
+    },
+    {
+      "case_id": "usno-2026-6574-continuous",
+      "latitude_degrees": 65.74,
+      "status": "No threshold crossing in all three calculations for this audit."
+    }
+  ],
+  "horizons_geometry_check": {
+    "site": "Minneapolis (44.9778 N, 93.265 W), geodetic sea level",
+    "samples": 16,
+    "interval": "One-minute samples on 2026-09-27",
+    "maximum_absolute_altitude_difference_arcseconds": 0.0172,
+    "meaning": "Cross-check of local SPICE observer/frame setup against JPL Horizons DE441 output, not a separate physical observation and not a grazing-root validation."
+  },
+  "references": [
+    {
+      "id": "jpl-de440s",
+      "sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
+      "url": "https://ssd.jpl.nasa.gov/doc/de440_de441.html"
+    },
+    {
+      "id": "jpl-earth-orientation-bpc",
+      "sha256": "e359d1a6c02a412f22377f4598c0139adb8f2ae4d03f299d4bbe1a0de471ffd1",
+      "generated_date": "2026-09-30",
+      "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/earth_000101_261227_260930.bpc"
+    },
+    {
+      "id": "nrel-spa",
+      "implementation": "pvlib-python 0.16.1 spa_python",
+      "license": "BSD-3-Clause",
+      "publication_doi": "10.1016/j.solener.2003.12.003",
+      "source_file_sha256": {
+        "solarposition.py": "4a564432547e2b04de82bd77e1b93a7d8926e9b49016b902789be9027dfaad81",
+        "spa.py": "207ec1c731fe01767945770d2ca5c3c38c23647c6c34052f343c72bc39a1dabf"
+      }
+    },
+    {
+      "id": "iers-finals2000a",
+      "sha256": "9fbc14ae5e71de96cc1e6b43b54a547acc80c7a6ce910c0209ad6230ff3d30cd",
+      "url": "https://datacenter.iers.org/data/9/finals2000A.all"
+    }
+  ],
+  "limitations": [
+    "This is a selected 15-case 2026 Sunrise/Sunset comparison, not a global, year-round or location-specific accuracy guarantee.",
+    "The comparison does not validate Fajr, Isha, Asr, method suitability, religious rulings, mosque timetables, high-latitude alternatives, local terrain, elevation or weather.",
+    "The December Earth-orientation values are predictions; case-level status is retained in the full results.",
+    "The JPL and NREL calculations share the chosen geometric observer and fixed -0.833-degree event threshold. Agreement does not establish a visible local horizon.",
+    "No calculation profile, formula, threshold or user schedule was changed based on this audit."
+  ],
+  "next_research": "Compare Fajr, Isha and Standard/Hanafi Asr as separate event definitions; widen locations/seasons; investigate the unresolved near-grazing and Asr residuals; obtain qualified Islamic-methodology review before method claims.",
+  "case_results": {
+    "jpl_de440s": [
+      {
+        "case_id": "usno-2026-minneapolis-autumn",
+        "date": "2026-09-27",
+        "lat": 44.9778,
+        "lon": -93.265,
+        "offset_minutes": -300,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-09-27T12:06:20.931Z",
+          "falling": "2026-09-28T00:00:47.980Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-27 12:06:21Z",
+          "sunset": "2026-09-28 00:00:50Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": -0.069,
+          "sunset": -2.02
+        },
+        "usno_utc": {
+          "sunrise": "2026-09-27T12:06:00Z",
+          "sunset": "2026-09-28T00:01:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-makkah-equinox",
+        "date": "2026-03-20",
+        "lat": 21.4225,
+        "lon": 39.8262,
+        "offset_minutes": 180,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-03-20T03:24:57.616Z",
+          "falling": "2026-03-20T15:31:40.550Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-03-20 03:24:57Z",
+          "sunset": "2026-03-20 15:31:41Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": 0.616,
+          "sunset": -0.45
+        },
+        "usno_utc": {
+          "sunrise": "2026-03-20T03:25:00Z",
+          "sunset": "2026-03-20T15:32:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-sydney-solstice",
+        "date": "2026-12-21",
+        "lat": -33.8688,
+        "lon": 151.2093,
+        "offset_minutes": 660,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-12-20T18:40:39.094Z",
+          "falling": "2026-12-21T09:05:24.067Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-12-20 18:40:39Z",
+          "sunset": "2026-12-21 09:05:26Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": 0.094,
+          "sunset": -1.933
+        },
+        "usno_utc": {
+          "sunrise": "2026-12-20T18:41:00Z",
+          "sunset": "2026-12-21T09:05:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-tromso-summer",
+        "date": "2026-06-21",
+        "lat": 69.6492,
+        "lon": 18.9553,
+        "offset_minutes": 120,
+        "step_seconds": 30,
+        "kernel_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "usno_utc": {
+          "sunrise": "no_event",
+          "sunset": "no_event"
+        }
+      },
+      {
+        "case_id": "usno-2026-kiritimati-dateline",
+        "date": "2026-09-27",
+        "lat": 1.8721,
+        "lon": -157.4278,
+        "offset_minutes": 840,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-09-26T16:17:50.381Z",
+          "falling": "2026-09-27T04:23:55.053Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-26 16:17:51Z",
+          "sunset": "2026-09-27 04:23:57Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": -0.619,
+          "sunset": -1.947
+        },
+        "usno_utc": {
+          "sunrise": "2026-09-26T16:18:00Z",
+          "sunset": "2026-09-27T04:24:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-6572-grazing",
+        "date": "2026-06-21",
+        "lat": 65.72,
+        "lon": 0.0,
+        "offset_minutes": 0,
+        "step_seconds": 30,
+        "kernel_event": {
+          "rising": "2026-06-21T00:09:16.989Z",
+          "falling": "2026-06-21T23:54:00.992Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-06-21 00:08:26Z",
+          "sunset": "2026-06-21 23:54:51Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": 50.989,
+          "sunset": -50.008
+        },
+        "usno_utc": {
+          "sunrise": "2026-06-21T00:10:00Z",
+          "sunset": "2026-06-21T23:53:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-65735-grazing-disagreement",
+        "date": "2026-06-21",
+        "lat": 65.735,
+        "lon": 0.0,
+        "offset_minutes": 0,
+        "step_seconds": 30,
+        "kernel_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "usno_utc": {
+          "sunrise": "2026-06-21T00:04:00Z",
+          "sunset": "2026-06-21T23:59:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-6574-continuous",
+        "date": "2026-06-21",
+        "lat": 65.74,
+        "lon": 0.0,
+        "offset_minutes": 0,
+        "step_seconds": 30,
+        "kernel_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "usno_utc": {
+          "sunrise": "no_event",
+          "sunset": "no_event"
+        }
+      },
+      {
+        "case_id": "usno-2026-nairobi-equinox",
+        "date": "2026-03-20",
+        "lat": -1.2864,
+        "lon": 36.8172,
+        "offset_minutes": 180,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-03-20T03:36:55.790Z",
+          "falling": "2026-03-20T15:43:26.555Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-03-20 03:36:55Z",
+          "sunset": "2026-03-20 15:43:27Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": 0.79,
+          "sunset": -0.445
+        },
+        "usno_utc": {
+          "sunrise": "2026-03-20T03:37:00Z",
+          "sunset": "2026-03-20T15:43:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-buenos-aires-solstice",
+        "date": "2026-12-21",
+        "lat": -34.6037,
+        "lon": -58.3816,
+        "offset_minutes": -180,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-12-21T08:37:17.222Z",
+          "falling": "2026-12-21T23:06:03.663Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-12-21 08:37:17Z",
+          "sunset": "2026-12-21 23:06:05Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": 0.222,
+          "sunset": -1.337
+        },
+        "usno_utc": {
+          "sunrise": "2026-12-21T08:37:00Z",
+          "sunset": "2026-12-21T23:06:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-anchorage-summer",
+        "date": "2026-06-21",
+        "lat": 61.2181,
+        "lon": -149.9003,
+        "offset_minutes": -480,
+        "step_seconds": 30,
+        "kernel_event": {
+          "rising": "2026-06-21T12:20:17.263Z",
+          "falling": "2026-06-22T07:42:41.037Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-06-21 12:20:15Z",
+          "sunset": "2026-06-22 07:42:44Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": 2.263,
+          "sunset": -2.963
+        },
+        "usno_utc": {
+          "sunrise": "2026-06-21T12:20:00Z",
+          "sunset": "2026-06-22T07:43:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-tromso-winter",
+        "date": "2026-12-21",
+        "lat": 69.6492,
+        "lon": 18.9553,
+        "offset_minutes": 60,
+        "step_seconds": 30,
+        "kernel_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "usno_utc": {
+          "sunrise": "no_event",
+          "sunset": "no_event"
+        }
+      },
+      {
+        "case_id": "usno-2026-apia-dateline",
+        "date": "2026-09-27",
+        "lat": -13.8333,
+        "lon": -171.75,
+        "offset_minutes": 780,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-09-26T17:13:24.376Z",
+          "falling": "2026-09-27T05:23:07.268Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-26 17:13:25Z",
+          "sunset": "2026-09-27 05:23:09Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": -0.624,
+          "sunset": -1.732
+        },
+        "usno_utc": {
+          "sunrise": "2026-09-26T17:13:00Z",
+          "sunset": "2026-09-27T05:23:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-reykjavik-summer",
+        "date": "2026-06-21",
+        "lat": 64.1466,
+        "lon": -21.9426,
+        "offset_minutes": 0,
+        "step_seconds": 30,
+        "kernel_event": {
+          "rising": "2026-06-21T02:55:12.527Z",
+          "falling": "2026-06-22T00:03:57.376Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-06-21 02:55:09Z",
+          "sunset": "2026-06-22 00:04:02Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": 3.527,
+          "sunset": -4.624
+        },
+        "usno_utc": {
+          "sunrise": "2026-06-21T02:55:00Z",
+          "sunset": "2026-06-22T00:04:00Z"
+        }
+      },
+      {
+        "case_id": "usno-2026-pago-pago-dateline",
+        "date": "2026-09-27",
+        "lat": -14.2756,
+        "lon": -170.702,
+        "offset_minutes": -660,
+        "step_seconds": 600,
+        "kernel_event": {
+          "rising": "2026-09-27T17:08:25.444Z",
+          "falling": "2026-09-28T05:19:02.811Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-27 17:08:26Z",
+          "sunset": "2026-09-28 05:19:04Z"
+        },
+        "delta_jpl_minus_salah_seconds": {
+          "sunrise": -0.556,
+          "sunset": -1.189
+        },
+        "usno_utc": {
+          "sunrise": "2026-09-27T17:08:00Z",
+          "sunset": "2026-09-28T05:19:00Z"
+        }
+      }
+    ],
+    "nrel_spa": [
+      {
+        "case_id": "usno-2026-minneapolis-autumn",
+        "date": "2026-09-27",
+        "lat": 44.9778,
+        "lon": -93.265,
+        "offset_minutes": -300,
+        "delta_t_seconds_from_iers": 69.2019,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-09-27T12:06:20.903728Z",
+          "falling": "2026-09-28T00:00:47.947698Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-27 12:06:21Z",
+          "sunset": "2026-09-28 00:00:50Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": -0.096,
+          "sunset": -2.052
+        }
+      },
+      {
+        "case_id": "usno-2026-makkah-equinox",
+        "date": "2026-03-20",
+        "lat": 21.4225,
+        "lon": 39.8262,
+        "offset_minutes": 180,
+        "delta_t_seconds_from_iers": 69.1265,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-03-20T03:24:57.679163Z",
+          "falling": "2026-03-20T15:31:40.624996Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-03-20 03:24:57Z",
+          "sunset": "2026-03-20 15:31:41Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": 0.679,
+          "sunset": -0.375
+        }
+      },
+      {
+        "case_id": "usno-2026-sydney-solstice",
+        "date": "2026-12-21",
+        "lat": -33.8688,
+        "lon": 151.2093,
+        "offset_minutes": 660,
+        "delta_t_seconds_from_iers": 69.2965,
+        "iers_ut1_data_status": "P",
+        "spa_event": {
+          "rising": "2026-12-20T18:40:39.017408Z",
+          "falling": "2026-12-21T09:05:23.981244Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-12-20 18:40:39Z",
+          "sunset": "2026-12-21 09:05:26Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": 0.017,
+          "sunset": -2.019
+        }
+      },
+      {
+        "case_id": "usno-2026-tromso-summer",
+        "date": "2026-06-21",
+        "lat": 69.6492,
+        "lon": 18.9553,
+        "offset_minutes": 120,
+        "delta_t_seconds_from_iers": 69.1724,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        }
+      },
+      {
+        "case_id": "usno-2026-kiritimati-dateline",
+        "date": "2026-09-27",
+        "lat": 1.8721,
+        "lon": -157.4278,
+        "offset_minutes": 840,
+        "delta_t_seconds_from_iers": 69.2019,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-09-26T16:17:50.364871Z",
+          "falling": "2026-09-27T04:23:55.035836Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-26 16:17:51Z",
+          "sunset": "2026-09-27 04:23:57Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": -0.635,
+          "sunset": -1.964
+        }
+      },
+      {
+        "case_id": "usno-2026-6572-grazing",
+        "date": "2026-06-21",
+        "lat": 65.72,
+        "lon": 0.0,
+        "offset_minutes": 0,
+        "delta_t_seconds_from_iers": 69.1724,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-06-21T00:09:17.509207Z",
+          "falling": "2026-06-21T23:54:00.576341Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-06-21 00:08:26Z",
+          "sunset": "2026-06-21 23:54:51Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": 51.509,
+          "sunset": -50.424
+        }
+      },
+      {
+        "case_id": "usno-2026-65735-grazing-disagreement",
+        "date": "2026-06-21",
+        "lat": 65.735,
+        "lon": 0.0,
+        "offset_minutes": 0,
+        "delta_t_seconds_from_iers": 69.1724,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        }
+      },
+      {
+        "case_id": "usno-2026-6574-continuous",
+        "date": "2026-06-21",
+        "lat": 65.74,
+        "lon": 0.0,
+        "offset_minutes": 0,
+        "delta_t_seconds_from_iers": 69.1724,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        }
+      },
+      {
+        "case_id": "usno-2026-nairobi-equinox",
+        "date": "2026-03-20",
+        "lat": -1.2864,
+        "lon": 36.8172,
+        "offset_minutes": 180,
+        "delta_t_seconds_from_iers": 69.1265,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-03-20T03:36:55.849800Z",
+          "falling": "2026-03-20T15:43:26.614045Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-03-20 03:36:55Z",
+          "sunset": "2026-03-20 15:43:27Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": 0.85,
+          "sunset": -0.386
+        }
+      },
+      {
+        "case_id": "usno-2026-buenos-aires-solstice",
+        "date": "2026-12-21",
+        "lat": -34.6037,
+        "lon": -58.3816,
+        "offset_minutes": -180,
+        "delta_t_seconds_from_iers": 69.2965,
+        "iers_ut1_data_status": "P",
+        "spa_event": {
+          "rising": "2026-12-21T08:37:17.097616Z",
+          "falling": "2026-12-21T23:06:03.588968Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-12-21 08:37:17Z",
+          "sunset": "2026-12-21 23:06:05Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": 0.098,
+          "sunset": -1.411
+        }
+      },
+      {
+        "case_id": "usno-2026-anchorage-summer",
+        "date": "2026-06-21",
+        "lat": 61.2181,
+        "lon": -149.9003,
+        "offset_minutes": -480,
+        "delta_t_seconds_from_iers": 69.1724,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-06-21T12:20:17.210879Z",
+          "falling": "2026-06-22T07:42:41.020113Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-06-21 12:20:15Z",
+          "sunset": "2026-06-22 07:42:44Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": 2.211,
+          "sunset": -2.98
+        }
+      },
+      {
+        "case_id": "usno-2026-tromso-winter",
+        "date": "2026-12-21",
+        "lat": 69.6492,
+        "lon": 18.9553,
+        "offset_minutes": 60,
+        "delta_t_seconds_from_iers": 69.2965,
+        "iers_ut1_data_status": "P",
+        "spa_event": {
+          "rising": null,
+          "falling": null
+        },
+        "salah_utc": {
+          "sunrise": null,
+          "sunset": null
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": null,
+          "sunset": null
+        }
+      },
+      {
+        "case_id": "usno-2026-apia-dateline",
+        "date": "2026-09-27",
+        "lat": -13.8333,
+        "lon": -171.75,
+        "offset_minutes": 780,
+        "delta_t_seconds_from_iers": 69.2019,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-09-26T17:13:24.365576Z",
+          "falling": "2026-09-27T05:23:07.258250Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-26 17:13:25Z",
+          "sunset": "2026-09-27 05:23:09Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": -0.634,
+          "sunset": -1.742
+        }
+      },
+      {
+        "case_id": "usno-2026-reykjavik-summer",
+        "date": "2026-06-21",
+        "lat": 64.1466,
+        "lon": -21.9426,
+        "offset_minutes": 0,
+        "delta_t_seconds_from_iers": 69.1724,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-06-21T02:55:12.677419Z",
+          "falling": "2026-06-22T00:03:57.339268Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-06-21 02:55:09Z",
+          "sunset": "2026-06-22 00:04:02Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": 3.677,
+          "sunset": -4.661
+        }
+      },
+      {
+        "case_id": "usno-2026-pago-pago-dateline",
+        "date": "2026-09-27",
+        "lat": -14.2756,
+        "lon": -170.702,
+        "offset_minutes": -660,
+        "delta_t_seconds_from_iers": 69.2019,
+        "iers_ut1_data_status": "I",
+        "spa_event": {
+          "rising": "2026-09-27T17:08:25.432698Z",
+          "falling": "2026-09-28T05:19:02.799669Z"
+        },
+        "salah_utc": {
+          "sunrise": "2026-09-27 17:08:26Z",
+          "sunset": "2026-09-28 05:19:04Z"
+        },
+        "delta_spa_minus_salah_seconds": {
+          "sunrise": -0.567,
+          "sunset": -1.2
+        }
+      }
+    ]
+  }
+}

@@ -17,6 +17,13 @@ pub const REQUEST_SCHEMA: &str = "salah-schedule-request-v1";
 pub const RESPONSE_SCHEMA: &str = "salah-schedule-response-v1";
 pub const MAX_REQUEST_BYTES: usize = 8 * 1024;
 
+/// Dated, selected solar-reference evidence for explanation only. This record
+/// is deliberately separate from schedule documents and is never calculation
+/// input. The source JSON is versioned with the research report.
+pub fn solar_validation_evidence_json() -> &'static str {
+    include_str!("../../../data/reference/solar-model-audit-v1.json")
+}
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Request {

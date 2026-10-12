@@ -76,12 +76,23 @@ button:disabled { opacity: .55; cursor: wait; }
 .provenance dl { display: grid; grid-template-columns: 85px minmax(0, 1fr); gap: 8px 14px; margin: 20px 0 6px; }
 .provenance dt { color: var(--muted); }
 .provenance dd { margin: 0; overflow-wrap: anywhere; }
+.solar-evidence { border: 1px solid var(--line); background: #f7f7f0; margin: 22px 0; padding: 16px; font-size: 12px; line-height: 1.7; }
+.solar-evidence > summary { color: var(--olive); font-size: 13px; font-weight: 600; }
+.solar-evidence p { color: var(--muted); }
+.evidence-result { border-left: 2px solid #b08b4c; padding: 1px 0 1px 12px; margin: 14px 0; }
+.evidence-result p { margin: 4px 0; }
+.evidence-limitations { margin-top: 12px; }
+.evidence-limitations ul { padding-left: 20px; color: var(--muted); }
+.evidence-footnote { font-size: 10px; overflow-wrap: anywhere; }
+.evidence-reference { overflow-wrap: anywhere; font-size: 11px; }
 .research-note { color: var(--muted); font-size: 11px; line-height: 1.8; border-top: 1px solid var(--line); padding-top: 20px; margin-top: 28px; }
 footer { display: flex; justify-content: space-between; gap: 24px; padding: 27px 0 35px; font-size: 10px; color: var(--muted); }
 :focus-visible { outline: 3px solid #ac8847; outline-offset: 3px; }
 [hidden] { display: none !important; }
 @media (max-width: 1000px) { .page { padding: 0 32px; } .workspace { grid-template-columns: 330px minmax(0, 1fr); } .selection { padding: 28px; } .schedule { padding: 28px; } }
 @media (max-width: 760px) { .page { padding: 0 20px; } .masthead { height: 83px; } .intro { grid-template-columns: 1fr; padding: 43px 0; gap: 20px; } .intention { display: none; } h1 { font-size: 66px; } .intro-copy { font-size: 14px; } .workspace { grid-template-columns: 1fr; } .selection { border-right: none; border-bottom: 1px solid var(--line); } .selection h2 br, .schedule h2 br { display: none; } h2 { font-size: 34px; line-height: 1.15; } .schedule-heading { flex-wrap: wrap; } footer { flex-direction: column; gap: 7px; } }
+
+.shared-mark { width: 29px; height: 34px; display: block; flex: 0 0 auto; color: var(--ink); }
 
 /* Keep the collection route visible without competing with the Salah controls. */
 .collection-trail { margin-top: 12px; }

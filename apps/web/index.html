@@ -6,37 +6,78 @@
   <meta name="color-scheme" content="light">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="./salah-icon.png" type="image/png" sizes="512x512">
+  <link rel="apple-touch-icon" href="./salah-icon.png">
   <title>Salah — Prayer, with clarity and care</title>
+  <meta name="description" content="A quiet companion for learning salah. Preparation, a guided prayer, Arabic recitations and sourced explanations. Private, free and available offline after saving.">
   <link rel="stylesheet" href="./style.css">
-  <script type="module" src="./app.js"></script>
-  <script type="module" src="./offline.js"></script>
+  <link rel="stylesheet" href="./learn.css">
+  <script type="module" src="./learn.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <div class="page">
     <header class="masthead">
-      <a class="wordmark" href="./" aria-label="Salah home"><span class="mark" aria-hidden="true">✳</span> salah<span class="wordmark-dot">.</span></a>
-      <span class="edition">ENGINE PREVIEW <span aria-hidden="true">/</span> 01</span>
+      <a class="wordmark" href="./" aria-label="Salah home"><svg class="shared-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="35" cy="17" r="3"/><path d="M16 14h12l3 2M28 15l-5 11h-4M16 14l3 11v9h-5"/><path d="M5 35h35l3 8H8Z"/><path d="M30 41v-2l3-2 3 2v2" stroke-width="1.1"/></g></svg> salah<span class="wordmark-dot">.</span></a>
+      <span class="edition">A QUIET COMPANION <span aria-hidden="true">/</span> SIRAT</span>
     </header>
     <nav class="collection-trail" aria-label="Sirat app collection"><a href="https://sirat-apps.pages.dev/" aria-label="Explore all apps in Sirat"><svg class="collection-trail-mark" viewBox="0 0 34 38" fill="none" aria-hidden="true"><path d="M4 34V18a13 13 0 0 1 26 0v16M10 34V18a7 7 0 0 1 14 0v16" stroke="currentColor" stroke-width="1.5"/><path d="M1 34h32" stroke="currentColor"/></svg><span class="collection-trail-copy"><strong>Part of Sirat</strong><small>Prayer, remembrance &amp; more</small></span><span class="collection-trail-action">Explore all apps<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h10m-4-4 4 4-4 4"/></svg></span></a></nav>
-    <main>
-      <section class="intro" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow">ASSALAMU ALAIKUM. YOU ARE WELCOME HERE.</p>
-          <h1 id="page-title">Make space<br>for <em>salah.</em></h1>
-          <p class="intro-copy">A quiet beginning. Prayer times calculated on your device, with the choices behind each time kept clear.</p>
-        </div>
-        <aside class="intention">
-          <div class="orbit" aria-hidden="true"><span></span></div>
-          <p>Wherever life takes you,<br>may you find time to return.</p>
-          <span class="small-label">PRIVATE CALCULATION · NO ACCOUNT</span>
-        </aside>
+    <nav class="app-nav" aria-label="Salah sections">
+        <a href="#learn">Learn to pray</a><a href="#prepare">Prepare</a><a href="#words">The words</a><a href="#library">Library</a><a href="#times">Prayer times</a>
+      </nav>
+    <main id="main-content" tabindex="-1">
+      <section data-view="learn" class="learn-home" aria-labelledby="learn-title">
+        <div class="learn-hero"><div><p class="eyebrow">ONE PRAYER. ONE MOMENT. A PLACE TO BEGIN.</p>
+          <h1 id="learn-title">Come to prayer.<br><em>Learn with care.</em></h1>
+          <p class="hero-copy">For the first time, or a fresh beginning. Make room to understand the movements, the words, and the meaning of your salah.</p>
+          <a class="solid-link" href="#prepare">Begin with preparation <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a>
+          <p class="hero-footnote">Free to use. No account. No prayer tracking.</p>
+        </div><div class="prayer-art" aria-hidden="true"><svg viewBox="0 0 350 380" fill="none"><path class="arch-outer" d="M50 335V178C50 100 103 62 175 24c72 38 125 76 125 154v157Z"/><path d="M69 317V181c0-65 45-101 106-137 61 36 106 72 106 137v136Z"/><path d="M91 294V184c0-52 35-83 84-114 49 31 84 62 84 114v110Z"/><path d="M50 335h250M37 350h276M24 365h302M110 295h130"/><circle cx="175" cy="188" r="27"/><path d="M175 144v-9m0 106v-9m44-44h9m-106 0h9M65 334l45-39m175 39-45-39"/><path class="art-mat" d="M110 295l20-42h90l20 42Z"/><path d="M159 280v-9l16-9 16 9v9"/></svg><span>A LITTLE STILLNESS, FIVE TIMES A DAY.</span></div></div>
+        <div class="learn-heading"><div><p class="eyebrow">01 / LEARN THE SEQUENCE</p><h2>Your prayer, step by step.</h2></div><p>Choose an obligatory prayer. <br>Study at your pace, before you pray.</p></div>
+        <div id="prayer-picker" class="prayer-picker" aria-label="Choose a prayer"></div>
+        <div class="prayer-preview"><div><span id="prayer-kicker" class="eyebrow"></span><h3 id="prayer-name"></h3><p id="prayer-description"></p></div><div class="preview-action"><button id="start-guide" class="solid-link" type="button">Walk through this prayer <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button><a href="#library/congregation">Praying behind an imam?</a></div></div>
+        <div class="learning-path"><a href="#prepare"><span>BEFORE</span><h3>Prepare with ease.</h3><p>Purification, clothing, intention and your prayer space.</p></a><a href="#words"><span>WITHIN</span><h3>Know the words.</h3><p>Arabic, reading aids and meanings, close at hand.</p></a><a href="#library"><span>UNDERSTAND</span><h3>Keep asking.</h3><p>Clear explanations, differences and sources you can follow.</p></a></div>
+        <p class="editorial-note">Learning notes informed by Abu Khadeejah’s guide, based on Al-Albānī’s work. <a href="#sources">Read our sources &amp; approach</a>.</p>
       </section>
+      <section data-view="walk" hidden aria-labelledby="walk-title">
+        <div class="section-head"><p class="eyebrow">A WALKTHROUGH FOR LEARNING</p><h1 id="walk-title">One movement<br><em>at a time.</em></h1><p>Read and practise beforehand. Put the screen aside when you pray; this is not a live prayer counter.</p></div>
+        <div class="walk-toolbar"><a href="#learn">Choose another prayer</a><label class="inline-check"><input id="seated" type="checkbox"> Show guidance for limited mobility</label></div>
+        <p id="ability-note" class="context-note" hidden>Stand when able; otherwise sit, or lie on your side if unable to sit. A person unable to prostrate indicates it lower than bowing. Adapt only to your actual ability. <a href="#library/ability">Read the guidance</a>.</p>
+        <div class="walk-layout"><aside class="step-outline"><label for="step-jump">Jump to a step</label><select id="step-jump"></select><ol id="step-list"></ol></aside><div><article id="step-content" class="step-content" tabindex="-1"></article><div class="walk-controls"><button id="step-back" type="button">Previous</button><span id="step-progress" role="status"></span><button id="step-next" class="solid-link" type="button">Next step</button></div></div></div>
+      </section>
+      <section data-view="prepare" hidden aria-labelledby="prepare-title">
+        <div class="section-head"><p class="eyebrow">BEFORE THE FIRST TAKBĪR</p><h1 id="prepare-title">A clear beginning.<br><em>A little preparation.</em></h1><p>Take care of the essentials, then learn the order of wuḍū. These reminders do not assess the validity of your prayer.</p></div>
+        <div class="essentials"><div><span>01</span><h3>Time &amp; intention</h3><p>The time has entered. Know which prayer you are offering, sincerely for Allah.</p></div><div><span>02</span><h3>Purity &amp; covering</h3><p>Attend to purification, clean clothing and place, and appropriate covering.</p></div><div><span>03</span><h3>Direction &amp; space</h3><p>Face the Qiblah when able. Place a sutrah beyond the area of prostration.</p></div></div>
+        <p class="editorial-note"><a href="#library/conditions">Read the conditions</a> · <a href="#library/sutrah">The sutrah: a scholarly difference</a></p>
+        <div class="learn-heading"><div><p class="eyebrow">WUḌŪ / ABLUTION</p><h2>Let each step be clear.</h2></div><p>Wash with care, without excess.<br>Guide, printed pages 8–11.</p></div>
+        <div class="wudu-layout"><div id="wudu-list" class="wudu-list" aria-label="Wuḍū steps"></div><article id="wudu-content" class="wudu-content" tabindex="-1"></article></div>
+        <div class="learning-path"><a href="#library/footwear"><span>A CONCESSION</span><h3>Wiping over socks.</h3><p>Understand the conditions before using the time limits.</p></a><a href="#library/tayammum"><span>WITHOUT WATER</span><h3>Learn tayammum.</h3><p>The guide’s method of purification with clean earth.</p></a><a href="#learn"><span>READY TO LEARN</span><h3>Begin the prayer.</h3><p>Choose a prayer and explore its sequence.</p></a></div>
+      </section>
+      <section data-view="words" hidden aria-labelledby="words-title">
+        <div class="section-head"><p class="eyebrow">RECITE WITH UNDERSTANDING</p><h1 id="words-title">The words<br><em>we return to.</em></h1><p>Arabic comes first. Reading aids help you begin; a teacher can help you hear and pronounce the sounds accurately.</p></div>
+        <div class="reader-tools"><label for="word-search">Find a recitation<input id="word-search" type="search" maxlength="100" placeholder="Try Fatiha, bowing or forgiveness"></label><label class="inline-check"><input id="show-translit" type="checkbox" checked> Reading aid</label><label class="inline-check"><input id="show-meaning" type="checkbox" checked> Meaning</label></div>
+        <p id="word-count" class="result-count" role="status"></p><div id="word-list" class="word-list"></div>
+        <p class="editorial-note">Qur’an: Ḥafṣ / Uthmani text, with Muhammad A. S. Abdel Haleem’s English translation, verified through quran.ai on 11 October 2026. Other English meanings are original study renderings, not Qur’an translations. <a href="#sources">Sources &amp; wording notes</a>.</p>
+      </section>
+      <section data-view="library" hidden aria-labelledby="library-title">
+        <div class="section-head"><p class="eyebrow">A SMALL LIBRARY, CLOSE AT HAND</p><h1 id="library-title">Room for<br><em>your questions.</em></h1><p>Browse the guide’s main topics. Each note points back to its source, with differences kept visible.</p></div>
+        <label class="library-search" for="topic-search">What would you like to understand?<input id="topic-search" type="search" maxlength="100" placeholder="Try socks, sitting, imam or prayer times"></label>
+        <div id="topic-filters" class="topic-filters" aria-label="Filter topics"></div><p id="topic-count" class="result-count" role="status"></p><div id="topic-list" class="topic-list"></div>
+      </section>
+      <section data-view="sources" hidden aria-labelledby="sources-title">
+        <div class="section-head"><p class="eyebrow">CREDIT, CONTEXT &amp; CARE</p><h1 id="sources-title">Know where<br><em>the guidance begins.</em></h1><p>Sources should be easy to find, and differences should never be hidden.</p></div>
+        <div class="source-layout"><article class="source-book"><span class="eyebrow">OUR MAIN READING REFERENCE</span><h2>A Simple Guide to<br>the Prophet’s Prayer</h2><p>Abu Khadeejah Abdul-Wāhid Alam<br>Salafi Publications · Third edition, November 2021<br>ISBN 9781902727585</p><p>Based on Al-Albānī’s description of the prayer. We read all 59 PDF pages, including the 55 numbered pages, for this companion.</p><a class="solid-link" href="https://abukhadeejah.com/prophets-prayer-beginners-illustrations/">Visit the author’s original guide</a></article>
+        <div class="source-notes"><h3>Our approach</h3><p>The learning notes are original summaries, not a reproduction, authorized edition or endorsement by the author or publisher. Short recitations are identified by their source. Printed page references are used throughout; the PDF page is three higher.</p><h3>Salafi scholarship includes differences</h3><p>The guide follows Al-Albānī. We compared relevant rulings with Ibn Bāz’s official website. Differences on the sutrah, Al-Fātiḥah behind an imam, hands after bowing and entering prostration are labeled where they matter.</p><a href="#library/differences">Explore the differences</a><h3>Reuse &amp; copyright</h3><p>The PDF says © Salafi Publications 2021, all rights reserved. The author’s website permits sharing under conditions, but requires permission for rehosting or altering articles/PDFs. We link to the original; its PDF, photos and diagrams are not bundled here.</p><h3>What still needs review</h3><p>Independent Islamic-methodology review of this companion remains open, as does the calculation engine’s review. A checked citation does not make an app a scholar. Individual rulings and pronunciation need a qualified teacher.</p></div></div>
+        <div class="source-bottom"><h3>Qur’an &amp; hadith</h3><p>Al-Fātiḥah (1:1–7) and Al-Ikhlāṣ (112:1–4): Arabic <code>ar-uthmani-hafs</code> and English <code>en-abdel-haleem</code>, fetched using quran.ai on 11 October 2026. Transliteration is an editorial reading aid. Hadith links use collection and report numbers, with the book’s references distinguished from supplementary checks.</p><p>Grounded with quran.ai: fetch_quran(1:1–7, 112:1–4, ar-uthmani-hafs); fetch_translation(1:1–7, 112:1–4, en-abdel-haleem).</p><h3>Your privacy &amp; offline access</h3><p>Searches, practice choices and calculations stay in this browser. There are no accounts, analytics, prayer records or paid APIs. Save the public app package in Prayer times for offline reopening. External source links need internet; normal hosting access logs are controlled by the hosting provider.</p><p>City search uses an adapted <a href="https://www.geonames.org/">GeoNames</a> snapshot (1 October 2026), under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. City points are approximate. <a href="./THIRD-PARTY.md">All data &amp; software notices</a>.</p></div>
+      </section>
+      <section data-view="times" hidden aria-labelledby="times-title"><div class="section-head"><p class="eyebrow">LOCAL CALCULATION / RESEARCH PREVIEW</p><h1 id="times-title">Your place.<br><em>Your prayer times.</em></h1><p>Choose a city or coordinates, confirm the timezone, and select your community’s calculation settings. Independent accuracy and methodology review remain open.</p></div>
       <div class="workspace">
         <section class="selection" aria-labelledby="selection-title">
           <p class="eyebrow">01 / YOUR CHOICES</p>
           <h2 id="selection-title">A place.<br>A day. A method.</h2>
-          <p class="muted">Use an available location fix or enter coordinates. The embedded map suggests a timezone; after you confirm it, the engine fills today's date.</p>
+          <p class="muted">Search the offline city directory, use an available location fix or enter coordinates. The embedded map suggests a timezone; after you confirm it, the engine fills today's date.</p>
           <form id="schedule-form">
+            <label for="city-search">Find a city · offline directory<input id="city-search" type="search" disabled maxlength="80" autocomplete="off" placeholder="City or town name" aria-describedby="city-status"></label><p id="city-status" class="field-help" role="status">Search larger towns and cities without sending your query to a server.</p><div id="city-results" class="city-results" aria-label="City matches"></div>
             <button id="device-location" class="location-button" type="button">Fill coordinates from device location <span aria-hidden="true">⌖</span></button>
             <button id="precise-location" class="location-retry-button" type="button" hidden>Retry once with a more precise location request</button>
             <p class="field-help location-help">A compass tells direction, not location. This starts with one energy-conscious browser request to fill latitude and longitude. If no fix is available, you may choose a more precise request, which can use more power. This page does not send coordinates to Salah or call an online lookup. Your device may use GPS, Wi-Fi, cellular, or a recent fix; some sources need internet. The result is an estimate, not exact. You can enter coordinates yourself.</p>
@@ -55,7 +96,7 @@
             <p id="method-help" class="field-help" aria-live="polite">Choose the calculation convention used by your community. The Sun-angle choices give estimated Fajr and Isha beginnings; there is no universal selection here.</p>
             <label>Asr calculation<select name="asr" required aria-describedby="asr-help"><option value="">Choose an Asr criterion</option><option value="standard">Standard · one extra object-height</option><option value="hanafi">Hanafi · two extra object-heights</option></select></label>
             <p id="asr-help" class="field-help">After the Sun passes its highest point, the engine checks how much an object's shadow has grown beyond its shadow at noon. Standard uses one object-height of extra shadow; Hanafi uses two. Their calculated times can differ. Follow the practice your mosque or trusted scholar recommends.</p>
-            <button id="calculate" class="primary-button" type="submit" disabled>Calculate my schedule <span aria-hidden="true">↗</span></button>
+            <button id="calculate" class="primary-button" type="submit" disabled>Calculate my schedule <span aria-hidden="true">→</span></button>
             <button id="example" class="text-button" type="button">Fill a Minneapolis research example</button>
             <p id="example-note" class="field-help" hidden>Example: 1 October 2026, published MWL angle parameters and Hanafi Asr. This is an explicit research configuration, not a recommended local default.</p>
           </form>
@@ -66,6 +107,11 @@
           <div class="schedule-heading"><p class="eyebrow">02 / YOUR SCHEDULE</p><span class="preview-tag">RESEARCH PREVIEW</span></div>
           <h2 id="schedule-title">Your day,<br>with clarity.</h2>
           <p id="schedule-context" class="muted">Your calculated schedule will appear here.</p>
+          <details id="solar-evidence" class="solar-evidence" hidden>
+            <summary>How have we checked the Sun model?</summary>
+            <div id="solar-evidence-body"></div>
+            <button id="download-audit" class="text-button" type="button">Download the selected comparison data ↓</button>
+          </details>
           <p id="notice" class="notice" role="status" hidden></p>
           <p id="error" class="error" role="alert" hidden></p>
           <div id="empty" class="empty-state"><span class="empty-sun" aria-hidden="true">☼</span><p>Begin with your choices.<br>We will keep the details close.</p><span class="small-label">THIS PAGE SENDS NO COORDINATES TO SALAH</span></div>
@@ -74,9 +120,10 @@
           <p class="research-note">This engine is under development. Independent accuracy and Islamic-methodology review remain open. These are calculated beginnings; your mosque's timetable and iqamah may differ. High-latitude alternatives are not applied in this preview.</p>
         </section>
       </div>
+      </section>
     </main>
-    <footer><span>Prayer, with clarity and care. <a href="./THIRD-PARTY.md">Data &amp; library notices</a></span><span>Built with intention. May Allah place barakah in this work.</span><a class="collection-footer-link" href="https://sirat-apps.pages.dev/">Explore the Sirat collection<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h10m-4-4 4 4-4 4"/></svg></a></footer>
+    <footer><span>Prayer, with clarity and care. <a href="./THIRD-PARTY.md">Data &amp; library notices</a></span><span>Made with care by Shoaib. <a href="#sources">Sources &amp; approach</a>.</span><a class="collection-footer-link" href="https://sirat-apps.pages.dev/">Explore the Sirat collection<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h10m-4-4 4 4-4 4"/></svg></a></footer>
   </div>
-  <noscript>This preview needs JavaScript and WebAssembly to run the Rust engine locally. The offline command-line engine is also available in the Salah repository.</noscript>
+  <noscript><p class="no-script">Enable JavaScript for the interactive learning companion and local calculation. You can also <a href="https://abukhadeejah.com/prophets-prayer-beginners-illustrations/">read the original prayer guide</a>.</p></noscript>
 </body>
 </html>

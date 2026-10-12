@@ -3,7 +3,12 @@
 __pycache__/
 *.pyc
 /.idea/
+/.wrangler/
 /apps/web/pkg/
 /apps/web/offline-worker.js
 /apps/apple/Generated/
 xcuserdata/
+
+# Local source book; link to the publisher in the app.
+/*.pdf
+/apps/web/cities-v1.json

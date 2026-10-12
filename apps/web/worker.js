@@ -1,10 +1,12 @@
-import init, { calculate_schedule_json, calculate_schedule_with_selection_json, zone_inventory_json, lookup_timezone_json, local_clock_json } from "./pkg/salah_wasm.js";
+import init, { calculate_schedule_json, calculate_schedule_with_selection_json, zone_inventory_json, solar_validation_evidence_json, lookup_timezone_json, local_clock_json } from "./pkg/salah_wasm.js";
 
 let ready = false;
 try {
   await init({ module_or_path: new URL("./pkg/salah_wasm_bg.wasm", import.meta.url) });
   ready = true;
-  self.postMessage({ kind: "ready", inventory: JSON.parse(zone_inventory_json()) });
+  let solarEvidence = null;
+  try { solarEvidence = JSON.parse(solar_validation_evidence_json()); } catch { /* Schedule calculation remains available. */ }
+  self.postMessage({ kind: "ready", inventory: JSON.parse(zone_inventory_json()), solarEvidence });
 } catch {
   self.postMessage({ kind: "fatal", message: "The local engine could not load. Build the web artifact and serve this folder over HTTP." });
 }

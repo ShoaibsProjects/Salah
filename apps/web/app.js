@@ -1,3 +1,4 @@
+import { setupCitySearch } from "./cities.js";
 import { OfflineSetup } from "./setup.js";
 
 const form = document.querySelector("#schedule-form");
@@ -10,9 +11,12 @@ const errorBox = document.querySelector("#error");
 const notice = document.querySelector("#notice");
 const results = document.querySelector("#results");
 const provenance = document.querySelector("#provenance");
+const solarEvidenceBox = document.querySelector("#solar-evidence");
+const solarEvidenceBody = document.querySelector("#solar-evidence-body");
 let sequence = 0;
 let activeId = null;
 let lastDocument = null;
+let solarEvidence = null;
 let lastSetupMetadata = null;
 let pendingSetupMetadata = null;
 const workerJobs = new Map();
@@ -199,6 +203,59 @@ function node(tag, text, className) {
   return element;
 }
 
+function renderSolarEvidence(evidence) {
+  if (evidence?.schema !== "salah-solar-validation-evidence-v1"
+      || evidence.audit_id !== "solar-reference-audit-2026-10-01"
+      || evidence.scope?.selected_case_count !== 15
+      || evidence.scope?.event_status_count !== 30
+      || evidence.scope?.matching_event_status_count !== 30
+      || evidence.scope?.ordinary_timed_event_count !== 20
+      || !Array.isArray(evidence.comparisons) || evidence.comparisons.length !== 2
+      || !Array.isArray(evidence.references) || evidence.references.length !== 4
+      || !Array.isArray(evidence.limitations) || evidence.limitations.length === 0
+      || evidence.grazing_case?.latitude_degrees !== 65.72
+      || evidence.comparisons.some(item => !Number.isFinite(item.median_absolute_difference_seconds)
+        || !Number.isFinite(item.maximum_absolute_difference_seconds) || item.timed_event_count !== 20)) {
+    solarEvidenceBody.replaceChildren(node("p", "The selected research note could not be read. This does not change schedule calculation; the Rust engine remains the only calculator."));
+    solarEvidenceBox.hidden = false;
+    return;
+  }
+  solarEvidence = evidence;
+  const children = [node("p", `This is a check of the solar model, not a verification of your selected day or location. Sunrise and Sunset outputs were compared across ${evidence.scope.selected_case_count} selected 2026 cases. The models agreed on all ${evidence.scope.matching_event_status_count} of ${evidence.scope.event_status_count} event-existence outcomes.`)];
+  for (const comparison of evidence.comparisons) {
+    const card = node("div", undefined, "evidence-result");
+    card.append(node("strong", comparison.label));
+    card.append(node("p", `${comparison.timed_event_count} ordinary event times · median absolute difference ${comparison.median_absolute_difference_seconds.toFixed(2)} s · largest ${comparison.maximum_absolute_difference_seconds.toFixed(3)} s`));
+    card.append(node("p", comparison.source_artifact, "field-help"));
+    children.push(card);
+  }
+  children.push(node("p", `Near a very shallow crossing at ${evidence.grazing_case.latitude_degrees}°N, the references differed from Salah by about 50 seconds. A small difference in modeled Sun height near the horizon can move an event time substantially. No universal correction follows from this case.`));
+  children.push(node("p", "The installed app still calculates with NOAA-MEEUS-SOLAR-2. JPL and NREL were offline research references; they are not loaded to calculate your schedule."));
+  const limits = node("details", undefined, "evidence-limitations");
+  limits.append(node("summary", "What this comparison does not prove"));
+  const list = node("ul");
+  for (const limitation of evidence.limitations) list.append(node("li", limitation));
+  limits.append(list, node("p", `Next research: ${evidence.next_research}`));
+  const sources = node("details", undefined, "evidence-limitations");
+  sources.append(node("summary", "Reference editions and data identity"));
+  for (const reference of evidence.references) {
+    const item = node("p", undefined, "evidence-reference");
+    item.append(node("strong", reference.id));
+    if (reference.implementation) item.append(node("span", ` · ${reference.implementation}`));
+    if (reference.generated_date) item.append(node("span", ` · generated ${reference.generated_date}`));
+    if (reference.publication_doi) item.append(node("span", ` · DOI ${reference.publication_doi}`));
+    if (reference.sha256) item.append(node("span", ` · SHA-256 ${reference.sha256}`));
+    if (reference.source_file_sha256) {
+      for (const [name, hash] of Object.entries(reference.source_file_sha256)) item.append(node("span", ` · ${name} SHA-256 ${hash}`));
+    }
+    if (reference.url) item.append(node("span", ` · ${reference.url}`));
+    sources.append(item);
+  }
+  children.push(limits, sources, node("p", `Evidence ${evidence.audit_id} · ${evidence.review_status.replaceAll("_", " ")}`, "evidence-footnote"));
+  solarEvidenceBody.replaceChildren(...children);
+  solarEvidenceBox.hidden = false;
+}
+
 function ruleExplanation(rule) {
   switch (rule.kind) {
     case "solar_transit": return "The selected upper solar transit.";
@@ -262,7 +319,7 @@ function render(schedule) {
     : "Standard calculation · extra shadow ratio 1";
   for (const [label, value] of [
     ["Location", `${schedule.coordinates.latitude_degrees}°, ${schedule.coordinates.longitude_degrees}°`],
-    ["Location source", locationCapture.source === "device_geolocation" ? "One-time device location estimate" : locationCapture.source === "example_coordinates" ? "Example coordinates" : "Manually entered coordinates"],
+    ["Location source", locationCapture.source === "device_geolocation" ? "One-time device location estimate" : locationCapture.source === "example_coordinates" ? "Example coordinates" : locationCapture.source === "offline_city" ? `Offline city point · ${locationCapture.cityName}` : "Manually entered coordinates"],
     ...(locationCapture.reportedAccuracyMeters === null ? [] : [["Reported accuracy", `about ${Math.ceil(locationCapture.reportedAccuracyMeters)} m`]]),
     ["Fajr and Isha profile", methodLabel], ["Asr calculation", asrLabel],
     ["Source", schedule.method.source], ["Kernel", `${schedule.kernel.version} · ${schedule.kernel.astronomy_model}`],
@@ -281,6 +338,7 @@ try {
     if (terminated) return;
     if (data?.kind === "ready") {
       if (data.inventory?.schema !== "salah-zone-inventory-v1" || !Array.isArray(data.inventory.zone_ids)) return failure("The engine returned an unsupported inventory.", true);
+      renderSolarEvidence(data.solarEvidence);
       clearTimeout(watchdog);
       const zonePlaceholder = node("option", "Choose a time zone");
       zonePlaceholder.value = "";
@@ -390,4 +448,23 @@ document.querySelector("#download").addEventListener("click", () => {
   const link = node("a"); link.href = url; link.download = `salah-${lastDocument.requested_local_date}.json`;
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+document.querySelector("#download-audit").addEventListener("click", () => {
+  if (!solarEvidence) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(solarEvidence, null, 2) + "\n"], { type: "application/json" }));
+  const link = node("a"); link.href = url; link.download = `${solarEvidence.audit_id}.json`;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+setupCitySearch(city => {
+  cancelLocationRequest("Using an approximate offline city point. Review the location and timezone.");
+  invalidateChoices();
+  form.elements.namedItem("latitude_degrees").value = city.latitude;
+  form.elements.namedItem("longitude_degrees").value = city.longitude;
+  locationCapture = { source: "offline_city", cityName: `${city.name}, ${city.country}`, geonamesId: city.id, reportedAccuracyMeters: null };
+  setup.coordinatesChanged();
+  setLocationMessage("Offline city coordinates filled. Check the timezone suggestion and confirm it before calculating.");
+  form.elements.namedItem("zone_id").focus();
 });

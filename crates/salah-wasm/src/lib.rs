@@ -24,6 +24,13 @@ pub fn zone_inventory_json() -> String {
     salah_bridge::zone_inventory_json()
 }
 
+/// Dated solar-model comparison evidence for the offline research explanation.
+/// It is descriptive metadata and does not participate in any calculation.
+#[wasm_bindgen]
+pub fn solar_validation_evidence_json() -> String {
+    salah_bridge::solar_validation_evidence_json().to_owned()
+}
+
 /// Embedded-map candidates, requiring explicit caller confirmation.
 #[wasm_bindgen]
 pub fn lookup_timezone_json(request_json: &str) -> String {

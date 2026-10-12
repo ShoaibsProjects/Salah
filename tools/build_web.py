@@ -83,9 +83,12 @@ def main():
         (output / "build-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         # Exact public assets only: no form inputs or user location enter a cache.
         web = ROOT / "apps/web"
+        # Reuse the native city catalogue; keep a single canonical data source.
+        shutil.copyfile(ROOT / "apps/apple/Salah/cities-v1.json", web / "cities-v1.json")
         sources = [web / name for name in (
             "index.html", "style.css", "app.js", "setup.js", "worker.js", "offline.js",
-            "offline-worker-template.js", "THIRD-PARTY.md",
+            "offline-worker-template.js", "THIRD-PARTY.md", "brand-mark.svg", "salah-icon.png",
+            "learn.js", "learn.css", "guide-data.js", "quran-data.js", "cities.js", "cities-v1.json",
         )]
         sources += sorted(path for path in output.rglob("*") if path.is_file()
                           and path.name != "offline-manifest.json")

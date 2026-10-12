@@ -99,6 +99,12 @@ If you would like to help, you do not need to arrive with a perfect answer. Tell
 
 [Share a question or experience](https://github.com/ShoaibsProjects/Salah/issues)
 
+## Learn alongside Salah
+
+The [web companion](https://salah-prayer.pages.dev/) now offers preparation and wuḍū guidance, a walkthrough of each daily prayer, Arabic recitations with reading aids, and a searchable library. Original learning notes credit Abu Khadeejah’s 2021 prayer guide; source links and differences in scholarly guidance remain close to the explanation. Independent scholarly review is still open.
+
+You can also choose from the existing offline city directory, confirm your timezone, and explore the research timetable. The learning material joins the public app package when you choose to save it for offline use.
+
 ## Technical details
 
 The engineering material lives here so the welcome above can stay focused on people. **Current piece: Phase 4 → F4-A2, Offline Places and iPhone 12 Compatibility.** The [roadmap](docs/roadmap.md) owns phase gates; the [current-work record](docs/current-work.md) explains implemented scope and next steps.
