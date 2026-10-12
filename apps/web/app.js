@@ -25,6 +25,7 @@ let watchdog;
 let loaded = false;
 let terminated = false;
 let locationReady = false;
+let calculateWhenReady = false;
 let locationRequestId = 0;
 let locationRequestTimer;
 let locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
@@ -40,6 +41,10 @@ const setup = new OfflineSetup(form, sendSetupRequest, () => invalidateChoices()
   if (locationReady) setLocationMessage("Ready for today" + (locationCapture.cityName ? " in " + locationCapture.cityName : "") + ".");
   else if (needsChoice) setLocationMessage("Please choose your time zone in More settings.", true);
   else if (zone) setLocationMessage("Checking today’s date for this time zone…");
+  if (locationReady && calculateWhenReady) {
+    calculateWhenReady = false;
+    queueMicrotask(() => form.requestSubmit());
+  }
 });
 
 function sendSetupRequest(kind, request) {
@@ -157,6 +162,7 @@ function useDeviceLocation({ highAccuracy = false } = {}) {
       invalidateChoices();
       locationReady = false;
       calculateButton.disabled = true;
+      calculateWhenReady = true;
       // Seven decimal places preserve centimeter-scale coordinate resolution;
       // the separately displayed device estimate communicates measurement error.
       form.elements.namedItem("latitude_degrees").value = latitude.toFixed(7);
@@ -451,6 +457,7 @@ document.querySelector("#download-audit").addEventListener("click", () => {
 
 const cityPicker = setupCitySearch(city => {
   locationReady = false;
+  calculateWhenReady = true;
   calculateButton.disabled = true;
   cancelLocationRequest("Using your selected city.");
   invalidateChoices();
