@@ -54,17 +54,4 @@ export function setupCitySearch(onSelect) {
     },180);
   });
   input.disabled = false;
-  return {
-    async choose(name, country) {
-      try {
-        const data = await load();
-        const matches = data.filter(city => city.key === normalize(name) && city.country === country);
-        if (matches.length === 1) applyCity(matches[0]);
-        else {
-          input.value = name;
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-      } catch (error) { status.textContent = error.message; }
-    },
-  };
 }

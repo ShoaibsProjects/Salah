@@ -455,7 +455,7 @@ document.querySelector("#download-audit").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
-const cityPicker = setupCitySearch(city => {
+setupCitySearch(city => {
   locationReady = false;
   calculateWhenReady = true;
   calculateButton.disabled = true;
@@ -466,8 +466,4 @@ const cityPicker = setupCitySearch(city => {
   locationCapture = { source: "offline_city", cityName: `${city.name}, ${city.country}`, geonamesId: city.id, reportedAccuracyMeters: null };
   setLocationMessage("Finding today’s time zone…");
   setup.coordinatesChanged({ immediate: true });
-});
-
-document.querySelectorAll("[data-city][data-country]").forEach(button => {
-  button.addEventListener("click", () => cityPicker.choose(button.dataset.city, button.dataset.country));
 });
