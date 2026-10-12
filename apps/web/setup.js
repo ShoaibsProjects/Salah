@@ -1,9 +1,10 @@
 // Device readings are inputs. Rust owns timezone lookup and civil conversion.
 export class OfflineSetup {
-  constructor(form, request, invalidate) {
+  constructor(form, request, invalidate, zoneStatus = () => {}) {
     this.form = form;
     this.request = request;
     this.invalidate = invalidate;
+    this.zoneStatus = zoneStatus;
     this.zone = form.elements.namedItem("zone_id");
     this.date = form.elements.namedItem("local_date");
     this.confirm = document.querySelector("#zone-confirmed");
@@ -24,12 +25,14 @@ export class OfflineSetup {
       this.confirm.checked = false;
       this.clearToday();
       this.zoneHelp.textContent = "Timezone edited. Confirm that it applies to your selected location; manual correction is always available.";
+      this.zoneStatus({ ready: false });
     });
     this.confirm.addEventListener("change", () => {
       clearTimeout(this.lookupTimer);
       this.revision++;
       this.invalidate();
-      if (this.confirm.checked) this.previewToday(); else this.clearToday();
+      if (this.confirm.checked) this.previewToday().then(() => this.zoneStatus({ ready: !!this.date.value, zone: this.zone.value }));
+      else { this.clearToday(); this.zoneStatus({ ready: false }); }
     });
     this.todayMode.addEventListener("change", () => {
       this.revision++;
@@ -62,18 +65,19 @@ export class OfflineSetup {
     if (!this.todayMode.checked) return;
     this.date.value = "";
     this.dateCapture = { source: "not_selected" };
-    this.dateHelp.textContent = "Confirm the location's timezone first. Rust will then derive its date from your device's UTC clock.";
+    this.dateHelp.textContent = "Today’s date appears after choosing a city.";
   }
 
-  coordinatesChanged() {
+  coordinatesChanged({ immediate = false } = {}) {
     this.revision++;
     this.lookupWhenReady = true;
     this.candidates = null;
     this.confirm.checked = false;
     this.clearToday();
     clearTimeout(this.lookupTimer);
-    this.zoneHelp.textContent = "Checking the embedded timezone map after you finish entering coordinates…";
-    this.lookupTimer = setTimeout(() => this.lookup(), 400);
+    this.zoneHelp.textContent = "Finding the time zone for this location…";
+    this.zoneStatus({ ready: false });
+    this.lookupTimer = setTimeout(() => this.lookup(), immediate ? 0 : 400);
   }
 
   engineReady() {
@@ -103,21 +107,29 @@ export class OfflineSetup {
       }
       this.candidates = candidates;
       this.lookupWhenReady = false;
-      this.confirm.checked = false;
       if (candidates.zone_ids.length === 1) {
         this.zone.value = candidates.zone_ids[0];
-        this.zoneHelp.textContent = `Filled from the offline ${candidates.boundary_version} map. Confirm this zone below; approximate borders and location error can change the result.`;
+        this.confirm.checked = true;
+        this.zoneHelp.textContent = "Time zone selected for this city. Change it below if you know your local time zone is different.";
+        await this.previewToday();
+        this.zoneStatus({ ready: !!this.date.value, zone: this.zone.value });
       } else if (candidates.zone_ids.length > 1) {
         this.zone.value = "";
-        this.zoneHelp.textContent = `The offline map returns several possible zones: ${candidates.zone_ids.join(", ")}. Choose and confirm one; the app will not choose the first.`;
+        this.confirm.checked = false;
+        this.clearToday();
+        this.zoneHelp.textContent = `Choose the time zone for this location: ${candidates.zone_ids.join(", ")}.`;
+        this.zoneStatus({ ready: false, needsChoice: true });
       } else {
         this.zone.value = "";
-        this.zoneHelp.textContent = "The offline map has no zone for this point. Select and confirm a timezone yourself. Ship and aircraft clocks may follow the operator's choice.";
+        this.confirm.checked = false;
+        this.clearToday();
+        this.zoneHelp.textContent = "Choose the time zone for this location.";
+        this.zoneStatus({ ready: false, needsChoice: true });
       }
-      this.clearToday();
     } catch (error) {
       if (revision !== this.revision) return;
-      this.zoneHelp.textContent = `${error.message} Select a supported timezone manually and confirm it.`;
+      this.zoneHelp.textContent = `${error.message} Choose a time zone in More settings.`;
+      this.zoneStatus({ ready: false, needsChoice: true });
     }
   }
 
@@ -138,12 +150,12 @@ export class OfflineSetup {
     if (changedDay && invalidateDate) this.invalidate();
     this.date.value = clock.local_date;
     this.dateCapture = { source: "device_clock_in_selected_zone", clock };
-    this.dateHelp.textContent = `Today is ${clock.local_date} in ${zone}, using IANA ${clock.rule_pack.tzdb_version}. Your device clock supplies the instant; check that its clock is correct.`;
+    this.dateHelp.textContent = `Today is ${clock.local_date} in your selected city.`;
     return clock.local_date;
   }
 
   async readToday(invalidateDate = true) {
-    if (!this.confirm.checked || !this.zone.value) throw new Error("Confirm the timezone for this location first.");
+    if (!this.confirm.checked || !this.zone.value) throw new Error("Choose the time zone for this location in More settings.");
     const revision = this.revision;
     const zone = this.zone.value;
     const instant = Math.floor(Date.now() / 1000); // UTC epoch only; no host timezone conversion.
@@ -161,12 +173,12 @@ export class OfflineSetup {
       if (revision !== this.revision) return;
       this.date.value = "";
       this.dateCapture = { source: "not_selected" };
-      this.dateHelp.textContent = `${error.message} You can turn off today's date and enter one manually.`;
+      this.dateHelp.textContent = `${error.message} Choose another time zone or date.`;
     }
   }
 
   async prepare() {
-    if (!this.confirm.checked || !this.zone.value) throw new Error("Confirm that the timezone applies to your selected location.");
+    if (!this.confirm.checked || !this.zone.value) throw new Error("Choose the time zone for this location in More settings.");
     this.revision++; // Ignore a previous preview reading when starting a calculation.
     this.lookupWhenReady = false;
     clearTimeout(this.lookupTimer);
@@ -174,18 +186,6 @@ export class OfflineSetup {
     if (!localDate) throw new Error("Choose a valid date, or use today's date after confirming the timezone.");
     if (!this.todayMode.checked) this.manualDate();
     return { local_date: localDate, zone_choice: this.candidates?.zone_ids.includes(this.zone.value) ? "confirmed_suggestion" : "manual" };
-  }
-
-  useExample() {
-    this.revision++;
-    this.lookupWhenReady = false;
-    clearTimeout(this.lookupTimer);
-    this.candidates = null;
-    this.confirm.checked = true;
-    this.todayMode.checked = false;
-    this.dateCapture = { source: "example_date", local_date: this.date.value };
-    this.dateHelp.textContent = "Using the labeled research example date. Enable today's date to use your device clock.";
-    this.zoneHelp.textContent = "Timezone explicitly selected by the labeled research example. This is not a regional method recommendation.";
   }
 
   metadata() { return { zone_lookup: this.candidates, date_input: this.dateCapture }; }

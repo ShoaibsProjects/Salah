@@ -74,43 +74,50 @@
         <details class="evidence-disclosure source-bottom"><summary>Text provenance &amp; attribution</summary><p>Al-Fātiḥah (1:1–7) and Al-Ikhlāṣ (112:1–4) use Arabic ar-uthmani-hafs and English en-abdel-haleem, retrieved through quran.ai on 11 October 2026. Arabic for 13:28 and 29:45 and Sahih International’s English translation (en-sahih-international) were retrieved on 12 October 2026. Transliteration and the English meanings of non-Qur’anic recitations are editorial reading aids. Additional hadith references were checked on 12 October 2026.</p><p>Grounded with quran.ai: fetch_quran(1:1–7, 112:1–4, 13:28, 29:45, ar-uthmani-hafs); fetch_translation(1:1–7, 112:1–4, en-abdel-haleem); fetch_translation(13:28, 29:45, en-sahih-international).</p></details>
         <div class="source-bottom"><h3>Privacy &amp; offline access</h3><p>Searches, practice choices and calculations stay in this browser. There are no accounts, analytics, prayer records or paid APIs. The app can be saved for offline reopening from Prayer times. External source links need internet; normal hosting access logs are controlled by the hosting provider.</p><p>City search uses an adapted <a href="https://www.geonames.org/">GeoNames</a> snapshot (1 October 2026), under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. City points are approximate. <a href="./THIRD-PARTY.md">Data &amp; software notices</a>.</p></div>
       </section>
-      <section data-view="times" hidden aria-labelledby="times-title"><div class="section-head"><p class="eyebrow">LOCAL CALCULATION / RESEARCH PREVIEW</p><h1 id="times-title">Your place.<br><em>Your prayer times.</em></h1><p>Choose a city or coordinates, confirm the timezone, and select your community’s calculation settings. Independent accuracy and methodology review remain open.</p></div>
-      <div class="workspace">
-        <section class="selection" aria-labelledby="selection-title">
-          <p class="eyebrow">01 / YOUR CHOICES</p>
-          <h2 id="selection-title">A place.<br>A day. A method.</h2>
-          <p class="muted">Search the offline city directory, use an available location fix or enter coordinates. The embedded map suggests a timezone; after you confirm it, the engine fills today's date.</p>
+      <section data-view="times" hidden aria-labelledby="times-title"><div class="section-head times-intro"><p class="eyebrow">PRAYER TIMES FOR TODAY</p><h1 id="times-title">A little more<br><em>ease in your day.</em></h1><p>Choose a city. Today’s prayer times will appear here.</p></div>
+      <div class="workspace times-workspace">
+        <section class="selection times-selection" aria-labelledby="selection-title">
+          <p class="eyebrow">YOUR CITY</p>
+          <h2 id="selection-title">Where are you?</h2>
+          <label class="city-label" for="city-search">Search by city or country<input id="city-search" type="search" disabled maxlength="80" autocomplete="off" placeholder="Try Mumbai, Dubai or Dhaka" aria-describedby="city-status"></label>
+          <p id="city-status" class="field-help" role="status">Choose a city below or search for yours.</p><div id="city-results" class="city-results" aria-label="City matches"></div>
+          <p class="quick-city-label">A few places to start</p>
+          <div class="quick-cities" aria-label="Popular cities">
+            <button type="button" data-city="Mumbai" data-country="India">Mumbai <span>India</span></button><button type="button" data-city="New Delhi" data-country="India">Delhi <span>India</span></button>
+            <button type="button" data-city="Dubai" data-country="United Arab Emirates">Dubai <span>UAE</span></button><button type="button" data-city="Abu Dhabi" data-country="United Arab Emirates">Abu Dhabi <span>UAE</span></button>
+            <button type="button" data-city="Riyadh" data-country="Saudi Arabia">Riyadh <span>Saudi Arabia</span></button><button type="button" data-city="Karachi" data-country="Pakistan">Karachi <span>Pakistan</span></button>
+            <button type="button" data-city="Dhaka" data-country="Bangladesh">Dhaka <span>Bangladesh</span></button><button type="button" data-city="Doha" data-country="Qatar">Doha <span>Qatar</span></button>
+            <button type="button" data-city="Kuala Lumpur" data-country="Malaysia">Kuala Lumpur <span>Malaysia</span></button><button type="button" data-city="Jakarta" data-country="Indonesia">Jakarta <span>Indonesia</span></button>
+          </div>
+          <button id="device-location" class="location-button" type="button"><span>Use my current location</span><span aria-hidden="true">⌖</span></button>
+          <button id="precise-location" class="location-retry-button" type="button" hidden>Try a more precise location</button>
+          <p id="location-status" class="location-status" role="status" aria-live="polite">Your location stays on your device.</p>
           <form id="schedule-form">
-            <label for="city-search">Find a city · offline directory<input id="city-search" type="search" disabled maxlength="80" autocomplete="off" placeholder="City or town name" aria-describedby="city-status"></label><p id="city-status" class="field-help" role="status">Search larger towns and cities without sending your query to a server.</p><div id="city-results" class="city-results" aria-label="City matches"></div>
-            <button id="device-location" class="location-button" type="button">Fill coordinates from device location <span aria-hidden="true">⌖</span></button>
-            <button id="precise-location" class="location-retry-button" type="button" hidden>Retry once with a more precise location request</button>
-            <p class="field-help location-help">A compass tells direction, not location. This starts with one energy-conscious browser request to fill latitude and longitude. If no fix is available, you may choose a more precise request, which can use more power. This page does not send coordinates to Salah or call an online lookup. Your device may use GPS, Wi-Fi, cellular, or a recent fix; some sources need internet. The result is an estimate, not exact. You can enter coordinates yourself.</p>
-            <p id="location-status" class="location-status" role="status" aria-live="polite">Location permission is not requested unless you choose the button.</p>
-            <div class="field-pair">
-              <label>Latitude <span class="field-unit">degrees</span><input name="latitude_degrees" type="number" step="any" min="-90" max="90" placeholder="44.9778" required></label>
-              <label>Longitude <span class="field-unit">degrees</span><input name="longitude_degrees" type="number" step="any" min="-180" max="180" placeholder="−93.2650" required></label>
+            <input name="method_id" type="hidden" value="mwl-angles-18-17"><input name="asr" type="hidden" value="standard">
+            <div class="advanced-time-settings">
+              <details class="time-settings"><summary>More settings</summary>
+                <p class="field-help">Prayer-time settings can differ between local communities. These starting settings are shown for transparency; follow your local mosque if it uses different settings.</p>
+                <div class="field-pair">
+                  <label>Latitude<input name="latitude_degrees" type="number" step="any" min="-90" max="90" required></label><label>Longitude<input name="longitude_degrees" type="number" step="any" min="-180" max="180" required></label>
+                </div>
+                <label>Time zone<select name="zone_id" aria-describedby="zone-help" required><option value="">Choose a time zone</option></select></label>
+                <p id="zone-help" class="field-help" role="status">The city’s time zone will be selected automatically when there is one clear match.</p>
+                <label class="check-label"><input id="zone-confirmed" type="checkbox" required> This time zone matches my location.</label>
+                <label class="check-label"><input id="device-today" type="checkbox" checked> Use today’s date automatically</label>
+                <label>Date<input name="local_date" type="date" min="1900-01-01" max="2100-12-31" aria-describedby="date-help" required></label><p id="date-help" class="field-help" role="status">Today’s date is based on your selected city.</p>
+                <label>Fajr and Isha<select name="method_id-choice" aria-describedby="method-help"><option value="mwl-angles-18-17">Published global setting (MWL)</option><option value="research-15">15° comparison setting</option></select></label><p id="method-help" class="field-help">Use the setting followed by your local mosque when known.</p>
+                <label>Asr<select name="asr-choice" aria-describedby="asr-help"><option value="standard">Standard</option><option value="hanafi">Hanafi</option></select></label><p id="asr-help" class="field-help">Choose the practice followed by your local mosque.</p>
+              </details>
             </div>
-            <label>Time zone<select name="zone_id" aria-describedby="zone-help" required><option value="">Choose a time zone</option></select></label>
-            <p id="zone-help" class="field-help" role="status">Open the list to choose from the embedded time zones. Type the first letters to jump to a name. Coordinates can suggest one automatically.</p>
-            <label class="check-label"><input id="zone-confirmed" type="checkbox" required> This timezone applies to my selected location.</label>
-            <label class="check-label"><input id="device-today" type="checkbox" checked> Use today's date automatically.</label>
-            <label>Gregorian date<input name="local_date" type="date" min="1900-01-01" max="2100-12-31" aria-describedby="date-help" required></label>
-            <p id="date-help" class="field-help" role="status">Confirm the timezone first. The Rust engine fills today in that zone. Pick or type another date here to switch to manual date.</p>
-            <label>Fajr and Isha calculation<select name="method_id" required aria-describedby="method-help"><option value="">Choose a profile</option><option value="mwl-angles-18-17">Published sun angles · 18° / 17° (MWL table)</option><option value="research-15">15° / 15° · engineering comparison</option></select></label>
-            <p id="method-help" class="field-help" aria-live="polite">The profile used by the local mosque is a useful starting point. Its imam can help when the setting is uncertain.</p>
-            <label>Asr calculation<select name="asr" required aria-describedby="asr-help"><option value="">Choose an Asr criterion</option><option value="standard">Standard · one extra object-height</option><option value="hanafi">Hanafi · two extra object-heights</option></select></label>
-            <p id="asr-help" class="field-help">The Asr setting follows the local mosque’s practice. Its imam can help identify the setting.</p>
-            <button id="calculate" class="primary-button" type="submit" disabled>Calculate my schedule <span aria-hidden="true">→</span></button>
-            <button id="example" class="text-button" type="button">Fill a Minneapolis research example</button>
-            <p id="example-note" class="field-help" hidden>Example: 1 October 2026, published MWL angle parameters and Hanafi Asr. This is an explicit research configuration, not a recommended local default.</p>
+            <button id="calculate" class="primary-button" type="submit" disabled>Show today’s prayer times <span aria-hidden="true">→</span></button>
           </form>
-          <p id="engine-state" class="engine-state" role="status">Loading the local Rust engine…</p>
-          <div class="offline-note"><button id="prepare-offline" class="text-button" type="button">Save this app for offline use</button><p id="offline-status" class="field-help" role="status">Calculation is local. Save the complete app package to reopen it without the server; location hardware availability is separate.</p></div>
+          <p id="engine-state" class="engine-state" role="status">Getting prayer times ready…</p>
+          <div class="offline-note"><button id="prepare-offline" class="text-button" type="button">Save this app for offline use</button><p id="offline-status" class="field-help" role="status">Once saved, prayer-time calculations can work offline.</p></div>
         </section>
         <section class="schedule" aria-labelledby="schedule-title">
-          <div class="schedule-heading"><p class="eyebrow">02 / YOUR SCHEDULE</p><span class="preview-tag">RESEARCH PREVIEW</span></div>
-          <h2 id="schedule-title">Your day,<br>with clarity.</h2>
-          <p id="schedule-context" class="muted">Your calculated schedule will appear here.</p>
+          <div class="schedule-heading"><p class="eyebrow">TODAY</p><span class="preview-tag">ESTIMATED TIMES</span></div>
+          <h2 id="schedule-title">Your prayer times</h2>
+          <p id="schedule-context" class="muted">Choose a city to see today’s times.</p>
           <details id="solar-evidence" class="solar-evidence" hidden>
             <summary>How have we checked the Sun model?</summary>
             <div id="solar-evidence-body"></div>
@@ -118,10 +125,10 @@
           </details>
           <p id="notice" class="notice" role="status" hidden></p>
           <p id="error" class="error" role="alert" hidden></p>
-          <div id="empty" class="empty-state"><span class="empty-sun" aria-hidden="true">☼</span><p>Begin with your choices.<br>We will keep the details close.</p><span class="small-label">THIS PAGE SENDS NO COORDINATES TO SALAH</span></div>
+          <div id="empty" class="empty-state"><span class="empty-sun" aria-hidden="true">☼</span><p>Your day, with a little more room for prayer.</p><span class="small-label">CHOOSE A CITY TO BEGIN</span></div>
           <div id="results"></div>
           <details id="provenance" class="provenance" hidden><summary>The choices behind this schedule</summary><div id="provenance-body"></div><button id="download" class="text-button" type="button">Download the complete JSON record ↓</button></details>
-          <p class="research-note">This engine is under development. Independent accuracy and Islamic-methodology review remain open. These are calculated beginnings; your mosque's timetable and iqamah may differ. High-latitude alternatives are not applied in this preview.</p>
+          <p class="research-note">Prayer times are estimates and may differ from your mosque’s timetable. For prayer and congregation, follow the timetable you trust.</p>
         </section>
       </div>
       </section>

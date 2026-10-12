@@ -10,6 +10,11 @@ export function setupCitySearch(onSelect) {
   let pending;
   let revision = 0;
   let timer;
+  function applyCity(city) {
+    ++revision; input.value = `${city.name}, ${city.country}`; results.replaceChildren();
+    status.textContent = `Using ${city.name}, ${city.country}.`;
+    onSelect(city);
+  }
   async function load() {
     if (directory) return directory;
     if (!pending) pending = (async () => {
@@ -38,20 +43,28 @@ export function setupCitySearch(onSelect) {
         if (version !== revision) return;
         const terms = query.split(/\s+/);
         const matches = data.filter(city => terms.every(term => city.text.includes(term))).sort((a,b) => Number(b.key === query)-Number(a.key === query) || Number(b.key.startsWith(query))-Number(a.key.startsWith(query))).slice(0,8);
-        status.textContent = matches.length ? `${matches.length} matches shown. Choose a city, then confirm its timezone. Points are approximate.` : 'No city found. Try another spelling or enter coordinates manually.';
+        status.textContent = matches.length ? 'Choose your city from the list.' : 'No city found. Try another spelling.';
         for (const city of matches) {
           const button = document.createElement('button'); button.type = 'button';
           button.textContent = `${city.name}, ${city.country}`;
-          const note = document.createElement('small'); note.textContent = `${city.latitude.toFixed(4)}°, ${city.longitude.toFixed(4)}° · city reference point`; button.append(note);
-          button.addEventListener('click', () => {
-            ++revision; input.value = `${city.name}, ${city.country}`; results.replaceChildren();
-            status.textContent = `Using ${city.name}, ${city.country}. This is an approximate city point, not your device location. Review the coordinates and confirm the timezone.`;
-            onSelect(city);
-          });
+          button.addEventListener('click', () => applyCity(city));
           results.append(button);
         }
       } catch (error) { if (version === revision) status.textContent = error.message; }
     },180);
   });
   input.disabled = false;
+  return {
+    async choose(name, country) {
+      try {
+        const data = await load();
+        const matches = data.filter(city => city.key === normalize(name) && city.country === country);
+        if (matches.length === 1) applyCity(matches[0]);
+        else {
+          input.value = name;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      } catch (error) { status.textContent = error.message; }
+    },
+  };
 }

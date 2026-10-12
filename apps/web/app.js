@@ -24,16 +24,23 @@ let worker;
 let watchdog;
 let loaded = false;
 let terminated = false;
+let locationReady = false;
 let locationRequestId = 0;
 let locationRequestTimer;
 let locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
 
 const methods = {
-  "mwl-angles-18-17": "This profile uses Fajr 18° and Isha 17° from a published table. Results can be compared with the local mosque’s timetable.",
-  "research-15": "This is a technical comparison profile using 15° for both Fajr and Isha. It is intended for technical testing rather than mosque guidance.",
+  "mwl-angles-18-17": "This published setting is one option. Your local mosque may use another.",
+  "research-15": "This comparison setting may differ from your local mosque’s timetable.",
 };
 
-const setup = new OfflineSetup(form, sendSetupRequest, () => invalidateChoices());
+const setup = new OfflineSetup(form, sendSetupRequest, () => invalidateChoices(), ({ ready, zone, needsChoice } = {}) => {
+  locationReady = !!ready;
+  calculateButton.disabled = !loaded || !locationReady;
+  if (locationReady) setLocationMessage("Ready for today" + (locationCapture.cityName ? " in " + locationCapture.cityName : "") + ".");
+  else if (needsChoice) setLocationMessage("Please choose your time zone in More settings.", true);
+  else if (zone) setLocationMessage("Checking today’s date for this time zone…");
+});
 
 function sendSetupRequest(kind, request) {
   if (!loaded) return Promise.reject(new Error("The local Rust engine is not ready yet."));
@@ -57,7 +64,7 @@ function clearResult() {
   errorBox.hidden = true;
   notice.hidden = true;
   document.querySelector("#empty").hidden = false;
-  document.querySelector("#schedule-context").textContent = "Your calculated schedule will appear here.";
+  document.querySelector("#schedule-context").textContent = "Choose a city to see today’s times.";
 }
 
 function failure(message, fatal = false) {
@@ -71,7 +78,7 @@ function failure(message, fatal = false) {
     for (const job of workerJobs.values()) { clearTimeout(job.timer); job.reject(new Error(message)); }
     workerJobs.clear();
   }
-  calculateButton.disabled = !loaded;
+  calculateButton.disabled = !loaded || !locationReady;
   calculateButton.removeAttribute("aria-busy");
   engineState.textContent = fatal ? "Engine unavailable. Reload after rebuilding the local artifact." : "Ready for another explicit calculation.";
 }
@@ -101,11 +108,11 @@ function explainMethod() {
 function useDeviceLocation({ highAccuracy = false } = {}) {
   if (locationRequestId !== 0) return;
   if (!window.isSecureContext) {
-    setLocationMessage("Device location is available on a secure page or localhost. You can enter coordinates yourself here.", true);
+    setLocationMessage("Location isn’t available here. Search for your city instead.", true);
     return;
   }
   if (!navigator.geolocation) {
-    setLocationMessage("This browser does not provide device location. You can enter coordinates yourself.", true);
+    setLocationMessage("Location isn’t available in this browser. Search for your city instead.", true);
     return;
   }
 
@@ -116,9 +123,7 @@ function useDeviceLocation({ highAccuracy = false } = {}) {
   preciseLocationButton.disabled = true;
   preciseLocationButton.hidden = true;
   deviceLocationButton.setAttribute("aria-busy", "true");
-  setLocationMessage(highAccuracy
-    ? "Asking your device for a more precise location estimate… This may take longer or use more power. You can still enter coordinates yourself."
-    : "Asking your device for one energy-conscious location estimate… You can still enter coordinates yourself.");
+  setLocationMessage(highAccuracy ? "Finding a more precise location…" : "Finding your location…");
 
   const finish = () => {
     if (locationRequestId !== requestId) return false;
@@ -133,9 +138,7 @@ function useDeviceLocation({ highAccuracy = false } = {}) {
   locationRequestTimer = setTimeout(() => {
     if (!finish()) return;
     preciseLocationButton.hidden = highAccuracy;
-    setLocationMessage(highAccuracy
-      ? "The more precise request also timed out. Check your system location setting, try again later, or enter coordinates yourself."
-      : "No location fix arrived in time. Try near a window or outdoors, request a more precise fix once, or enter coordinates yourself.", true);
+    setLocationMessage("Location took too long. Search for your city or try again.", true);
   }, highAccuracy ? 30000 : 15000);
 
   try {
@@ -152,6 +155,8 @@ function useDeviceLocation({ highAccuracy = false } = {}) {
 
       // Do not silently reuse an earlier schedule under newly filled coordinates.
       invalidateChoices();
+      locationReady = false;
+      calculateButton.disabled = true;
       // Seven decimal places preserve centimeter-scale coordinate resolution;
       // the separately displayed device estimate communicates measurement error.
       form.elements.namedItem("latitude_degrees").value = latitude.toFixed(7);
@@ -164,21 +169,12 @@ function useDeviceLocation({ highAccuracy = false } = {}) {
       };
       setup.coordinatesChanged();
       preciseLocationButton.hidden = true;
-      const accuracyText = locationCapture.reportedAccuracyMeters === null
-        ? "The device did not provide an accuracy estimate."
-        : `The device estimates its accuracy radius at about ${Math.ceil(locationCapture.reportedAccuracyMeters)} m.`;
-      setLocationMessage(`Coordinates filled. ${accuracyText} The engine is checking its offline timezone map; review and confirm its suggestion.`);
+      setLocationMessage("Finding the time zone for your location…");
     }, error => {
       if (!finish()) return;
       const message = error.code === error.PERMISSION_DENIED
-        ? "Location permission is blocked. If you want to allow it, check this site's browser permission and your system Location Services setting. You can also enter coordinates yourself."
-        : error.code === error.POSITION_UNAVAILABLE
-          ? highAccuracy
-            ? "The more precise request also got no position. Check browser and system Location Services; your device may have no usable fix here. Try again later or enter coordinates yourself."
-            : "No position came from your browser or system location provider. Check Location Services for this browser and keep Wi-Fi on; some computers have no fix offline. You can try one more precise request or enter coordinates yourself."
-          : highAccuracy
-            ? "The more precise request timed out. Check your system location setting, try again later, or enter coordinates yourself."
-            : "No location fix arrived in time. Try near a window or outdoors, request a more precise fix once, or enter coordinates yourself.";
+        ? "Location permission is off. Search for your city or allow location in browser settings."
+        : "We couldn’t find your location. Search for your city or try again.";
       preciseLocationButton.hidden = error.code === error.PERMISSION_DENIED || highAccuracy;
       setLocationMessage(message, true);
   // Start with the efficient provider. The more demanding request is opt-in
@@ -191,7 +187,7 @@ function useDeviceLocation({ highAccuracy = false } = {}) {
   } catch {
     if (finish()) {
       preciseLocationButton.hidden = highAccuracy;
-      setLocationMessage("The browser could not start a location request. You can enter coordinates yourself.", true);
+      setLocationMessage("We couldn’t find your location. Search for your city or try again.", true);
     }
   }
 }
@@ -274,7 +270,7 @@ function render(schedule) {
   if (schedule.schema !== "salah-local-schedule-v1" || schedule.scope !== "research_preview") throw new Error("Unsupported schedule document.");
   clearResult();
   document.querySelector("#empty").hidden = true;
-  document.querySelector("#schedule-context").textContent = `${schedule.requested_local_date} · ${schedule.zone_id}`;
+  document.querySelector("#schedule-context").textContent = (locationCapture.cityName || schedule.zone_id) + " · " + schedule.requested_local_date;
   if (schedule.civil_date.status === "skipped") {
     notice.textContent = "This civil date was skipped under the selected timezone rules. No schedule has been substituted.";
     notice.hidden = false;
@@ -345,10 +341,10 @@ try {
       const options = data.inventory.zone_ids.map(id => { const option = node("option", id); option.value = id; return option; });
       form.elements.namedItem("zone_id").replaceChildren(zonePlaceholder, ...options);
       loaded = true;
-      calculateButton.disabled = false;
+      calculateButton.disabled = !locationReady;
       deviceLocationButton.disabled = locationRequestId !== 0;
       setup.engineReady();
-      engineState.textContent = `Rust engine ready · ${options.length} named zones · IANA ${data.inventory.rule_pack.tzdb_version}`;
+      engineState.textContent = "Prayer times are ready to calculate.";
     } else if (data?.kind === "setup_result") {
       const job = workerJobs.get(data.id);
       if (!job) return;
@@ -368,7 +364,7 @@ try {
       if (response.status !== "ok") return failure("The engine returned an unknown status.", true);
       try { render(response.schedule); } catch { return failure("This schedule could not be displayed safely. No replacement times were generated.", true); }
       lastSetupMetadata = pendingSetupMetadata;
-      engineState.textContent = "Calculated locally. Open any event to see why this time was returned.";
+      engineState.textContent = "Today’s estimated prayer times are ready.";
     }
   };
   worker.onerror = () => failure("The local engine could not start or stopped unexpectedly. Rebuild the web artifact and reload.", true);
@@ -404,34 +400,29 @@ form.addEventListener("submit", async event => {
 // Editing a setting invalidates the old display and any in-flight response.
 function invalidateChoices(event) {
   if (["latitude_degrees", "longitude_degrees"].includes(event?.target?.name)) {
+    locationReady = false;
+    calculateButton.disabled = true;
     preciseLocationButton.hidden = true;
     cancelLocationRequest("Your coordinates were edited. They are now treated as manually entered.");
     locationCapture = { source: "manual_coordinates", reportedAccuracyMeters: null };
-    setLocationMessage("Using manually entered coordinates. The engine suggests a timezone offline; please confirm it.");
+    setLocationMessage("Finding the time zone for these coordinates…");
   }
-  if (activeId !== null) { activeId = null; clearTimeout(watchdog); calculateButton.disabled = !loaded; calculateButton.removeAttribute("aria-busy"); }
+  if (activeId !== null) { activeId = null; clearTimeout(watchdog); calculateButton.disabled = !loaded || !locationReady; calculateButton.removeAttribute("aria-busy"); }
   clearResult();
-  document.querySelector("#example-note").hidden = true;
   if (loaded) engineState.textContent = "Settings changed. Calculate again to use these choices.";
 }
 form.addEventListener("input", invalidateChoices);
 form.addEventListener("change", invalidateChoices);
-form.elements.namedItem("method_id").addEventListener("change", explainMethod);
+document.querySelector('[name="method_id-choice"]').addEventListener("change", event => {
+  form.elements.namedItem("method_id").value = event.target.value;
+  explainMethod(); invalidateChoices();
+});
+document.querySelector('[name="asr-choice"]').addEventListener("change", event => {
+  form.elements.namedItem("asr").value = event.target.value;
+  invalidateChoices();
+});
 deviceLocationButton.addEventListener("click", () => useDeviceLocation());
 preciseLocationButton.addEventListener("click", () => useDeviceLocation({ highAccuracy: true }));
-
-document.querySelector("#example").addEventListener("click", () => {
-  if (activeId !== null) return;
-  cancelLocationRequest("Using the labeled example coordinates. Choose device location or enter your own coordinates when ready.");
-  preciseLocationButton.hidden = true;
-  locationCapture = { source: "example_coordinates", reportedAccuracyMeters: null };
-  clearResult();
-  for (const [key, value] of Object.entries({ latitude_degrees: "44.9778", longitude_degrees: "-93.2650", local_date: "2026-10-01", zone_id: "America/Chicago", method_id: "mwl-angles-18-17", asr: "hanafi" })) form.elements.namedItem(key).value = value;
-  setup.useExample();
-  explainMethod();
-  document.querySelector("#example-note").hidden = false;
-  setLocationMessage("Using the labeled Minneapolis example coordinates. Choose device location or enter your own coordinates for your location.");
-});
 
 document.querySelector("#download").addEventListener("click", () => {
   if (!lastDocument) return;
@@ -458,13 +449,18 @@ document.querySelector("#download-audit").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
-setupCitySearch(city => {
-  cancelLocationRequest("Using an approximate offline city point. Review the location and timezone.");
+const cityPicker = setupCitySearch(city => {
+  locationReady = false;
+  calculateButton.disabled = true;
+  cancelLocationRequest("Using your selected city.");
   invalidateChoices();
   form.elements.namedItem("latitude_degrees").value = city.latitude;
   form.elements.namedItem("longitude_degrees").value = city.longitude;
   locationCapture = { source: "offline_city", cityName: `${city.name}, ${city.country}`, geonamesId: city.id, reportedAccuracyMeters: null };
-  setup.coordinatesChanged();
-  setLocationMessage("Offline city coordinates filled. Check the timezone suggestion and confirm it before calculating.");
-  form.elements.namedItem("zone_id").focus();
+  setLocationMessage("Finding today’s time zone…");
+  setup.coordinatesChanged({ immediate: true });
+});
+
+document.querySelectorAll("[data-city][data-country]").forEach(button => {
+  button.addEventListener("click", () => cityPicker.choose(button.dataset.city, button.dataset.country));
 });
