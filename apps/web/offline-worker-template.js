@@ -36,7 +36,10 @@ async function fillCache() {
   for (const entry of manifest.entries) {
     const url = new URL(entry.path, ROOT);
     if (url.origin !== new URL(ROOT).origin) throw new Error("The offline package must stay on the same origin.");
-    const asset = await fetch(url.href, { cache: "no-store" });
+    // Pages redirects /index.html to /. Fetch the canonical root directly,
+    // then keep the verified bytes under the inventory's index.html cache key.
+    const servedUrl = entry.path === "index.html" ? new URL("./", ROOT) : url;
+    const asset = await fetch(servedUrl.href, { cache: "no-store" });
     if (!asset.ok || asset.redirected) throw new Error(`Could not load ${entry.path}.`);
     const bytes = await asset.clone().arrayBuffer();
     if (bytes.byteLength !== entry.bytes || await digest(bytes) !== entry.sha256) {
