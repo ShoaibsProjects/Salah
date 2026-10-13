@@ -88,7 +88,7 @@ def main():
         sources = [web / name for name in (
             "index.html", "style.css", "app.js", "setup.js", "worker.js", "offline.js",
             "offline-worker-template.js", "THIRD-PARTY.md", "brand-mark.svg", "salah-icon.png",
-            "learn.js", "learn.css", "guide-data.js", "quran-data.js", "cities.js", "cities-v1.json",
+            "learn.js", "learn.css", "guide-data.js", "quran-data.js", "cities.js", "cities-v1.json", "city-analytics.js",
         )]
         sources += sorted(path for path in output.rglob("*") if path.is_file()
                           and path.name != "offline-manifest.json")
